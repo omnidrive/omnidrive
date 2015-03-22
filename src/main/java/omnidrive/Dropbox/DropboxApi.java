@@ -1,19 +1,22 @@
 package omnidrive.Dropbox;
 
 import com.dropbox.core.*;
+import omnidrive.OmniBase.OmniApi;
+import omnidrive.OmniBase.OmniException;
+import omnidrive.OmniBase.OmniUser;
 
 import java.io.*;
 import java.util.Locale;
 
-/**
- * Created by assafey on 3/21/15.
- */
-public class DropboxApi {
 
+public class DropboxApi implements OmniApi {
+
+    // Dropbox App Keys
     private static final String AppKey = "zkbnr6hfxzqgxx2";
     private static final String AppSecret = "bznl1kw27j9mrk4";
 
-    public static DropboxUser login() throws DropboxException {
+
+    public OmniUser login() throws OmniException {
         DbxRequestConfig config = new DbxRequestConfig("omnidrive", Locale.getDefault().toString());
         String accessToken = authorize(config);
 

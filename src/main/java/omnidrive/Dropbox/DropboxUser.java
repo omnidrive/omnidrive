@@ -1,117 +1,155 @@
 package omnidrive.Dropbox;
 
 import com.dropbox.core.*;
+import omnidrive.OmniBase.OmniException;
+import omnidrive.OmniBase.OmniFile;
+import omnidrive.OmniBase.OmniFolder;
+import omnidrive.OmniBase.OmniUser;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.List;
-import java.util.ArrayList;
+import java.io.*;
 
-/**
- * Created by assafey on 3/21/15.
- */
-public class DropboxUser {
+
+public class DropboxUser implements OmniUser {
     private DbxClient client;
 
     public DropboxUser(DbxRequestConfig config, String accessToken) {
-        fetchUserInfo(config, accessToken);
+        this.client = new DbxClient(config, accessToken);
     }
 
     public String getName() {
-        String name = null;
+        String name;
 
         try {
             name = this.client.getAccountInfo().displayName;
         } catch (DbxException ex) {
-
+            name = null;
         }
 
         return name;
     }
 
     public String getCountry() {
-        String country = null;
+        String country;
 
         try {
             country = this.client.getAccountInfo().country;
         } catch (DbxException ex) {
-
+            country = null;
         }
 
         return country;
     }
 
     public String getId() {
-        String id = null;
+        String id;
 
         try {
             id = String.valueOf(this.client.getAccountInfo().userId);
         } catch (DbxException ex) {
-
+            id = null;
         }
 
         return id;
     }
 
-    public DropboxFile uploadFile(DropboxFolder folder, FileInputStream file, String filename) throws DropboxException {
-        DropboxFile newFile = null;
-        File inputFile = new File(filename);
+    public OmniFile uploadFile(String localSrcPath, String remoteDestPath) throws OmniException {
+        OmniFile file = null;
+        File inputFile = new File(localSrcPath);
         FileInputStream inputStream = null;
 
         try {
             inputStream = new FileInputStream(inputFile);
-            String path = folder.getPath() + "/" + filename;
-            DbxEntry.File dbxFile = this.client.uploadFile(path, DbxWriteMode.add(), inputFile.length(), inputStream);
-
-            newFile = new DropboxFile(dbxFile, this);
+            DbxEntry.File uploadedFile = this.client.uploadFile(remoteDestPath, DbxWriteMode.add(), inputFile.length(), inputStream);
+            if (uploadedFile != null) {
+                file = new DropboxFile(this.client.getMetadata(remoteDestPath), this);
+            }
         } catch (FileNotFoundException ex) {
-            throw new DropboxException(ex.getMessage());
-        } catch (IOException ex) {
-            throw new DropboxException(ex.getMessage());
+            throw new DropboxException("Input file not found..");
         } catch (DbxException ex) {
-            throw new DropboxException(ex.getMessage());
+            throw new DropboxException("Failed to get file metadata.");
+        } catch (IOException ex) {
+            throw new DropboxException("Failed to upload file.");
         } finally {
             if (inputStream != null) {
                 try {
                     inputStream.close();
-                } catch (IOException ex){
-                    throw new DropboxException(ex.getMessage());
+                } catch (IOException ex) {
+                    throw new DropboxException("Failed to close input stream.");
                 }
             }
         }
 
-        return newFile;
+        return file;
     }
 
-    public FileOutputStream downloadFile(DropboxFile file) throws DropboxException {
+    public FileOutputStream downloadFile(String remoteSrcPath, String localDestPath) throws OmniException {
         FileOutputStream outputStream = null;
 
         try {
-            outputStream = new FileOutputStream(file.getName());
-            this.client.getFile(file.getPath(), null, outputStream);
-        } catch (FileNotFoundException ex) {
-            throw new DropboxException(ex.getMessage());
+            this.client.getFile(localDestPath, null, outputStream);
         } catch (IOException ex) {
-            throw new DropboxException(ex.getMessage());
+            throw new DropboxException("Failed to download file.");
         } catch (DbxException ex) {
-            throw new DropboxException(ex.getMessage());
+            throw new DropboxException("Failed to access remote path.");
+        } finally {
+            try {
+                outputStream.close();
+            } catch (IOException ex) {
+                throw new DropboxException("Failed to close output stream.");
+            }
         }
 
         return outputStream;
     }
 
-    public List<DropboxFolder> getFolders() {
-        List<DropboxFolder> folders = new ArrayList<DropboxFolder>();
+    public OmniFolder createFolder(String remoteDestPath) throws OmniException {
+        OmniFolder folder = null;
 
-        // TODO - get user's folders list
+        try {
+            DbxEntry.Folder dbxFolder = this.client.createFolder(remoteDestPath);
+            if (dbxFolder != null) {
+                folder = new DropboxFolder(getEntryChildren(remoteDestPath), this);
+            }
+        } catch (DbxException ex) {
+            throw new DropboxException("Failed to create folder.");
+        }
 
-        return folders;
+        return folder;
     }
 
-    private void fetchUserInfo(DbxRequestConfig config, String accessToken) {
-        this.client = new DbxClient(config, accessToken);
+    public DropboxFile getFile(String remotePath) throws OmniException {
+        DropboxFile dbxFile = null;
+
+        try {
+            DbxEntry entry = this.client.getMetadata(remotePath);
+
+            if (entry == null) {
+                throw new DropboxException("Failed to get file info.");
+            } else if (!entry.isFile()) {
+                throw new DropboxException("Entry is not a file.");
+            } else {
+                dbxFile = new DropboxFile(entry.asFile(), this);
+            }
+        } catch (DbxException ex) {
+            throw new DropboxException(ex.getMessage());
+        }
+
+        return dbxFile;
+    }
+
+    public OmniFolder getFolder(String path) throws OmniException {
+        return new DropboxFolder(getEntryChildren(path), this);
+    }
+
+    public DbxEntry.WithChildren getEntryChildren(String path) throws DropboxException {
+        DbxEntry.WithChildren rootEntry = null;
+
+        try {
+            rootEntry = this.client.getMetadataWithChildren(path);
+        } catch (DbxException ex) {
+            throw new DropboxException(ex.getMessage());
+        }
+
+        return rootEntry;
     }
 }

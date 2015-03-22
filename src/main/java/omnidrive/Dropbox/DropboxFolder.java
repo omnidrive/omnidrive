@@ -1,48 +1,63 @@
 package omnidrive.Dropbox;
 
 import com.dropbox.core.DbxEntry;
+import omnidrive.OmniBase.OmniFile;
+import omnidrive.OmniBase.OmniFolder;
+import omnidrive.OmniBase.OmniUser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by assafey on 3/21/15.
- */
-public class DropboxFolder {
+
+public class DropboxFolder implements OmniFolder {
 
     private DropboxUser owner;
-    private DbxEntry.Folder folder;
-    private List<DropboxFile> files;
-    private long size;
+    private DbxEntry.WithChildren root;
+    private List<OmniFile> files = new ArrayList<OmniFile>();
+    private List<OmniFolder> folders = new ArrayList<OmniFolder>();
 
-    public DropboxFolder(DbxEntry.Folder folder, DropboxUser owner) {
+    public DropboxFolder(DbxEntry.WithChildren root, DropboxUser owner) throws DropboxException {
         this.owner = owner;
-        this.folder = folder;
-        this.files = getFiles();
-        this.size = calculateSize();
+
+        if (root == null) {
+            throw new DropboxException("Root is null.");
+        } else {
+            if (!root.entry.isFolder()) {
+                throw new DropboxException("Not a folder.");
+            } else {
+                this.root = root;
+                fetchEntries();
+            }
+        }
     }
 
-    private List<DropboxFile> getFiles() {
-        return new ArrayList<DropboxFile>(); // TODO - get folder's files
+    public List<OmniFile> getFiles() {
+        return this.files;
     }
 
-    private long calculateSize() {
-        return 0; // TODO - calculate size
+    public List<OmniFolder> getFolders() {
+        return this.folders;
     }
 
-    public DropboxUser getOwner() {
+    public OmniUser getOwner() {
         return this.owner;
     }
 
     public String getPath() {
-        return this.folder.path;
+        return this.root.entry.asFolder().path;
     }
 
     public String getName() {
-        return this.folder.name;
+        return this.root.entry.asFolder().name;
     }
 
-    public long getSize() {
-        return this.size;
+    private void fetchEntries() throws DropboxException {
+        for (DbxEntry entry : this.root.children) {
+            if (entry.isFile()) {
+                this.files.add(new DropboxFile(entry, this.owner));
+            } else if (entry.isFolder()) {
+                this.folders.add(new DropboxFolder(this.owner.getEntryChildren(entry.asFolder().path), this.owner));
+            }
+        }
     }
 }

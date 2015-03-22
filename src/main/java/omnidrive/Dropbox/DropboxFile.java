@@ -1,39 +1,42 @@
 package omnidrive.Dropbox;
 
 import com.dropbox.core.DbxEntry;
+import omnidrive.OmniBase.*;
 
 import java.util.Date;
 
-/**
- * Created by assafey on 3/21/15.
- */
-public class DropboxFile {
+public class DropboxFile implements OmniFile {
 
     private DropboxUser owner;
-    private DbxEntry.File file;
+    private DbxEntry entry;
 
-    public DropboxFile(DbxEntry.File file, DropboxUser owner) {
+    public DropboxFile(DbxEntry entry, DropboxUser owner) throws DropboxException {
         this.owner = owner;
-        this.file = file;
+
+        if (!entry.isFile()) {
+            throw new DropboxException("Not a file.");
+        } else {
+            this.entry = entry;
+        }
     }
 
-    public DropboxUser getOwner() {
+    public OmniUser getOwner() {
         return this.owner;
     }
 
     public String getPath() {
-        return this.file.path;
+        return this.entry.asFile().path;
     }
 
     public String getName() {
-        return this.file.name;
+        return this.entry.asFile().name;
     }
 
     public Date getLastModified() {
-        return this.file.lastModified;
+        return this.entry.asFile().lastModified;
     }
 
     public long getSize() {
-        return this.file.numBytes;
+        return this.entry.asFile().numBytes;
     }
 }
