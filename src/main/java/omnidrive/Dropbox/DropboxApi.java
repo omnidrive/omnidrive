@@ -45,6 +45,8 @@ public class DropboxApi implements OmniApi {
     private static String openAuthUrl(String authUrl) {
         String code = null;
 
+        // TODO - replace with GUI
+
         System.out.println("1. Go to: " + authUrl);
         System.out.println("2. Click \"Allow\" (you might have to log in first)");
         System.out.println("3. Copy the authorization code.");
