@@ -1,4 +1,19 @@
 package omnidrive.repository;
 
-public interface Blob extends Object {
+import java.io.File;
+
+public class Blob extends Object {
+
+    public Blob(File file) {
+
+    }
+
+    @Override
+    public Type getType() {
+        return Type.BLOB;
+    }
+
+    public byte[] getContents() {
+        return null;
+    }
 }

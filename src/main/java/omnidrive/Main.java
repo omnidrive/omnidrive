@@ -1,13 +1,55 @@
 package omnidrive;
 
+import com.sleepycat.je.*;
+import omnidrive.repository.*;
+import omnidrive.repository.Object;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) {
+        String root = "/home/amitayh/Videos";
+        walk(new File(root));
+    }
+
+    private static Object walk(File file) {
+        if (file.isDirectory()) {
+            List<Object> objects = new LinkedList<>();
+            File[] files = file.listFiles();
+            if (files != null) {
+                for (File child : files) {
+                    objects.add(walk(child));
+                }
+            }
+            return new Tree(objects);
+        } else {
+            return new Blob(file);
+        }
+    }
+
+    public static void main3(String[] args) throws Exception {
+
+        Environment myDbEnvironment = null;
+        Database myDatabase = null;
+
+        EnvironmentConfig envConfig = new EnvironmentConfig();
+        envConfig.setAllowCreate(true);
+        File envHome = new File("repo.db");
+        myDbEnvironment = new Environment(envHome, envConfig);
+
+        DatabaseConfig dbConfig = new DatabaseConfig();
+        dbConfig.setAllowCreate(true);
+        myDatabase = myDbEnvironment.openDatabase(null, "sampleDatabase", dbConfig);
+
+        System.out.println("OK");
+    }
+
+    public static void main2(String[] args) throws IOException, InterruptedException {
 
         final WatchService watcher = FileSystems.getDefault().newWatchService();
 
