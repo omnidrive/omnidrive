@@ -19,14 +19,16 @@ public class Main {
 
     private static Object walk(File file) {
         if (file.isDirectory()) {
-            List<Object> objects = new LinkedList<>();
+            List<Tree.Entry> entries = new LinkedList<>();
             File[] files = file.listFiles();
             if (files != null) {
                 for (File child : files) {
-                    objects.add(walk(child));
+                    Object obj = walk(child);
+                    Tree.Entry entry = new Tree.Entry(obj.getType(), obj.getHash(), child.getName());
+                    entries.add(entry);
                 }
             }
-            return new Tree(objects);
+            return new Tree(entries);
         } else {
             return new Blob(file);
         }

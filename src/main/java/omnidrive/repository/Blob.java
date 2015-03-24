@@ -2,7 +2,7 @@ package omnidrive.repository;
 
 import java.io.File;
 
-public class Blob extends Object {
+public class Blob implements Object {
 
     public Blob(File file) {
 
@@ -11,6 +11,11 @@ public class Blob extends Object {
     @Override
     public Type getType() {
         return Type.BLOB;
+    }
+
+    @Override
+    public Hash getHash() {
+        return null;
     }
 
     public byte[] getContents() {
