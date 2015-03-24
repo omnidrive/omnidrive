@@ -12,19 +12,19 @@ import java.util.List;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String root = "/home/amitayh/Videos";
         walk(new File(root));
     }
 
-    private static Object walk(File file) {
+    private static Object walk(File file) throws IOException {
         if (file.isDirectory()) {
-            List<Tree.Entry> entries = new LinkedList<>();
+            List<TreeEntry> entries = new LinkedList<>();
             File[] files = file.listFiles();
             if (files != null) {
                 for (File child : files) {
                     Object obj = walk(child);
-                    Tree.Entry entry = new Tree.Entry(obj.getType(), obj.getHash(), child.getName());
+                    TreeEntry entry = new TreeEntry(obj.getType(), obj.getHash(), child.getName());
                     entries.add(entry);
                 }
             }

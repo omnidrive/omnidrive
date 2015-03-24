@@ -1,5 +1,8 @@
 package omnidrive.repository;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 public interface Object {
 
     enum Type {TREE, BLOB}
@@ -7,5 +10,7 @@ public interface Object {
     Type getType();
 
     Hash getHash();
+
+    void write(OutputStream out) throws IOException;
 
 }

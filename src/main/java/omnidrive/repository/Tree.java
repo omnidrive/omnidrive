@@ -1,49 +1,27 @@
 package omnidrive.repository;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
-public class Tree implements Object {
+public class Tree implements Object, Iterable<TreeEntry> {
 
-    public static class Entry {
+    final private static char SEPARATOR = '\t';
 
-        final private static String SEPARATOR = "\t";
-
-        final public Object.Type type;
-
-        final public Hash hash;
-
-        final public String name;
-
-        public Entry(Object.Type type, Hash hash, String name) {
-            this.type = type;
-            this.hash = hash;
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return type.toString().toLowerCase() + SEPARATOR +
-                    hash.getValue() + SEPARATOR +
-                    name;
-        }
-
-    }
+    final private static char EOL = '\n';
 
     final private Hash hash;
 
-    final private String contents;
+    final private Iterable<TreeEntry> entries;
 
-    public Tree(List<Entry> entries) {
-        contents = getContents(entries);
-        hash = new Hash(contents);
-    }
-
-    private String getContents(List<Entry> entries) {
-        StringBuilder sb = new StringBuilder();
-        for (Entry entry : entries) {
-            sb.append(entry.toString());
-        }
-        return sb.toString();
+    public Tree(Iterable<TreeEntry> entries) {
+        this.entries = entries;
+        String buffer = getBuffer();
+        hash = Hash.of(buffer);
     }
 
     @Override
@@ -56,8 +34,37 @@ public class Tree implements Object {
         return hash;
     }
 
-    public String getContents() {
-        return contents;
+    @Override
+    public void write(OutputStream out) throws IOException {
+        String buffer = getBuffer();
+        int size = buffer.length();
+        out.write(getHeader(size));
+        out.write(buffer.getBytes());
+        out.close();
+    }
+
+    @Override
+    public Iterator<TreeEntry> iterator() {
+        return entries.iterator();
+    }
+
+    private byte[] getHeader(int size) {
+        String header = "tree " + size + '\0';
+        return header.getBytes();
+    }
+
+    private String getBuffer() {
+        List<String> transformed = new LinkedList<>();
+        for (TreeEntry entry : entries) {
+            transformed.add(getLine(entry));
+        }
+        return StringUtils.join(transformed, EOL);
+    }
+
+    private static String getLine(TreeEntry entry) {
+        return entry.type.toString().toLowerCase() + SEPARATOR +
+                entry.hash.getValue() + SEPARATOR +
+                entry.name;
     }
 
 }

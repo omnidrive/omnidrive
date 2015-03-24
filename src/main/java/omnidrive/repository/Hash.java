@@ -7,45 +7,71 @@ import java.util.Formatter;
 
 public class Hash {
 
+    final private static String ALGORITHM = "SHA1";
+
     private static MessageDigest md = null;
 
-    private String value;
+    final private String value;
 
     static {
         try {
-            md = MessageDigest.getInstance("SHA1");
-        } catch (NoSuchAlgorithmException ignored) {}
-        assert md != null;
+            md = MessageDigest.getInstance(ALGORITHM);
+        } catch (NoSuchAlgorithmException e) {}
     }
 
-    public Hash(String raw) {
-        md.reset();
-        md.update(raw.getBytes());
-        setValue();
-    }
-
-    public Hash(File file) throws IOException {
-        md.reset();
-        InputStream is = new BufferedInputStream(new FileInputStream(file));
-        byte[] buffer = new byte[1024];
-        for (int read; (read = is.read(buffer)) != -1;) {
-            md.update(buffer, 0, read);
-        }
-        setValue();
+    public Hash(String value) {
+        this.value = value;
     }
 
     public String getValue() {
         return value;
     }
 
-    private void setValue() {
+    @Override
+    public boolean equals(java.lang.Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Hash hash = (Hash) o;
+        return value.equals(hash.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+
+    public static Hash of(String value) {
+        synchronized (md) {
+            md.reset();
+            md.update(value.getBytes());
+            return new Hash(format());
+        }
+    }
+
+    public static Hash of(File file) throws IOException {
+        synchronized (md) {
+            md.reset();
+            InputStream is = new BufferedInputStream(new FileInputStream(file));
+            byte[] buffer = new byte[1024];
+            for (int read; (read = is.read(buffer)) != -1;) {
+                md.update(buffer, 0, read);
+            }
+            return new Hash(format());
+        }
+    }
+
+    private static String format() {
+        assert md != null;
+
         Formatter formatter = new Formatter();
         formatter.flush();
         for (byte b : md.digest()) {
             formatter.format("%02x", b);
         }
-        value = formatter.toString();
+        String result = formatter.toString();
         formatter.close();
+
+        return result;
     }
 
 }
