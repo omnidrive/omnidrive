@@ -56,7 +56,11 @@ public class DropboxFolder implements OmniFolder {
             if (entry.isFile()) {
                 this.files.add(new DropboxFile(entry, this.owner));
             } else if (entry.isFolder()) {
-                this.folders.add(new DropboxFolder(this.owner.getEntryChildren(entry.asFolder().path), this.owner));
+                DbxEntry.WithChildren entryWithChildren = this.owner.getEntryChildren(entry.asFolder().path);
+
+                if (entryWithChildren != null) {
+                    this.folders.add(new DropboxFolder(entryWithChildren, this.owner));
+                }
             }
         }
     }

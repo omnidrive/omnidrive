@@ -53,8 +53,13 @@ public class DropboxUser implements OmniUser {
     }
 
     public OmniFile uploadFile(String localSrcPath, String remoteDestPath) throws OmniException {
-        OmniFile file = null;
         File inputFile = new File(localSrcPath);
+
+        return uploadFile(inputFile, remoteDestPath);
+    }
+
+    public OmniFile uploadFile(File inputFile, String remoteDestPath) throws OmniException {
+        OmniFile file = null;
         FileInputStream inputStream = null;
 
         try {
@@ -86,7 +91,8 @@ public class DropboxUser implements OmniUser {
         FileOutputStream outputStream = null;
 
         try {
-            this.client.getFile(localDestPath, null, outputStream);
+            outputStream = new FileOutputStream(localDestPath);
+            this.client.getFile(remoteSrcPath, null, outputStream);
         } catch (IOException ex) {
             throw new DropboxException("Failed to download file.");
         } catch (DbxException ex) {
@@ -100,6 +106,10 @@ public class DropboxUser implements OmniUser {
         }
 
         return outputStream;
+    }
+
+    public FileOutputStream downloadFile(OmniFile file, String localDestPath) throws OmniException {
+        return downloadFile(file.getPath(), localDestPath);
     }
 
     public OmniFolder createFolder(String remoteDestPath) throws OmniException {

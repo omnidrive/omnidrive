@@ -1,5 +1,6 @@
 package omnidrive.OmniBase;
 
+import java.io.File;
 import java.io.FileOutputStream;
 
 public interface OmniUser {
@@ -16,7 +17,13 @@ public interface OmniUser {
     public OmniFile uploadFile(String localSrcPath, String remoteDestPath) throws OmniException;
 
 
+    public OmniFile uploadFile(File inputFile, String remoteDestPath) throws OmniException;
+
+
     public FileOutputStream downloadFile(String remoteSrcPath, String localDestPath) throws OmniException;
+
+
+    public FileOutputStream downloadFile(OmniFile file, String localDestPath) throws OmniException;
 
 
     public OmniFolder createFolder(String remoteDestPath) throws OmniException;

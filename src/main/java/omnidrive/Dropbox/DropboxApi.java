@@ -24,7 +24,7 @@ public class DropboxApi implements OmniApi {
     }
 
     private static String authorize(DbxRequestConfig config) throws DropboxException {
-        String accessToken = null;
+        String accessToken;
         DbxAppInfo dropboxAppInfo = new DbxAppInfo(AppKey, AppSecret);
         DbxWebAuthNoRedirect dropboxAuth = new DbxWebAuthNoRedirect(config, dropboxAppInfo);
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -43,7 +43,7 @@ public class DropboxApi implements OmniApi {
     }
 
     private static String openAuthUrl(String authUrl) {
-        String code = null;
+        String code;
 
         // TODO - replace with GUI
 
@@ -51,11 +51,14 @@ public class DropboxApi implements OmniApi {
         System.out.println("2. Click \"Allow\" (you might have to log in first)");
         System.out.println("3. Copy the authorization code.");
 
-        try {
+        /*try {
             code = new BufferedReader(new InputStreamReader(System.in)).readLine().trim();
         } catch (IOException ex) {
             System.out.println("Error: " + ex.getMessage());
-        }
+            code = null;
+        }*/
+
+        code = "-rySTYC5rUYAAAAAAAASAfivpnr5Xe6RN2jGY4vGvZU";
 
         return code;
     }
