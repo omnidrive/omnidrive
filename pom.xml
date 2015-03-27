@@ -28,6 +28,14 @@
             <version>1.10.8</version>
         </dependency>
 
+        <dependency>
+            <groupId>javafx</groupId>
+            <artifactId>jfxrt</artifactId>
+            <version>${java.version}</version>
+            <scope>system</scope>
+            <systemPath>${java.home}/lib/jfxrt.jar</systemPath>
+        </dependency>
+
     </dependencies>
 
 </project>
