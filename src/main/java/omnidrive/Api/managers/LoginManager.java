@@ -1,6 +1,6 @@
 package omnidrive.api.managers;
 
-import omnidrive.api.Dropbox.*;
+import omnidrive.api.dropbox.*;
 import omnidrive.api.base.*;
 import omnidrive.ui.login.LoginController;
 

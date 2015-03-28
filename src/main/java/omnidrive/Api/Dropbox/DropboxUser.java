@@ -1,4 +1,4 @@
-package omnidrive.api.Dropbox;
+package omnidrive.api.dropbox;
 
 import com.dropbox.core.*;
 import omnidrive.api.base.BaseException;

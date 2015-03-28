@@ -1,7 +1,7 @@
 package omnidrive.api.managers;
 
 import com.dropbox.core.DbxRequestConfig;
-import omnidrive.api.Dropbox.*;
+import omnidrive.api.dropbox.*;
 import omnidrive.api.base.*;
 
 public class AccountsManager {
