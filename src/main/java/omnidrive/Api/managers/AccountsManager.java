@@ -4,8 +4,6 @@ import com.dropbox.core.DbxRequestConfig;
 import omnidrive.api.Dropbox.*;
 import omnidrive.api.base.*;
 
-import java.util.List;
-
 public class AccountsManager {
 
     private static AccountsManager manager = null;

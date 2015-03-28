@@ -18,13 +18,13 @@ import java.util.Locale;
 public class DropboxApi implements BaseApi {
 
     // Dropbox App Keys
-    private static final String ApiName = "Dropbox";
-    private static final String AppKey = "zkbnr6hfxzqgxx2";
-    private static final String AppSecret = "bznl1kw27j9mrk4";
+    private static final String APP_NAME = "Dropbox";
+    private static final String APP_KEY = "zkbnr6hfxzqgxx2";
+    private static final String APP_SECRET = "bznl1kw27j9mrk4";
 
     private LoginManager loginManager;
 
-    private final DbxAppInfo appInfo = new DbxAppInfo(AppKey, AppSecret);
+    private final DbxAppInfo appInfo = new DbxAppInfo(APP_KEY, APP_SECRET);
     private final DbxRequestConfig config = new DbxRequestConfig("omnidrive", Locale.getDefault().toString());
 
     private DbxWebAuthNoRedirect auth;
@@ -47,7 +47,7 @@ public class DropboxApi implements BaseApi {
     }
 
     public String getName() {
-        return ApiName;
+        return APP_NAME;
     }
 
     private void authorize() throws DropboxException {

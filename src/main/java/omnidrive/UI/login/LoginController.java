@@ -3,7 +3,6 @@ package omnidrive.ui.login;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
@@ -12,7 +11,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
@@ -21,7 +19,6 @@ import omnidrive.api.managers.LoginManager;
 
 import omnidrive.ui.general.PopupView;
 
-import org.w3c.dom.*;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -59,7 +56,7 @@ public class LoginController implements Initializable {
     @FXML
     protected void onDropboxButtonClick() {
         try {
-            this.loginManager.dropboxLogin(this);
+            this.loginManager.dropboxLogin();
         } catch (BaseException ex) {
             PopupView.showError(new Point2D(this.loginPane.getLayoutX(), this.loginPane.getLayoutY()), ex.getMessage());
         }
@@ -84,6 +81,7 @@ public class LoginController implements Initializable {
         engine.load(authUrl);
         borderPane.setCenter(browser);
 
+        // listen to document load completed event
         engine.getLoadWorker().stateProperty().addListener(new ChangeListener<Worker.State>() {
             @Override
             public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState, Worker.State newState) {

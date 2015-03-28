@@ -6,7 +6,7 @@ import omnidrive.ui.login.LoginController;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Objects;
+
 
 public class LoginManager implements PropertyChangeListener {
 
@@ -25,7 +25,7 @@ public class LoginManager implements PropertyChangeListener {
         this.loginController = loginController;
     }
 
-    public void dropboxLogin(LoginController loginController) throws BaseException {
+    public void dropboxLogin() throws BaseException {
         this.dropbox.login(this);
     }
 

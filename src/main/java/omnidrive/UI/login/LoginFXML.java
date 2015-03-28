@@ -12,12 +12,12 @@ import java.net.URL;
 
 public class LoginFXML extends Application {
 
-    private LoginController loginController;
+    private static final String LOGIN_SCREEN_XML_PATH = "/LoginScreen.fxml";
 
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader();
-        URL url = getClass().getResource("/LoginScreen.fxml");
+        URL url = getClass().getResource(LOGIN_SCREEN_XML_PATH);
         fxmlLoader.setLocation(url);
 
         InputStream stream = fxmlLoader.getLocation().openStream();
@@ -25,9 +25,6 @@ public class LoginFXML extends Application {
         Scene scene = new Scene(root, 400, 600);
         stage.setResizable(false);
         stage.setScene(scene);
-
-        this.loginController = fxmlLoader.getController();
-
         stage.show();
     }
 
