@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
 
 import static org.junit.Assert.*;
@@ -26,7 +25,7 @@ public class TreeTest {
         entry1 = new TreeEntry(Object.Type.TREE, Hash.of("subtree"), "subtree");
         entry2 = new TreeEntry(Object.Type.BLOB, Hash.of("file1"), "file1.txt");
         entry3 = new TreeEntry(Object.Type.BLOB, Hash.of("file2"), "file2.txt");
-        tree = new Tree(Arrays.asList(entry1, entry2, entry3));
+        tree = new Tree(entry1, entry2, entry3);
     }
 
     @After

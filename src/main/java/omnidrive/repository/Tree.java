@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,6 +18,10 @@ public class Tree implements Object, Iterable<TreeEntry> {
     final private Hash hash;
 
     final private Iterable<TreeEntry> entries;
+
+    public Tree(TreeEntry... entries) {
+        this(Arrays.asList(entries));
+    }
 
     public Tree(Iterable<TreeEntry> entries) {
         this.entries = entries;

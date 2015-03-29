@@ -13,7 +13,8 @@ public class Blob implements Object {
 
     public Blob(File file) throws IOException {
         this.file = file;
-        hash = Hash.of(file);
+        hash = new Hash("");
+//        hash = Hash.of(file);
     }
 
     @Override
