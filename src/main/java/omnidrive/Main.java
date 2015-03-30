@@ -4,6 +4,7 @@ import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseConfig;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
+import omnidrive.watcher.Handler;
 import omnidrive.watcher.Watcher;
 
 import java.io.File;
@@ -58,7 +59,23 @@ public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         WatchService watchService = FileSystems.getDefault().newWatchService();
-        Watcher watcher = new Watcher(watchService);
+        Handler handler = new Handler() {
+            @Override
+            public void create(File file) {
+                System.out.println("Create: " + file);
+            }
+
+            @Override
+            public void modify(File file) {
+                System.out.println("Modify: " + file);
+            }
+
+            @Override
+            public void delete(File file) {
+                System.out.println("Delete: " + file);
+            }
+        };
+        Watcher watcher = new Watcher(watchService, handler);
 
         Path root = new File("/home/amitayh/Desktop").toPath();
         watcher.registerRecursive(root);

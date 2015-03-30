@@ -10,10 +10,15 @@ public class Watcher implements Runnable {
 
     final private WatchService watchService;
 
+    final private Handler handler;
+
     private boolean running = false;
 
-    public Watcher(WatchService watchService) {
+    private WatchKey watchKey;
+
+    public Watcher(WatchService watchService, Handler handler) {
         this.watchService = watchService;
+        this.handler = handler;
     }
 
     public void registerRecursive(Path root) throws IOException {
@@ -32,33 +37,43 @@ public class Watcher implements Runnable {
         running = true;
         try {
             while (running) {
-                WatchKey watchKey = watchService.take();
-
-                List<WatchEvent<?>> events = watchKey.pollEvents();
-                for (WatchEvent event : events) {
-                    Path watchedPath = (Path) watchKey.watchable();
-                    Path target = (Path) event.context();
-                    File file = new File(watchedPath.toString(), target.toString());
-                    if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
-                        if (file.isDirectory()) {
-                            System.out.println("Watching new dir");
-                            register(file.toPath());
-                        }
-                        System.out.println("Created: " + file);
-                    }
-                    if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
-                        System.out.println("Delete: " + file);
-                    }
-                    if (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
-                        System.out.println("Modify: " + file);
-                    }
-                }
-
-                watchKey.reset();
+                pollEvents();
             }
         } catch (Exception e) {
             running = false;
         }
+    }
+
+    private void pollEvents() throws InterruptedException, IOException {
+        watchKey = watchService.take();
+        List<WatchEvent<?>> events = watchKey.pollEvents();
+        for (WatchEvent event : events) {
+            handleEvent(event);
+        }
+        watchKey.reset();
+    }
+
+    private void handleEvent(WatchEvent event) throws IOException {
+        File file = getFile(event);
+        WatchEvent.Kind kind = event.kind();
+        if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
+            if (file.isDirectory()) {
+                register(file.toPath());
+            }
+            handler.create(file);
+        }
+        if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
+            handler.modify(file);
+        }
+        if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
+            handler.delete(file);
+        }
+    }
+
+    private File getFile(WatchEvent event) {
+        Path watchedPath = (Path) watchKey.watchable();
+        Path target = (Path) event.context();
+        return new File(watchedPath.toString(), target.toString());
     }
 
     private class Visitor extends SimpleFileVisitor<Path> {
