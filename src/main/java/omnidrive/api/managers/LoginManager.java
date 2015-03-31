@@ -36,7 +36,6 @@ public class LoginManager implements PropertyChangeListener {
         this.googleDrive.login(this);
     }
 
-    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         switch (getSourceType(evt.getSource())) {
             case Dropbox:
