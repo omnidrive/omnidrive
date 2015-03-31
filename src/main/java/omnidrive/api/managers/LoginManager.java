@@ -1,8 +1,10 @@
-package omnidrive.api.managers;
+package omnidrive.Api.managers;
 
-import omnidrive.api.dropbox.*;
-import omnidrive.api.base.*;
-import omnidrive.ui.login.LoginController;
+import com.google.api.services.drive.Drive;
+import omnidrive.Api.Dropbox.*;
+import omnidrive.Api.Base.*;
+import omnidrive.Api.googledrive.GoogleDriveApi;
+import omnidrive.UI.login.LoginController;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -13,6 +15,7 @@ public class LoginManager implements PropertyChangeListener {
     private static LoginManager manager = null;
 
     private final DropboxApi dropbox = new DropboxApi();
+    private final GoogleDriveApi googleDrive = new GoogleDriveApi();
 
     private LoginController loginController;
 
@@ -29,15 +32,20 @@ public class LoginManager implements PropertyChangeListener {
         this.dropbox.login(this);
     }
 
+    public void googleDriveLogin() throws BaseException {
+        this.googleDrive.login(this);
+    }
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        String accessToken = (String) evt.getNewValue();
-
         switch (getSourceType(evt.getSource())) {
             case Dropbox:
+                String accessToken = (String) evt.getNewValue();
                 registerDropboxUser(accessToken);
                 break;
             case GoogleDrive:
+                Drive service = (Drive)evt.getNewValue();
+                registerGoogleDriveUser(service);
                 break;
             case OneDrive:
                 break;
@@ -58,14 +66,18 @@ public class LoginManager implements PropertyChangeListener {
         AccountsManager.getAccountsManager().setDropboxUser(this.dropbox.getConfig(), accessToken);
     }
 
+    private void registerGoogleDriveUser(Drive service) {
+        AccountsManager.getAccountsManager().setGoogleDriveUser(service);
+    }
+
     private DriveType getSourceType(Object source) {
         DriveType type = null;
 
         if (source instanceof DropboxApi) {
             type = DriveType.Dropbox;
-        } /*else if (source instanceof GoogleDriveApi) {
+        } else if (source instanceof GoogleDriveApi) {
             type = DriveType.GoogleDrive;
-        } else if (source instanceof OneDriveApi) {
+        } /*else if (source instanceof OneDriveApi) {
             type = DriveType.OneDrive;
         }*/
 

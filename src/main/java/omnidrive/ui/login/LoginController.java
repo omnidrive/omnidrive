@@ -1,4 +1,4 @@
-package omnidrive.ui.login;
+package omnidrive.UI.login;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -14,10 +14,10 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
-import omnidrive.api.base.*;
-import omnidrive.api.managers.LoginManager;
+import omnidrive.Api.Base.*;
+import omnidrive.Api.managers.LoginManager;
 
-import omnidrive.ui.general.PopupView;
+import omnidrive.UI.general.PopupView;
 
 
 import java.net.URL;
@@ -58,18 +58,26 @@ public class LoginController implements Initializable {
         try {
             this.loginManager.dropboxLogin();
         } catch (BaseException ex) {
-            PopupView.showError(new Point2D(this.loginPane.getLayoutX(), this.loginPane.getLayoutY()), ex.getMessage());
+            showError(ex.getMessage());
         }
     }
 
     @FXML
     protected void onGoogleDriveButtonClick() {
-
+        try {
+            this.loginManager.googleDriveLogin();
+        } catch (BaseException ex) {
+            showError(ex.getMessage());
+        }
     }
 
     @FXML
     protected void onOneDriveButtonClick() {
 
+    }
+
+    private void showError(String message) {
+        PopupView.showError(new Point2D(this.loginPane.getLayoutX(), this.loginPane.getLayoutY()), message);
     }
 
     public void showLoginWebView(final BaseApi api, String authUrl) {
@@ -86,7 +94,11 @@ public class LoginController implements Initializable {
             @Override
             public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState, Worker.State newState) {
                 if (newState == Worker.State.SUCCEEDED) {
-                    api.authCompleted(engine);
+                    try {
+                        api.fetchAccessToken(engine);
+                    } catch (BaseException ex) {
+                        showError(ex.getMessage());
+                    }
                 }
             }
         });

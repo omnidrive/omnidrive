@@ -1,6 +1,6 @@
-package omnidrive.api.dropbox;
+package omnidrive.Api.Dropbox;
 
-import omnidrive.api.base.BaseException;
+import omnidrive.Api.Base.BaseException;
 
 public class DropboxException extends BaseException {
 

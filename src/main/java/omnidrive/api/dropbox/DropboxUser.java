@@ -1,10 +1,10 @@
-package omnidrive.api.dropbox;
+package omnidrive.Api.Dropbox;
 
 import com.dropbox.core.*;
-import omnidrive.api.base.BaseException;
-import omnidrive.api.base.BaseFile;
-import omnidrive.api.base.BaseFolder;
-import omnidrive.api.base.BaseUser;
+import omnidrive.Api.Base.BaseException;
+import omnidrive.Api.Base.BaseFile;
+import omnidrive.Api.Base.BaseFolder;
+import omnidrive.Api.Base.BaseUser;
 
 import java.io.*;
 
@@ -28,18 +28,6 @@ public class DropboxUser implements BaseUser {
         return name;
     }
 
-    public String getCountry() {
-        String country;
-
-        try {
-            country = this.client.getAccountInfo().country;
-        } catch (DbxException ex) {
-            country = null;
-        }
-
-        return country;
-    }
-
     public String getId() {
         String id;
 
@@ -54,11 +42,6 @@ public class DropboxUser implements BaseUser {
 
     public BaseFile uploadFile(String localSrcPath, String remoteDestPath) throws BaseException {
         File inputFile = new File(localSrcPath);
-
-        return uploadFile(inputFile, remoteDestPath);
-    }
-
-    public BaseFile uploadFile(File inputFile, String remoteDestPath) throws BaseException {
         BaseFile file = null;
         FileInputStream inputStream = null;
 
@@ -108,10 +91,6 @@ public class DropboxUser implements BaseUser {
         return outputStream;
     }
 
-    public FileOutputStream downloadFile(BaseFile file, String localDestPath) throws BaseException {
-        return downloadFile(file.getPath(), localDestPath);
-    }
-
     public BaseFolder createFolder(String remoteDestPath) throws BaseException {
         BaseFolder folder = null;
 
@@ -151,7 +130,7 @@ public class DropboxUser implements BaseUser {
         return new DropboxFolder(getEntryChildren(path), this);
     }
 
-    public DbxEntry.WithChildren getEntryChildren(String path) throws DropboxException {
+    private DbxEntry.WithChildren getEntryChildren(String path) throws DropboxException {
         DbxEntry.WithChildren rootEntry = null;
 
         try {

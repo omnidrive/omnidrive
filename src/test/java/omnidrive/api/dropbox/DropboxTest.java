@@ -58,7 +58,7 @@ public class DropboxTest {
 
         assertNotNull(dbxFile);
 
-        FileOutputStream outputFile = dbxUser.downloadFile(dbxFile, "/Users/assafey/Documents/config.xml");
+        FileOutputStream outputFile = dbxUser.downloadFile(dbxFile.getPath(), "/Users/assafey/Documents/config.xml");
 
         assertNotNull(outputFile);
     }
