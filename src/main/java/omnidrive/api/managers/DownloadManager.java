@@ -1,6 +1,6 @@
-package omnidrive.Api.managers;
+package omnidrive.api.managers;
 
-import omnidrive.Api.Base.BaseException;
+import omnidrive.api.base.BaseException;
 
 import java.io.FileOutputStream;
 

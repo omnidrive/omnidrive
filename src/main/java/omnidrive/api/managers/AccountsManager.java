@@ -1,10 +1,10 @@
-package omnidrive.Api.managers;
+package omnidrive.api.managers;
 
 import com.dropbox.core.DbxRequestConfig;
 import com.google.api.services.drive.Drive;
-import omnidrive.Api.Dropbox.*;
-import omnidrive.Api.Base.*;
-import omnidrive.Api.googledrive.GoogleDriveUser;
+import omnidrive.api.dropbox.*;
+import omnidrive.api.base.*;
+import omnidrive.api.googledrive.GoogleDriveUser;
 
 public class AccountsManager {
 

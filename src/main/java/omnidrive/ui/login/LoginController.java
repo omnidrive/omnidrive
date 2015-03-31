@@ -1,4 +1,4 @@
-package omnidrive.UI.login;
+package omnidrive.ui.login;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -14,10 +14,10 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
-import omnidrive.Api.Base.*;
-import omnidrive.Api.managers.LoginManager;
+import omnidrive.api.base.*;
+import omnidrive.api.managers.LoginManager;
 
-import omnidrive.UI.general.PopupView;
+import omnidrive.ui.general.PopupView;
 
 
 import java.net.URL;

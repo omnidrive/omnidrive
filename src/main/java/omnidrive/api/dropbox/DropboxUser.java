@@ -1,10 +1,10 @@
-package omnidrive.Api.Dropbox;
+package omnidrive.api.dropbox;
 
 import com.dropbox.core.*;
-import omnidrive.Api.Base.BaseException;
-import omnidrive.Api.Base.BaseFile;
-import omnidrive.Api.Base.BaseFolder;
-import omnidrive.Api.Base.BaseUser;
+import omnidrive.api.base.BaseException;
+import omnidrive.api.base.BaseFile;
+import omnidrive.api.base.BaseFolder;
+import omnidrive.api.base.BaseUser;
 
 import java.io.*;
 

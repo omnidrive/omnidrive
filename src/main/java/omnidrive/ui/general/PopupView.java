@@ -1,4 +1,4 @@
-package omnidrive.UI.general;
+package omnidrive.ui.general;
 
 import javafx.geometry.Point2D;
 

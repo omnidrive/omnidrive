@@ -1,10 +1,10 @@
-package omnidrive.Api.Dropbox;
+package omnidrive.api.dropbox;
 
 import com.dropbox.core.*;
 import javafx.scene.web.WebEngine;
-import omnidrive.Api.Base.BaseApi;
-import omnidrive.Api.Base.BaseException;
-import omnidrive.Api.managers.LoginManager;
+import omnidrive.api.base.BaseApi;
+import omnidrive.api.base.BaseException;
+import omnidrive.api.managers.LoginManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

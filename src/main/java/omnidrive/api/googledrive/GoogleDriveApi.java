@@ -1,4 +1,4 @@
-package omnidrive.Api.googledrive;
+package omnidrive.api.googledrive;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -10,9 +10,9 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import javafx.scene.web.WebEngine;
-import omnidrive.Api.Base.BaseApi;
-import omnidrive.Api.Base.BaseException;
-import omnidrive.Api.managers.LoginManager;
+import omnidrive.api.base.BaseApi;
+import omnidrive.api.base.BaseException;
+import omnidrive.api.managers.LoginManager;
 
 import java.beans.PropertyChangeListener;
 import java.io.IOException;

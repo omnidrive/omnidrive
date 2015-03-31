@@ -1,7 +1,7 @@
-package omnidrive.Api.googledrive;
+package omnidrive.api.googledrive;
 
-import omnidrive.Api.Base.BaseFile;
-import omnidrive.Api.Base.BaseUser;
+import omnidrive.api.base.BaseFile;
+import omnidrive.api.base.BaseUser;
 
 import java.util.Date;
 

@@ -1,10 +1,10 @@
-package omnidrive.Api.managers;
+package omnidrive.api.managers;
 
 import com.google.api.services.drive.Drive;
-import omnidrive.Api.Dropbox.*;
-import omnidrive.Api.Base.*;
-import omnidrive.Api.googledrive.GoogleDriveApi;
-import omnidrive.UI.login.LoginController;
+import omnidrive.api.dropbox.*;
+import omnidrive.api.base.*;
+import omnidrive.api.googledrive.GoogleDriveApi;
+import omnidrive.ui.login.LoginController;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

@@ -1,7 +1,7 @@
-package omnidrive.Api.Base;
+package omnidrive.api.base;
 
 import javafx.scene.web.WebEngine;
-import omnidrive.Api.managers.LoginManager;
+import omnidrive.api.managers.LoginManager;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

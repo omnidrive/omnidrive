@@ -1,4 +1,4 @@
-package omnidrive.Api.Base;
+package omnidrive.api.base;
 
 import java.util.List;
 

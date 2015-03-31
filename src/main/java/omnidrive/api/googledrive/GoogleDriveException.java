@@ -1,6 +1,6 @@
-package omnidrive.Api.googledrive;
+package omnidrive.api.googledrive;
 
-import omnidrive.Api.Base.BaseException;
+import omnidrive.api.base.BaseException;
 
 public class GoogleDriveException extends BaseException {
 

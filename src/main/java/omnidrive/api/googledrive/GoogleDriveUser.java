@@ -1,7 +1,7 @@
-package omnidrive.Api.googledrive;
+package omnidrive.api.googledrive;
 
 import com.google.api.services.drive.Drive;
-import omnidrive.Api.Base.*;
+import omnidrive.api.base.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
