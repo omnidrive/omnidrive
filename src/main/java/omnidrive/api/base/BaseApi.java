@@ -15,12 +15,12 @@ public abstract class BaseApi {
     protected final List<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
 
     private final String appName;
-    private final String appKey;
+    private final String appId;
     private final String appSecret;
 
-    public BaseApi(String appName, String appKey, String appSecret) {
+    public BaseApi(String appName, String appId, String appSecret) {
         this.appName = appName;
-        this.appKey = appKey;
+        this.appId = appId;
         this.appSecret = appSecret;
     }
 
@@ -34,16 +34,12 @@ public abstract class BaseApi {
         return this.appName;
     }
 
-    protected String getAppKey() {
-        return this.appKey;
+    protected String getAppId() {
+        return this.appId;
     }
 
     protected String getAppSecret() {
         return this.appSecret;
-    }
-
-    protected void openAuthUrl(String authUrl) {
-        this.loginManager.showLoginView(this, authUrl);
     }
 
     protected void notifyLoginListeners(Object property) {

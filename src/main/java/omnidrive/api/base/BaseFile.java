@@ -2,20 +2,27 @@ package omnidrive.api.base;
 
 import java.util.Date;
 
-public interface BaseFile {
+public abstract class BaseFile {
 
-    public String getName();
+    private final BaseUser owner;
+
+    public BaseFile(BaseUser owner) {
+        this.owner = owner;
+    }
+
+    public BaseUser getOwner() {
+        return this.owner;
+    }
+
+    public abstract String getName();
 
 
-    public String getPath();
+    public abstract String getPath();
 
 
-    public long getSize();
+    public abstract long getSize();
 
 
-    public Date getLastModified();
-
-
-    public BaseUser getOwner();
+    public abstract Date getLastModified();
 
 }

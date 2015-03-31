@@ -40,7 +40,7 @@ public class DropboxApi extends BaseApi {
 
         String authUrl = this.auth.start();
 
-        openAuthUrl(authUrl);
+        this.loginManager.showLoginView(this, authUrl);
     }
 
 

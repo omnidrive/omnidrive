@@ -1,6 +1,6 @@
 package omnidrive.api.dropbox;
 
-import omnidrive.api.base.BaseApi;
+import com.dropbox.core.DbxRequestConfig;
 import omnidrive.api.base.BaseFile;
 import omnidrive.api.base.BaseUser;
 
@@ -9,64 +9,45 @@ import org.junit.After;
 import org.junit.Before;
 
 import java.io.FileOutputStream;
+import java.net.URL;
+import java.util.Locale;
 
 import static org.junit.Assert.*;
 
 
 public class DropboxTest {
 
-    private static BaseApi dbxApi;
-    private static BaseUser dbxUser;
+    private static final String DbxAccessToken = "-rySTYC5rUYAAAAAAAASMYqQ3DAEEHcjDEyJl4q_qXH-8A6Md7gquyCChGh3o0iE";
+    private static final DbxRequestConfig DbxConfig = new DbxRequestConfig("omnidrive", Locale.getDefault().toString());
+
+    private BaseUser dbxUser;
 
     @Before
     public void setUp() {
-
+        this.dbxUser = new DropboxUser(DbxConfig, DbxAccessToken);
     }
 
     @After
     public void tearDown() {
-
-    }
-
-/*
-    // TODO - listing folder recursively is too long....
-    @Test
-    public void testFoldersList() throws Exception {
-        OmniFolder rootFolder = this.dbxUser.getFolder("/");
-
-        assertNotNull(rootFolder);
-
-        List<OmniFolder> folders = rootFolder.getFolders();
-
-        assertNotNull(folders);
-
-        final int MatchingFoldersInDrive = 3;
-        int numOfMatchingFolders = 0;
-
-        for (OmniFolder folder : folders) {
-            if (folder.getName().equals("Apps") || folder.getName().equals("personal") || folder.getName().equals("photos")) {
-                numOfMatchingFolders++;
-            }
-        }
-
-        assertEquals(numOfMatchingFolders, MatchingFoldersInDrive);
-    }
-*/
-    @Test
-    public void testFileDownload() throws Exception {
-        BaseFile dbxFile = dbxUser.getFile("/personal/config.xml");
-
-        assertNotNull(dbxFile);
-
-        FileOutputStream outputFile = dbxUser.downloadFile(dbxFile.getPath(), "/Users/assafey/Documents/config.xml");
-
-        assertNotNull(outputFile);
+        this.dbxUser = null;
     }
 
     @Test
-    public void testFileUpload() throws Exception {
-        BaseFile dbxUploadedFile = dbxUser.uploadFile("/Users/assafey/Downloads/omni_drive.xml", "/personal/omni_drive.xml");
+    public void testUploadFile() throws Exception {
+        URL url = this.getClass().getResource("/upload_test.txt");
 
-        assertNotNull(dbxUploadedFile);
+        BaseFile uploadedFile = this.dbxUser.uploadFile(url.getPath(), "/personal/upload_test.txt");
+
+        assertNotNull(uploadedFile);
+
+        assertEquals(uploadedFile.getPath(), "/personal/upload_test.txt");
+    }
+
+    @Test
+    public void testDownloadFile() throws Exception {
+        FileOutputStream downloadedFile = this.dbxUser.downloadFile("/personal/download_test.txt",
+                                                                        "/Users/assafey/Downloads/download_test.txt");
+
+        assertNotNull(downloadedFile);
     }
 }

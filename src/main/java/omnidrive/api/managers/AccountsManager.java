@@ -3,8 +3,7 @@ package omnidrive.api.managers;
 import com.dropbox.core.DbxRequestConfig;
 import com.google.api.services.drive.Drive;
 import omnidrive.api.dropbox.*;
-import omnidrive.api.base.*;
-import omnidrive.api.googledrive.GoogleDriveUser;
+import omnidrive.api.google.GoogleDriveUser;
 
 public class AccountsManager {
 
@@ -13,9 +12,6 @@ public class AccountsManager {
     private DropboxUser dropboxUser;
     private GoogleDriveUser googleDriveUser;
     //private OneDriveUser oneDriveUser;
-
-    private final UploadManager uploadManager = new UploadManager();
-    private final DownloadManager downloadManager = new DownloadManager();
 
     // singleton
     private AccountsManager() {
@@ -44,15 +40,6 @@ public class AccountsManager {
 
     public GoogleDriveUser getGoogleDriveUser() {
         return this.googleDriveUser;
-    }
-
-
-    public void uploadFile(String localFilePath) throws BaseException {
-        this.uploadManager.uploadFile(this, localFilePath);
-    }
-
-    public void downloadFile(String remoteFilePath) throws BaseException {
-        this.downloadManager.downloadFile(this, remoteFilePath);
     }
 
 }

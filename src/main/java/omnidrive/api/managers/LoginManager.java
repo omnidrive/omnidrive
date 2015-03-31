@@ -3,7 +3,7 @@ package omnidrive.api.managers;
 import com.google.api.services.drive.Drive;
 import omnidrive.api.dropbox.*;
 import omnidrive.api.base.*;
-import omnidrive.api.googledrive.GoogleDriveApi;
+import omnidrive.api.google.GoogleDriveApi;
 import omnidrive.ui.login.LoginController;
 
 import java.beans.PropertyChangeEvent;

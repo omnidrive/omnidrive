@@ -1,23 +1,15 @@
 package omnidrive.api.dropbox;
 
 import com.dropbox.core.DbxEntry;
-import omnidrive.api.base.BaseFile;
 import omnidrive.api.base.BaseFolder;
-import omnidrive.api.base.BaseUser;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
-public class DropboxFolder implements BaseFolder {
+public class DropboxFolder extends BaseFolder {
 
-    private DropboxUser owner;
-    private DbxEntry entry;
-    private List<BaseFile> files = new ArrayList<BaseFile>();
-    private List<BaseFolder> folders = new ArrayList<BaseFolder>();
+    private final DbxEntry entry;
 
     public DropboxFolder(DbxEntry.WithChildren entryWithChildren, DropboxUser owner) throws DropboxException {
-        this.owner = owner;
+        super(owner);
 
         if (entryWithChildren == null) {
             throw new DropboxException("Entry is null.");
@@ -30,27 +22,20 @@ public class DropboxFolder implements BaseFolder {
     }
 
     private DropboxFolder(DbxEntry entry, DropboxUser owner) throws DropboxException {
+        super(owner);
+
         if (entry == null) {
             throw new DropboxException("Entry is null.");
         } else if (!entry.isFolder()) {
             throw new DropboxException("Not a folder.");
         } else {
             this.entry = entry;
-            this.owner = owner;
         }
     }
 
-    public List<BaseFile> getFiles() {
-        return this.files;
-    }
-
-    public List<BaseFolder> getFolders() {
-        return this.folders;
-    }
-
-    public BaseUser getOwner() {
-        return this.owner;
-    }
+    /*****************************************************************
+     * Interface methods
+     *****************************************************************/
 
     public String getPath() {
         return this.entry.asFolder().path;
@@ -60,12 +45,17 @@ public class DropboxFolder implements BaseFolder {
         return this.entry.asFolder().name;
     }
 
+    /*****************************************************************
+     * Local methods
+     *****************************************************************/
+
     private void fetchEntries(DbxEntry.WithChildren entryWithChildren) throws DropboxException {
         for (DbxEntry entry : entryWithChildren.children) {
+            DropboxUser owner = (DropboxUser)getOwner();
             if (entry.isFile()) {
-                this.files.add(new DropboxFile(entry, this.owner));
+                this.files.add(new DropboxFile(entry, owner));
             } else if (entry.isFolder()) {
-                this.folders.add(new DropboxFolder(entry, this.owner));
+                this.folders.add(new DropboxFolder(entry, owner));
             }
         }
     }

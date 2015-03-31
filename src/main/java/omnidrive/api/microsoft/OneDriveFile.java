@@ -1,11 +1,14 @@
-package omnidrive.api.googledrive;
+package omnidrive.api.microsoft;
 
 import omnidrive.api.base.BaseFile;
-import omnidrive.api.base.BaseUser;
 
 import java.util.Date;
 
-public class GoogleDriveFile implements BaseFile {
+public class OneDriveFile extends BaseFile {
+
+    public OneDriveFile(OneDriveUser owner) {
+        super(owner);
+    }
 
     public String getName() {
         return null;
@@ -23,11 +26,6 @@ public class GoogleDriveFile implements BaseFile {
 
 
     public Date getLastModified() {
-        return null;
-    }
-
-
-    public BaseUser getOwner() {
         return null;
     }
 

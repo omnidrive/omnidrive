@@ -5,13 +5,12 @@ import omnidrive.api.base.*;
 
 import java.util.Date;
 
-public class DropboxFile implements BaseFile {
+public class DropboxFile extends BaseFile {
 
-    private DropboxUser owner;
-    private DbxEntry entry;
+    private final DbxEntry entry;
 
     public DropboxFile(DbxEntry entry, DropboxUser owner) throws DropboxException {
-        this.owner = owner;
+        super(owner);
 
         if (!entry.isFile()) {
             throw new DropboxException("Not a file.");
@@ -20,9 +19,9 @@ public class DropboxFile implements BaseFile {
         }
     }
 
-    public BaseUser getOwner() {
-        return this.owner;
-    }
+    /*****************************************************************
+     * Interface methods
+     *****************************************************************/
 
     public String getPath() {
         return this.entry.asFile().path;

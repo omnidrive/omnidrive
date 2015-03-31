@@ -90,7 +90,6 @@ public class LoginController implements Initializable {
 
         // listen to document load completed event
         engine.getLoadWorker().stateProperty().addListener(new ChangeListener<Worker.State>() {
-            @Override
             public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState, Worker.State newState) {
                 if (newState == Worker.State.SUCCEEDED) {
                     try {

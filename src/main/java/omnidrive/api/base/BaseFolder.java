@@ -1,21 +1,37 @@
 package omnidrive.api.base;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public interface BaseFolder {
+public abstract class BaseFolder {
 
-    public String getName();
+    private final BaseUser owner;
+
+    protected final List<BaseFile> files = new ArrayList<BaseFile>();
+    protected final List<BaseFolder> folders = new ArrayList<BaseFolder>();
+
+    public BaseFolder(BaseUser owner) {
+        this.owner = owner;
+    }
+
+    public abstract String getName();
 
 
-    public String getPath();
+    public abstract String getPath();
 
 
-    public BaseUser getOwner();
+    public BaseUser getOwner() {
+        return this.owner;
+    }
 
 
-    public List<BaseFolder> getFolders();
+    public List<BaseFolder> getFolders() {
+        return this.folders;
+    }
 
 
-    public List<BaseFile> getFiles();
+    public List<BaseFile> getFiles() {
+        return this.files;
+    }
 
 }

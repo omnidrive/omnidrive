@@ -16,6 +16,10 @@ public class DropboxUser implements BaseUser {
         this.client = new DbxClient(config, accessToken);
     }
 
+    /*****************************************************************
+     * Interface methods
+     *****************************************************************/
+
     public String getName() {
         String name;
 
@@ -129,6 +133,10 @@ public class DropboxUser implements BaseUser {
     public BaseFolder getFolder(String path) throws BaseException {
         return new DropboxFolder(getEntryChildren(path), this);
     }
+
+    /*****************************************************************
+     * Local methods
+     *****************************************************************/
 
     private DbxEntry.WithChildren getEntryChildren(String path) throws DropboxException {
         DbxEntry.WithChildren rootEntry = null;

@@ -4,24 +4,18 @@ import java.io.FileOutputStream;
 
 public interface BaseUser {
 
-    public String getName();
+    BaseFile uploadFile(String localSrcPath, String remoteDestPath) throws BaseException;
 
 
-    public String getId();
+    FileOutputStream downloadFile(String remoteSrcPath, String localDestPath) throws BaseException;
 
 
-    public BaseFile uploadFile(String localSrcPath, String remoteDestPath) throws BaseException;
+    BaseFolder createFolder(String remotePath) throws BaseException;
 
 
-    public FileOutputStream downloadFile(String remoteSrcPath, String localDestPath) throws BaseException;
+    BaseFile getFile(String remotePath) throws BaseException;
 
 
-    public BaseFolder createFolder(String remotePath) throws BaseException;
-
-
-    public BaseFile getFile(String remotePath) throws BaseException;
-
-
-    public BaseFolder getFolder(String remotePath) throws BaseException;
+    BaseFolder getFolder(String remotePath) throws BaseException;
 
 }

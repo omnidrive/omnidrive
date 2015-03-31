@@ -1,4 +1,4 @@
-package omnidrive.api.googledrive;
+package omnidrive.api.google;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -56,7 +56,7 @@ public class GoogleDriveApi extends BaseApi {
 
         String authUrl = this.auth.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
 
-        openAuthUrl(authUrl);
+        this.loginManager.showLoginView(this, authUrl);
     }
 
     public final void fetchAccessToken(WebEngine engine) throws BaseException {
