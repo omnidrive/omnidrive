@@ -1,10 +1,9 @@
-package omnidrive.api.Dropbox;
+package omnidrive.api.dropbox;
 
 import omnidrive.api.base.BaseApi;
 import omnidrive.api.base.BaseFile;
 import omnidrive.api.base.BaseUser;
 
-import omnidrive.api.managers.LoginManager;
 import org.junit.Test;
 import org.junit.After;
 import org.junit.Before;
