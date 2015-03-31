@@ -1,4 +1,4 @@
-package omnidrive.ui.login;
+package omnidrive.UI.login;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

@@ -1,9 +1,9 @@
-package omnidrive.api.dropbox;
+package omnidrive.Api.Dropbox;
 
 import com.dropbox.core.DbxEntry;
-import omnidrive.api.base.BaseFile;
-import omnidrive.api.base.BaseFolder;
-import omnidrive.api.base.BaseUser;
+import omnidrive.Api.Base.BaseFile;
+import omnidrive.Api.Base.BaseFolder;
+import omnidrive.Api.Base.BaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,22 +12,31 @@ import java.util.List;
 public class DropboxFolder implements BaseFolder {
 
     private DropboxUser owner;
-    private DbxEntry.WithChildren root;
+    private DbxEntry entry;
     private List<BaseFile> files = new ArrayList<BaseFile>();
     private List<BaseFolder> folders = new ArrayList<BaseFolder>();
 
-    public DropboxFolder(DbxEntry.WithChildren root, DropboxUser owner) throws DropboxException {
+    public DropboxFolder(DbxEntry.WithChildren entryWithChildren, DropboxUser owner) throws DropboxException {
         this.owner = owner;
 
-        if (root == null) {
-            throw new DropboxException("Root is null.");
+        if (entryWithChildren == null) {
+            throw new DropboxException("Entry is null.");
+        } else if (!entryWithChildren.entry.isFolder()) {
+            throw new DropboxException("Not a folder.");
         } else {
-            if (!root.entry.isFolder()) {
-                throw new DropboxException("Not a folder.");
-            } else {
-                this.root = root;
-                fetchEntries();
-            }
+            this.entry = entryWithChildren.entry;
+            fetchEntries(entryWithChildren);
+        }
+    }
+
+    private DropboxFolder(DbxEntry entry, DropboxUser owner) throws DropboxException {
+        if (entry == null) {
+            throw new DropboxException("Entry is null.");
+        } else if (!entry.isFolder()) {
+            throw new DropboxException("Not a folder.");
+        } else {
+            this.entry = entry;
+            this.owner = owner;
         }
     }
 
@@ -44,23 +53,19 @@ public class DropboxFolder implements BaseFolder {
     }
 
     public String getPath() {
-        return this.root.entry.asFolder().path;
+        return this.entry.asFolder().path;
     }
 
     public String getName() {
-        return this.root.entry.asFolder().name;
+        return this.entry.asFolder().name;
     }
 
-    private void fetchEntries() throws DropboxException {
-        for (DbxEntry entry : this.root.children) {
+    private void fetchEntries(DbxEntry.WithChildren entryWithChildren) throws DropboxException {
+        for (DbxEntry entry : entryWithChildren.children) {
             if (entry.isFile()) {
                 this.files.add(new DropboxFile(entry, this.owner));
             } else if (entry.isFolder()) {
-                DbxEntry.WithChildren entryWithChildren = this.owner.getEntryChildren(entry.asFolder().path);
-
-                if (entryWithChildren != null) {
-                    this.folders.add(new DropboxFolder(entryWithChildren, this.owner));
-                }
+                this.folders.add(new DropboxFolder(entry, this.owner));
             }
         }
     }

@@ -1,6 +1,6 @@
-package omnidrive.api.managers;
+package omnidrive.Api.managers;
 
-import omnidrive.api.base.*;
+import omnidrive.Api.Base.*;
 
 public class UploadManager {
 

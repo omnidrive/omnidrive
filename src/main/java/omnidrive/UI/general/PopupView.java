@@ -1,7 +1,6 @@
-package omnidrive.ui.general;
+package omnidrive.UI.general;
 
 import javafx.geometry.Point2D;
-import javafx.stage.Stage;
 
 public class PopupView {
     public static void showError(Point2D point, String message) {

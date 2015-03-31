@@ -1,4 +1,4 @@
-package omnidrive.api.base;
+package omnidrive.Api.Base;
 
 import java.util.Date;
 

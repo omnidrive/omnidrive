@@ -1,10 +1,9 @@
-package omnidrive.api.Dropbox;
+package omnidrive.Api.Dropbox;
 
-import omnidrive.api.base.BaseApi;
-import omnidrive.api.base.BaseFile;
-import omnidrive.api.base.BaseUser;
+import omnidrive.Api.Base.BaseApi;
+import omnidrive.Api.Base.BaseFile;
+import omnidrive.Api.Base.BaseUser;
 
-import omnidrive.api.managers.LoginManager;
 import org.junit.Test;
 import org.junit.After;
 import org.junit.Before;
@@ -59,7 +58,7 @@ public class DropboxTest {
 
         assertNotNull(dbxFile);
 
-        FileOutputStream outputFile = dbxUser.downloadFile(dbxFile, "/Users/assafey/Documents/config.xml");
+        FileOutputStream outputFile = dbxUser.downloadFile(dbxFile.getPath(), "/Users/assafey/Documents/config.xml");
 
         assertNotNull(outputFile);
     }

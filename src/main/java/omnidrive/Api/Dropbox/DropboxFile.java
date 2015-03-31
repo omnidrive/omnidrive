@@ -1,7 +1,7 @@
-package omnidrive.api.dropbox;
+package omnidrive.Api.Dropbox;
 
 import com.dropbox.core.DbxEntry;
-import omnidrive.api.base.*;
+import omnidrive.Api.Base.*;
 
 import java.util.Date;
 
