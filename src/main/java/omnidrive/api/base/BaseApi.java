@@ -1,6 +1,5 @@
 package omnidrive.api.base;
 
-import javafx.scene.web.WebEngine;
 import omnidrive.api.managers.LoginManager;
 
 import java.beans.PropertyChangeEvent;
@@ -8,7 +7,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BaseApi {
+public abstract class BaseApi implements Authorizer {
 
     protected LoginManager loginManager;
 
@@ -24,11 +23,19 @@ public abstract class BaseApi {
         this.appSecret = appSecret;
     }
 
-    public abstract void login(LoginManager loginManager) throws BaseException;
+    public void login(LoginManager loginManager) throws BaseException {
+        addListener(loginManager);
 
+        this.loginManager = loginManager;
 
-    public abstract void fetchAccessToken(WebEngine engine) throws BaseException;
+        String authUrl = authorize();
 
+        if (authUrl != null) {
+            this.loginManager.showLoginView(this, authUrl);
+        } else {
+            throw new BaseException("Auth url is empty.");
+        }
+    }
 
     public String getName() {
         return this.appName;

@@ -9,6 +9,12 @@ import java.io.FileOutputStream;
 
 public class OneDriveUser implements BaseUser {
 
+    private OneDriveAuthProperties properties;
+
+    public OneDriveUser(OneDriveAuthProperties properties) {
+        this.properties = properties;
+    }
+
     public BaseFile uploadFile(String localSrcPath, String remoteDestPath) throws BaseException {
         return null;
     }

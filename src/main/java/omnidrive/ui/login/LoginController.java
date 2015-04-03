@@ -3,30 +3,35 @@ package omnidrive.ui.login;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Point2D;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
 import omnidrive.api.base.*;
 import omnidrive.api.managers.LoginManager;
 
-import omnidrive.ui.general.PopupView;
-
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import omnidrive.ui.general.PopUpView;
+
 public class LoginController implements Initializable {
 
     private final Stage loginStage = new Stage();
+
     private final LoginManager loginManager = LoginManager.getLoginManager();
+
+    private final BorderPane borderPane = new BorderPane();
 
     @FXML
     private GridPane loginPane;
@@ -57,7 +62,7 @@ public class LoginController implements Initializable {
         try {
             this.loginManager.dropboxLogin();
         } catch (BaseException ex) {
-            showError(ex.getMessage());
+            this.loginManager.showError(ex.getMessage());
         }
     }
 
@@ -66,44 +71,47 @@ public class LoginController implements Initializable {
         try {
             this.loginManager.googleDriveLogin();
         } catch (BaseException ex) {
-            showError(ex.getMessage());
+            this.loginManager.showError(ex.getMessage());
         }
     }
 
     @FXML
     protected void onOneDriveButtonClick() {
-
-    }
-
-    private void showError(String message) {
-        PopupView.showError(new Point2D(this.loginPane.getLayoutX(), this.loginPane.getLayoutY()), message);
+        try {
+            this.loginManager.oneDriveLogin();
+        } catch (BaseException ex) {
+            this.loginManager.showError(ex.getMessage());
+        }
     }
 
     public void showLoginWebView(final BaseApi api, String authUrl) {
-        BorderPane borderPane = new BorderPane();
-
         final WebView browser = new WebView();
         final WebEngine engine = browser.getEngine();
 
         engine.load(authUrl);
-        borderPane.setCenter(browser);
+        this.borderPane.setCenter(browser);
+
+        final LoginManager manager = this.loginManager;
 
         // listen to document load completed event
         engine.getLoadWorker().stateProperty().addListener(new ChangeListener<Worker.State>() {
             public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState, Worker.State newState) {
-                if (newState == Worker.State.SUCCEEDED) {
+                String url = engine.getLocation();
+                if (newState == Worker.State.READY || newState == Worker.State.SUCCEEDED) {
                     try {
-                        api.fetchAccessToken(engine);
+                        api.fetchAuthCode(engine);
                     } catch (BaseException ex) {
-                        showError(ex.getMessage());
+                        manager.showError(ex.getMessage());
                     }
+                } else if (newState == Worker.State.FAILED) {
+                    manager.showError(engine.getLoadWorker().getException().getMessage());
                 }
             }
         });
 
         // create scene
         this.loginStage.setTitle(api.getName());
-        Scene scene = new Scene(borderPane, 750, 500);
+        Scene scene = new Scene(this.borderPane, 750, 500);
         this.loginStage.setScene(scene);
         this.loginStage.show();
     }

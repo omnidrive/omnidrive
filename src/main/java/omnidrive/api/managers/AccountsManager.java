@@ -1,9 +1,8 @@
 package omnidrive.api.managers;
 
-import com.dropbox.core.DbxRequestConfig;
-import com.google.api.services.drive.Drive;
-import omnidrive.api.dropbox.*;
+import omnidrive.api.dropbox.DropboxUser;
 import omnidrive.api.google.GoogleDriveUser;
+import omnidrive.api.microsoft.OneDriveUser;
 
 public class AccountsManager {
 
@@ -11,7 +10,7 @@ public class AccountsManager {
 
     private DropboxUser dropboxUser;
     private GoogleDriveUser googleDriveUser;
-    //private OneDriveUser oneDriveUser;
+    private OneDriveUser oneDriveUser;
 
     // singleton
     private AccountsManager() {
@@ -26,20 +25,27 @@ public class AccountsManager {
         return manager;
     }
 
-    public void setDropboxUser(DbxRequestConfig config, String accessToken) {
-        this.dropboxUser = new DropboxUser(config, accessToken);
+    public void setDropboxUser(DropboxUser user) {
+        this.dropboxUser = user;
     }
 
     public DropboxUser getDropboxUser() {
         return this.dropboxUser;
     }
 
-    public void setGoogleDriveUser(Drive service) {
-        this.googleDriveUser = new GoogleDriveUser(service);
+    public void setGoogleDriveUser(GoogleDriveUser user) {
+        this.googleDriveUser = user;
     }
 
     public GoogleDriveUser getGoogleDriveUser() {
         return this.googleDriveUser;
     }
 
+    public void setOneDriveUser(OneDriveUser user) {
+        this.oneDriveUser = user;
+    }
+
+    public OneDriveUser getOneDriveUser() {
+        return this.oneDriveUser;
+    }
 }

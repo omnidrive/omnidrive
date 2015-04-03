@@ -22,7 +22,7 @@ import java.util.List;
 
 public class GoogleDriveApi extends BaseApi {
 
-    private static final String APP_NAME = "Google Drive";
+    private static final String APP_NAME = "GoogleDrive";
     private static final String CLIENT_ID = "438388195219-sf38d0f4bbj4t9at3e9n72uup3cfsb8m.apps.googleusercontent.com";
     private static final String CLIENT_SECRET = "57T8iW2bKRFZJSiX69Dr4cQV";
     private static final String REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
@@ -49,17 +49,11 @@ public class GoogleDriveApi extends BaseApi {
      * Interface methods
      *****************************************************************/
 
-    public final void login(LoginManager loginManager) throws BaseException {
-        addListener(loginManager);
-
-        this.loginManager = loginManager;
-
-        String authUrl = this.auth.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
-
-        this.loginManager.showLoginView(this, authUrl);
+    public final String authorize() {
+        return this.auth.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
     }
 
-    public final void fetchAccessToken(WebEngine engine) throws BaseException {
+    public final void fetchAuthCode(WebEngine engine) throws BaseException {
         String code = null;
 
         String title = engine.getTitle();
@@ -74,17 +68,21 @@ public class GoogleDriveApi extends BaseApi {
         }
 
         if (code != null) {
-            try {
-                GoogleTokenResponse response = this.auth.newTokenRequest(code).setRedirectUri(REDIRECT_URI).execute();
-                GoogleCredential credential = new GoogleCredential().setFromTokenResponse(response);
+            finishAuthProcess(code);
+        }
+    }
 
-                //Create a new authorized API client
-                Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).build();
+    public final void finishAuthProcess(String code) throws BaseException {
+        try {
+            GoogleTokenResponse response = this.auth.newTokenRequest(code).setRedirectUri(REDIRECT_URI).execute();
+            GoogleCredential credential = new GoogleCredential().setFromTokenResponse(response);
 
-                notifyLoginListeners(service);
-            } catch (IOException ex) {
-                throw new GoogleDriveException("Failed to finish auth process.");
-            }
+            //Create a new authorized API client
+            Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).build();
+
+            notifyLoginListeners(new GoogleDriveUser(service));
+        } catch (IOException ex) {
+            throw new GoogleDriveException("Failed to finish auth process.");
         }
     }
 }

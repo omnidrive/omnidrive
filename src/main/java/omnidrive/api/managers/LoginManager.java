@@ -1,9 +1,14 @@
 package omnidrive.api.managers;
 
 import com.google.api.services.drive.Drive;
+import javafx.scene.control.Alert;
 import omnidrive.api.dropbox.*;
 import omnidrive.api.base.*;
 import omnidrive.api.google.GoogleDriveApi;
+import omnidrive.api.google.GoogleDriveUser;
+import omnidrive.api.microsoft.OneDriveApi;
+import omnidrive.api.microsoft.OneDriveUser;
+import omnidrive.ui.general.PopUpView;
 import omnidrive.ui.login.LoginController;
 
 import java.beans.PropertyChangeEvent;
@@ -16,6 +21,7 @@ public class LoginManager implements PropertyChangeListener {
 
     private final DropboxApi dropbox = new DropboxApi();
     private final GoogleDriveApi googleDrive = new GoogleDriveApi();
+    private final OneDriveApi oneDrive = new OneDriveApi();
 
     private LoginController loginController;
 
@@ -36,17 +42,22 @@ public class LoginManager implements PropertyChangeListener {
         this.googleDrive.login(this);
     }
 
+    public void oneDriveLogin() throws BaseException {
+        this.oneDrive.login(this);
+    }
+
     public void propertyChange(PropertyChangeEvent evt) {
+        BaseUser user = (BaseUser)evt.getNewValue();
+
         switch (getSourceType(evt.getSource())) {
             case Dropbox:
-                String accessToken = (String) evt.getNewValue();
-                registerDropboxUser(accessToken);
+                registerDropboxUser((DropboxUser)user);
                 break;
             case GoogleDrive:
-                Drive service = (Drive)evt.getNewValue();
-                registerGoogleDriveUser(service);
+                registerGoogleDriveUser((GoogleDriveUser)user);
                 break;
             case OneDrive:
+                registerOneDriveUser((OneDriveUser)user);
                 break;
         }
 
@@ -61,12 +72,16 @@ public class LoginManager implements PropertyChangeListener {
         }
     }
 
-    private void registerDropboxUser(String accessToken) {
-        AccountsManager.getAccountsManager().setDropboxUser(this.dropbox.getConfig(), accessToken);
+    private void registerDropboxUser(DropboxUser user) {
+        AccountsManager.getAccountsManager().setDropboxUser(user);
     }
 
-    private void registerGoogleDriveUser(Drive service) {
-        AccountsManager.getAccountsManager().setGoogleDriveUser(service);
+    private void registerGoogleDriveUser(GoogleDriveUser user) {
+        AccountsManager.getAccountsManager().setGoogleDriveUser(user);
+    }
+
+    private void registerOneDriveUser(OneDriveUser user) {
+        AccountsManager.getAccountsManager().setOneDriveUser(user);
     }
 
     private DriveType getSourceType(Object source) {
@@ -76,11 +91,16 @@ public class LoginManager implements PropertyChangeListener {
             type = DriveType.Dropbox;
         } else if (source instanceof GoogleDriveApi) {
             type = DriveType.GoogleDrive;
-        } /*else if (source instanceof OneDriveApi) {
+        } else if (source instanceof OneDriveApi) {
             type = DriveType.OneDrive;
-        }*/
+        }
 
         return type;
+    }
+
+    public void showError(String errorMessage) {
+        //PopUpView popup = new PopUpView(errorMessage, Alert.AlertType.ERROR);
+        //popup.show();
     }
 
     public static LoginManager getLoginManager() {

@@ -33,18 +33,11 @@ public class DropboxApi extends BaseApi {
      * Interface methods
      *****************************************************************/
 
-    public final void login(LoginManager loginManager) throws BaseException {
-        addListener(loginManager);
-
-        this.loginManager = loginManager;
-
-        String authUrl = this.auth.start();
-
-        this.loginManager.showLoginView(this, authUrl);
+    public final String authorize() {
+        return this.auth.start();
     }
 
-
-    public final void fetchAccessToken(WebEngine engine) throws BaseException {
+    public final void fetchAuthCode(WebEngine engine) throws BaseException {
         Document doc = engine.getDocument();
 
         if (doc != null) {
@@ -52,14 +45,18 @@ public class DropboxApi extends BaseApi {
             if (element != null) {
                 String code = element.getTextContent().trim();
                 if (code != null) {
-                    try {
-                        DbxAuthFinish authFinish = this.auth.finish(code);
-                        notifyLoginListeners(authFinish.accessToken);
-                    } catch (DbxException ex) {
-                        throw new DropboxException("Failed to finish auth process.");
-                    }
+                    finishAuthProcess(code);
                 }
             }
+        }
+    }
+
+    public final void finishAuthProcess(String code) throws BaseException {
+        try {
+            DbxAuthFinish authFinish = this.auth.finish(code);
+            notifyLoginListeners(new DropboxUser(this.config, authFinish.accessToken));
+        } catch (DbxException ex) {
+            throw new DropboxException("Failed to finish auth process.");
         }
     }
 
