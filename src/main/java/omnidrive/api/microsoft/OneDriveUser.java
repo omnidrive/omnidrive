@@ -15,7 +15,15 @@ public class OneDriveUser implements BaseUser {
         this.properties = properties;
     }
 
-    public BaseFile uploadFile(String localSrcPath, String remoteDestPath) throws BaseException {
+    public final String getName() throws BaseException {
+        return properties.getUserId();
+    }
+
+    public final String getId() throws BaseException {
+        return properties.getUserId();
+    }
+
+    public final BaseFile uploadFile(String localSrcPath, String remoteDestPath) throws BaseException {
         return null;
     }
 
