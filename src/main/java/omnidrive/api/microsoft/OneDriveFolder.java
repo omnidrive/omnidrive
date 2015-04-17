@@ -21,4 +21,8 @@ public class OneDriveFolder extends BaseFolder {
         return null;
     }
 
+    public String getId() {
+        return null;
+    }
+
 }

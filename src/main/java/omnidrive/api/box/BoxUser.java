@@ -44,7 +44,7 @@ public class BoxUser implements BaseUser {
             stream.close();
             file = new BoxFile(this, this.user.getAPI(), info);
         } catch (BoxAPIException ex) {
-            throw new BoxException("Failed to upload file: " + ex.getMessage());
+            throw new BoxException(ex.getResponseCode());
         } catch (IOException ex) {
             throw new BoxException("Failed to upload file");
         }

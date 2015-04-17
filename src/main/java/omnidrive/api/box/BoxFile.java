@@ -20,6 +20,10 @@ public class BoxFile extends BaseFile {
     }
 
     public final String getPath() {
+        return null;
+    }
+
+    public final String getId() {
         return this.file.getInfo().getID();
     }
 

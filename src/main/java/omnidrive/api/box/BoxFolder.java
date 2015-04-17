@@ -16,7 +16,11 @@ public class BoxFolder extends BaseFolder {
         return this.folder.getInfo().getName();
     }
 
-    public final String getPath() {
+    public final String getId() {
         return this.folder.getID();
+    }
+
+    public final String getPath() {
+        return null;
     }
 }

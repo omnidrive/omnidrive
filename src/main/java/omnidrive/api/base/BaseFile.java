@@ -19,6 +19,8 @@ public abstract class BaseFile {
 
     public abstract String getPath();
 
+    public abstract String getId();
+
 
     public abstract long getSize();
 

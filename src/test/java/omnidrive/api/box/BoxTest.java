@@ -41,7 +41,7 @@ public class BoxTest {
 
         assertNotNull(uploadedFile);
 
-        uploadFileId = uploadedFile.getPath();
+        uploadFileId = uploadedFile.getId();
     }
 
     @Test

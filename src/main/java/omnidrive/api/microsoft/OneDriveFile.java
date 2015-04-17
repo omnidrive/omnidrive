@@ -19,6 +19,9 @@ public class OneDriveFile extends BaseFile {
         return null;
     }
 
+    public String getId() {
+        return null;
+    }
 
     public long getSize() {
         return 0;
