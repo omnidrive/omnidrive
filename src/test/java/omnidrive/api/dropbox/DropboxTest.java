@@ -46,7 +46,7 @@ public class DropboxTest {
     @Test
     public void testDownloadFile() throws Exception {
         FileOutputStream downloadedFile = this.dbxUser.downloadFile("/personal/download_test.txt",
-                                                                        "/Users/assafey/Downloads/download_test.txt");
+                                                                        "/Users/assafey/Downloads/dropbox_download_test.txt");
 
         assertNotNull(downloadedFile);
     }

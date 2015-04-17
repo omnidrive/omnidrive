@@ -1,14 +1,13 @@
 package omnidrive.api.managers;
 
-import com.google.api.services.drive.Drive;
-import javafx.scene.control.Alert;
+import omnidrive.api.box.BoxApi;
+import omnidrive.api.box.BoxUser;
 import omnidrive.api.dropbox.*;
 import omnidrive.api.base.*;
 import omnidrive.api.google.GoogleDriveApi;
 import omnidrive.api.google.GoogleDriveUser;
 import omnidrive.api.microsoft.OneDriveApi;
 import omnidrive.api.microsoft.OneDriveUser;
-import omnidrive.ui.general.PopUpView;
 import omnidrive.ui.login.LoginController;
 
 import java.beans.PropertyChangeEvent;
@@ -20,6 +19,7 @@ public class LoginManager implements PropertyChangeListener {
     private static LoginManager manager = null;
 
     private final DropboxApi dropbox = new DropboxApi();
+    private final BoxApi box = new BoxApi();
     private final GoogleDriveApi googleDrive = new GoogleDriveApi();
     private final OneDriveApi oneDrive = new OneDriveApi();
 
@@ -46,6 +46,10 @@ public class LoginManager implements PropertyChangeListener {
         this.oneDrive.login(this);
     }
 
+    public void boxLogin() throws BaseException {
+        this.box.login(this);
+    }
+
     public void propertyChange(PropertyChangeEvent evt) {
         BaseUser user = (BaseUser)evt.getNewValue();
 
@@ -58,6 +62,9 @@ public class LoginManager implements PropertyChangeListener {
                 break;
             case OneDrive:
                 registerOneDriveUser((OneDriveUser)user);
+                break;
+            case Box:
+                registerBoxUser((BoxUser)user);
                 break;
         }
 
@@ -82,6 +89,10 @@ public class LoginManager implements PropertyChangeListener {
 
     private void registerOneDriveUser(OneDriveUser user) {
         AccountsManager.getAccountsManager().setOneDriveUser(user);
+    }
+
+    private void registerBoxUser(BoxUser user) {
+        AccountsManager.getAccountsManager().setBoxUser(user);
     }
 
     private DriveType getSourceType(Object source) {

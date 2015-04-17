@@ -3,5 +3,6 @@ package omnidrive.api.base;
 public enum DriveType {
     Dropbox,
     GoogleDrive,
-    OneDrive
+    OneDrive,
+    Box
 }

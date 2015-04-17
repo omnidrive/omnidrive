@@ -23,8 +23,6 @@ import omnidrive.api.managers.LoginManager;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import omnidrive.ui.general.PopUpView;
-
 public class LoginController implements Initializable {
 
     private final Stage loginStage = new Stage();
@@ -47,6 +45,9 @@ public class LoginController implements Initializable {
 
     @FXML
     private Button oneDriveButton;
+
+    @FXML
+    private Button boxButton;
 
 
     public LoginController() {
@@ -79,6 +80,15 @@ public class LoginController implements Initializable {
     protected void onOneDriveButtonClick() {
         try {
             this.loginManager.oneDriveLogin();
+        } catch (BaseException ex) {
+            this.loginManager.showError(ex.getMessage());
+        }
+    }
+
+    @FXML
+    protected void onBoxButtonClick() {
+        try {
+            this.loginManager.boxLogin();
         } catch (BaseException ex) {
             this.loginManager.showError(ex.getMessage());
         }

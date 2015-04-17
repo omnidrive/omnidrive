@@ -33,7 +33,7 @@ public class OneDriveUser implements BaseUser {
     }
 
 
-    public BaseFolder createFolder(String remotePath) throws BaseException {
+    public BaseFolder createFolder(String remoteParentPath, String folderName) throws BaseException {
         return null;
     }
 

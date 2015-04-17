@@ -63,19 +63,19 @@ public class GoogleDriveUser implements BaseUser {
         return new GoogleDriveFile(uploadedFile, this);
     }
 
-    public FileOutputStream downloadFile(String remoteSrcPath, String localDestPath) throws BaseException {
+    public FileOutputStream downloadFile(String remoteSrcId, String localDestPath) throws BaseException {
         return null;
     }
 
-    public BaseFolder createFolder(String remoteDestPath) throws BaseException {
+    public BaseFolder createFolder(String remoteParentPath, String folderName) throws BaseException {
         return null;
     }
 
-    public BaseFile getFile(String remotePath) throws BaseException {
+    public BaseFile getFile(String remoteId) throws BaseException {
         return null;
     }
 
-    public BaseFolder getFolder(String path) throws BaseException {
+    public BaseFolder getFolder(String remoteId) throws BaseException {
         return null;
     }
 
