@@ -60,6 +60,12 @@
             <version>1.9.15</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.box</groupId>
+            <artifactId>box-java-sdk</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
     </dependencies>
 
 </project>

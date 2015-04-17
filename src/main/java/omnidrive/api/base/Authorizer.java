@@ -9,4 +9,6 @@ public interface Authorizer {
     void fetchAuthCode(WebEngine engine) throws BaseException;
 
     void finishAuthProcess(String code) throws BaseException;
+
+    String getName();
 }

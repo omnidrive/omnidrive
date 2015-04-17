@@ -8,7 +8,6 @@ import omnidrive.api.google.GoogleDriveApi;
 import omnidrive.api.google.GoogleDriveUser;
 import omnidrive.api.microsoft.OneDriveApi;
 import omnidrive.api.microsoft.OneDriveUser;
-import omnidrive.ui.general.PopUpView;
 import omnidrive.ui.login.LoginController;
 
 import java.beans.PropertyChangeEvent;

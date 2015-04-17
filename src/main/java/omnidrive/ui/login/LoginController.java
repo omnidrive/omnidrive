@@ -23,8 +23,6 @@ import omnidrive.api.managers.LoginManager;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import omnidrive.ui.general.PopUpView;
-
 public class LoginController implements Initializable {
 
     private final Stage loginStage = new Stage();
@@ -84,7 +82,7 @@ public class LoginController implements Initializable {
         }
     }
 
-    public void showLoginWebView(final BaseApi api, String authUrl) {
+    public void showLoginWebView(final Authorizer auth, String authUrl) {
         final WebView browser = new WebView();
         final WebEngine engine = browser.getEngine();
 
@@ -96,10 +94,9 @@ public class LoginController implements Initializable {
         // listen to document load completed event
         engine.getLoadWorker().stateProperty().addListener(new ChangeListener<Worker.State>() {
             public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState, Worker.State newState) {
-                String url = engine.getLocation();
                 if (newState == Worker.State.READY || newState == Worker.State.SUCCEEDED) {
                     try {
-                        api.fetchAuthCode(engine);
+                        auth.fetchAuthCode(engine);
                     } catch (BaseException ex) {
                         manager.showError(ex.getMessage());
                     }
@@ -110,7 +107,7 @@ public class LoginController implements Initializable {
         });
 
         // create scene
-        this.loginStage.setTitle(api.getName());
+        this.loginStage.setTitle(auth.getName());
         Scene scene = new Scene(this.borderPane, 750, 500);
         this.loginStage.setScene(scene);
         this.loginStage.show();

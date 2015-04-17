@@ -37,7 +37,7 @@ public class GoogleDriveUser implements BaseUser {
         String id = null;
 
         try {
-            id = this.service.about().get().execute().getPermissionId();
+            id = this.service.about().get().execute().getUser().getPermissionId();
         } catch (IOException ex) {
             id = null;
         }

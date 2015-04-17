@@ -20,6 +20,12 @@ public class OneDriveAuthProperties {
     private String user_id;
 
 
+    private String name;
+
+
+    private OneDriveAuthError error;
+
+
     public String getTokenType() {
         return this.token_type;
     }
@@ -75,5 +81,31 @@ public class OneDriveAuthProperties {
 
     public void setUserId(String user_id) {
         this.user_id = user_id;
+    }
+
+    private void reset() {
+        this.token_type = null;
+        this.refresh_token = null;
+        this.access_token = null;
+        this.expires_in = 0;
+        this.user_id = null;
+        this.error = null;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void addError(OneDriveAuthError error) {
+        reset();
+        this.error = error;
+    }
+
+    public OneDriveAuthError getError() {
+        return this.error;
     }
 }
