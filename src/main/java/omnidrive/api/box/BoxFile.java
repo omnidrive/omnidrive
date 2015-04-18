@@ -8,7 +8,7 @@ import java.util.Date;
 
 public class BoxFile extends BaseFile {
 
-    com.box.sdk.BoxFile file;
+    private final com.box.sdk.BoxFile file;
 
     public BoxFile(BoxUser owner, BoxAPIConnection connection, com.box.sdk.BoxFile.Info info) {
         super(owner);

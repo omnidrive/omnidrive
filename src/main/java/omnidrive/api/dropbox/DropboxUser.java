@@ -10,7 +10,8 @@ import java.io.*;
 
 
 public class DropboxUser implements BaseUser {
-    private DbxClient client;
+
+    private final DbxClient client;
 
     public DropboxUser(DbxRequestConfig config, String accessToken) {
         this.client = new DbxClient(config, accessToken);

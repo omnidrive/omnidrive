@@ -31,14 +31,4 @@ public class GoogleDriveFolder extends BaseFolder {
     public final String getId() {
         return parent.getId();
     }
-
-
-    public final List<BaseFolder> getFolders() {
-        return null;
-    }
-
-
-    public final List<BaseFile> getFiles() {
-        return null;
-    }
 }

@@ -5,7 +5,7 @@ import omnidrive.api.base.BaseFolder;
 
 public class BoxFolder extends BaseFolder {
 
-    com.box.sdk.BoxFolder folder;
+    private final com.box.sdk.BoxFolder folder;
 
     public BoxFolder(BoxUser owner, BoxAPIConnection connection, com.box.sdk.BoxFolder.Info info) {
         super(owner);
