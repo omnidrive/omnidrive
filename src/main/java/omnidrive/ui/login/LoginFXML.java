@@ -26,7 +26,7 @@ public class LoginFXML extends Application {
 
         InputStream stream = fxmlLoader.getLocation().openStream();
         GridPane root = (GridPane)fxmlLoader.load(stream);
-        Scene scene = new Scene(root, 400, 700);
+        Scene scene = new Scene(root, 400, 600);
         stage.setResizable(false);
         stage.setScene(scene);
         stage.show();

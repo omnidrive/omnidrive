@@ -5,6 +5,7 @@ import omnidrive.api.base.BaseApi;
 
 import com.box.sdk.BoxAPIConnection;
 import omnidrive.api.base.BaseException;
+import omnidrive.api.base.DriveType;
 
 public class BoxApi extends BaseApi {
 
@@ -21,7 +22,7 @@ public class BoxApi extends BaseApi {
         super(APP_NAME, CLIENT_ID, CLIENT_SECRET);
     }
 
-    public String authorize() {
+    public final String authorize() {
         String baseUrl = "https://www.box.com/api/oauth2/authorize?";
         String clientId = "client_id=" + CLIENT_ID;
         String responseType = "&response_type=code";
@@ -30,7 +31,7 @@ public class BoxApi extends BaseApi {
         return baseUrl + clientId + responseType + redirectUri;
     }
 
-    public void fetchAuthCode(WebEngine engine) throws BaseException {
+    public final void fetchAuthCode(WebEngine engine) throws BaseException {
         String url = engine.getLocation();
         if (url.contains(REDIRECT_URI) && url.contains("code=")) {
             int codeStringIdx = url.indexOf("code=");
@@ -39,10 +40,10 @@ public class BoxApi extends BaseApi {
         }
     }
 
-    public void finishAuthProcess(String code) throws BaseException {
+    public final void finishAuthProcess(String code) throws BaseException {
         this.connection.authenticate(code);
         String id = com.box.sdk.BoxUser.getCurrentUser(this.connection).getID();
-        notifyLoginListeners(new BoxUser(this.connection, id));
+        notifyLoginListeners(DriveType.Box, new BoxUser(this.connection, id));
     }
 
 }

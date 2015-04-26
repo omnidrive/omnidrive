@@ -1,22 +1,21 @@
 package omnidrive.api.managers;
 
-import omnidrive.api.box.BoxUser;
-import omnidrive.api.dropbox.DropboxUser;
-import omnidrive.api.google.GoogleDriveUser;
-import omnidrive.api.microsoft.OneDriveUser;
+
+import omnidrive.api.base.BaseUser;
+import omnidrive.api.base.DriveType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AccountsManager {
 
     private static AccountsManager manager = null;
 
-    private DropboxUser dropboxUser;
-    private GoogleDriveUser googleDriveUser;
-    private OneDriveUser oneDriveUser;
-    private BoxUser boxUser;
+    private final List<BaseUser> loggedInUsers;
 
     // singleton
     private AccountsManager() {
-
+        this.loggedInUsers = new ArrayList<BaseUser>(DriveType.values().length);
     }
 
     public static AccountsManager getAccountsManager() {
@@ -27,35 +26,11 @@ public class AccountsManager {
         return manager;
     }
 
-    public void setDropboxUser(DropboxUser user) {
-        this.dropboxUser = user;
+    public void setLoggedInUser(DriveType type, BaseUser user) {
+        this.loggedInUsers.add(type.ordinal(), user);
     }
 
-    public DropboxUser getDropboxUser() {
-        return this.dropboxUser;
-    }
-
-    public void setGoogleDriveUser(GoogleDriveUser user) {
-        this.googleDriveUser = user;
-    }
-
-    public GoogleDriveUser getGoogleDriveUser() {
-        return this.googleDriveUser;
-    }
-
-    public void setOneDriveUser(OneDriveUser user) {
-        this.oneDriveUser = user;
-    }
-
-    public OneDriveUser getOneDriveUser() {
-        return this.oneDriveUser;
-    }
-
-    public void setBoxUser(BoxUser user) {
-        this.boxUser = user;
-    }
-
-    public BoxUser getBoxUser() {
-        return this.boxUser;
+    public BaseUser getLoggedInUser(DriveType type) {
+        return this.loggedInUsers.get(type.ordinal());
     }
 }

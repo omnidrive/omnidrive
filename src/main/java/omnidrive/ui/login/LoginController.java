@@ -3,7 +3,7 @@ package omnidrive.ui.login;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
-import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
@@ -12,13 +12,11 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
 import omnidrive.api.base.*;
 import omnidrive.api.managers.LoginManager;
-
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -44,9 +42,6 @@ public class LoginController implements Initializable {
     private Button googleDriveButton;
 
     @FXML
-    private Button oneDriveButton;
-
-    @FXML
     private Button boxButton;
 
 
@@ -59,46 +54,20 @@ public class LoginController implements Initializable {
     }
 
     @FXML
-    protected void onDropboxButtonClick() {
+    protected void onLoginButtonClick(ActionEvent evt) {
         try {
-            this.loginManager.dropboxLogin();
-        } catch (BaseException ex) {
+            if (evt.getSource() instanceof Button) {
+                Button loginButton = (Button)evt.getSource();
+                int typeIdx = Integer.parseInt(loginButton.getId());
+                DriveType type = DriveType.values()[typeIdx];
+                this.loginManager.login(type);
+            }
+        } catch (Exception ex) {
             this.loginManager.showError(ex.getMessage());
         }
     }
 
-    @FXML
-    protected void onGoogleDriveButtonClick() {
-        try {
-            this.loginManager.googleDriveLogin();
-        } catch (BaseException ex) {
-            this.loginManager.showError(ex.getMessage());
-        }
-    }
-
-    @FXML
-    protected void onOneDriveButtonClick() {
-        try {
-            this.loginManager.oneDriveLogin();
-        } catch (BaseException ex) {
-            this.loginManager.showError(ex.getMessage());
-        }
-    }
-
-<<<<<<< HEAD
     public void showLoginWebView(final Authorizer auth, String authUrl) {
-=======
-    @FXML
-    protected void onBoxButtonClick() {
-        try {
-            this.loginManager.boxLogin();
-        } catch (BaseException ex) {
-            this.loginManager.showError(ex.getMessage());
-        }
-    }
-
-    public void showLoginWebView(final BaseApi api, String authUrl) {
->>>>>>> assaf_box_api
         final WebView browser = new WebView();
         final WebEngine engine = browser.getEngine();
 

@@ -12,6 +12,7 @@ import com.google.api.services.drive.DriveScopes;
 import javafx.scene.web.WebEngine;
 import omnidrive.api.base.BaseApi;
 import omnidrive.api.base.BaseException;
+import omnidrive.api.base.DriveType;
 import omnidrive.api.managers.LoginManager;
 
 import java.beans.PropertyChangeListener;
@@ -80,7 +81,7 @@ public class GoogleDriveApi extends BaseApi {
             //Create a new authorized API client
             Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).build();
 
-            notifyLoginListeners(new GoogleDriveUser(service));
+            notifyLoginListeners(DriveType.GoogleDrive, new GoogleDriveUser(service));
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to finish auth process.");
         }

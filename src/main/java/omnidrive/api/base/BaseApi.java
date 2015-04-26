@@ -1,17 +1,11 @@
 package omnidrive.api.base;
 
-import omnidrive.api.managers.LoginManager;
-
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public abstract class BaseApi implements Authorizer {
 
-    protected LoginManager loginManager;
-
-    protected final List<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
+    protected final List<AuthListener> listeners = new LinkedList<AuthListener>();
 
     private final String appName;
     private final String appId;
@@ -23,18 +17,9 @@ public abstract class BaseApi implements Authorizer {
         this.appSecret = appSecret;
     }
 
-    public void login(LoginManager loginManager) throws BaseException {
-        addListener(loginManager);
-
-        this.loginManager = loginManager;
-
-        String authUrl = authorize();
-
-        if (authUrl != null) {
-            this.loginManager.showLoginView(this, authUrl);
-        } else {
-            throw new BaseException("Auth url is empty.");
-        }
+    public String login(AuthListener listener) throws BaseException {
+        addListener(listener);
+        return authorize();
     }
 
     public String getName() {
@@ -49,13 +34,13 @@ public abstract class BaseApi implements Authorizer {
         return this.appSecret;
     }
 
-    protected void notifyLoginListeners(Object property) {
-        for (PropertyChangeListener listener : this.listeners) {
-            listener.propertyChange(new PropertyChangeEvent(this, "login_succeed", null, property));
+    protected void notifyLoginListeners(DriveType type, BaseUser user) {
+        for (AuthListener listener : this.listeners) {
+            listener.register(type, user);
         }
     }
 
-    protected void addListener(PropertyChangeListener listener) {
+    protected void addListener(AuthListener listener) {
         if (!this.listeners.contains(listener)) {
             this.listeners.add(listener);
         }
