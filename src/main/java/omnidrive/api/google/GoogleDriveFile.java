@@ -21,28 +21,26 @@ public class GoogleDriveFile extends BaseFile {
      * Interface methods
      *****************************************************************/
 
-    public String getName() {
+    public final String getName() {
         return this.file.getTitle();
     }
 
 
-    public String getPath() {
+    public final String getPath() {
         return this.file.getTitle();
     }
 
+    public final String getId() {
+        return this.file.getId();
+    }
 
-    public long getSize() {
+    public final long getSize() {
         return this.file.getFileSize();
     }
 
 
-    public Date getLastModified() {
+    public final Date getLastModified() {
         return new Date(this.file.getModifiedDate().getValue());
-    }
-
-
-    public BaseUser getOwner() {
-        return null;
     }
 
 }

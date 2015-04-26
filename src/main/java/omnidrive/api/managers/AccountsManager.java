@@ -1,5 +1,6 @@
 package omnidrive.api.managers;
 
+import omnidrive.api.box.BoxUser;
 import omnidrive.api.dropbox.DropboxUser;
 import omnidrive.api.google.GoogleDriveUser;
 import omnidrive.api.microsoft.OneDriveUser;
@@ -11,6 +12,7 @@ public class AccountsManager {
     private DropboxUser dropboxUser;
     private GoogleDriveUser googleDriveUser;
     private OneDriveUser oneDriveUser;
+    private BoxUser boxUser;
 
     // singleton
     private AccountsManager() {
@@ -47,5 +49,13 @@ public class AccountsManager {
 
     public OneDriveUser getOneDriveUser() {
         return this.oneDriveUser;
+    }
+
+    public void setBoxUser(BoxUser user) {
+        this.boxUser = user;
+    }
+
+    public BoxUser getBoxUser() {
+        return this.boxUser;
     }
 }

@@ -37,11 +37,15 @@ public class DropboxFolder extends BaseFolder {
      * Interface methods
      *****************************************************************/
 
-    public String getPath() {
+    public final String getPath() {
         return this.entry.asFolder().path;
     }
 
-    public String getName() {
+    public final String getId() {
+        return null;
+    }
+
+    public final String getName() {
         return this.entry.asFolder().name;
     }
 

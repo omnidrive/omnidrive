@@ -6,6 +6,7 @@ import omnidrive.api.base.*;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.google.api.services.drive.model.File;
 
@@ -63,20 +64,54 @@ public class GoogleDriveUser implements BaseUser {
         return new GoogleDriveFile(uploadedFile, this);
     }
 
-    public FileOutputStream downloadFile(String remoteSrcPath, String localDestPath) throws BaseException {
+    public FileOutputStream downloadFile(String remoteSrcId, String localDestPath) throws BaseException {
+        FileOutputStream outStream = null;
+        try {
+            InputStream inputStream = this.service.files().get(remoteSrcId).executeAsInputStream();
+            outStream = new FileOutputStream(localDestPath);
+
+            while (inputStream.available() > 0) {
+                outStream.write(inputStream.read());
+            }
+
+            inputStream.close();
+            outStream.close();
+        } catch (IOException ex) {
+            throw new GoogleDriveException("Failed to insert file");
+        }
+
+        return outStream;
+    }
+
+    public BaseFolder createFolder(String remoteParentPath, String folderName) throws BaseException {
         return null;
     }
 
-    public BaseFolder createFolder(String remoteDestPath) throws BaseException {
-        return null;
+    public BaseFile getFile(String remoteId) throws BaseException {
+        GoogleDriveFile file = null;
+
+        try {
+            com.google.api.services.drive.model.File googleFile = this.service.files().get(remoteId).execute();
+            file = new GoogleDriveFile(googleFile, this);
+        } catch (IOException ex) {
+            throw new GoogleDriveException("Failed to get file info");
+        }
+
+        return file;
     }
 
-    public BaseFile getFile(String remotePath) throws BaseException {
-        return null;
-    }
+    public BaseFolder getFolder(String remoteId) throws BaseException {
+        GoogleDriveFolder folder = null;
 
-    public BaseFolder getFolder(String path) throws BaseException {
-        return null;
+        try {
+            // FIXME - not sure that 'null' is OK, needed file id.
+            com.google.api.services.drive.model.ParentReference parent = this.service.parents().get(null, remoteId).execute();
+            folder = new GoogleDriveFolder(parent, this);
+        } catch (IOException ex) {
+            throw new GoogleDriveException("Failed to get file info");
+        }
+
+        return folder;
     }
 
 }

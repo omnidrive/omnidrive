@@ -14,7 +14,7 @@ public interface BaseUser {
     FileOutputStream downloadFile(String remoteSrcPath, String localDestPath) throws BaseException;
 
 
-    BaseFolder createFolder(String remotePath) throws BaseException;
+    BaseFolder createFolder(String remoteParentPath, String folderName) throws BaseException;
 
 
     BaseFile getFile(String remotePath) throws BaseException;

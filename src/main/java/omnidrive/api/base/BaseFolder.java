@@ -20,6 +20,9 @@ public abstract class BaseFolder {
     public abstract String getPath();
 
 
+    public abstract String getId();
+
+
     public BaseUser getOwner() {
         return this.owner;
     }

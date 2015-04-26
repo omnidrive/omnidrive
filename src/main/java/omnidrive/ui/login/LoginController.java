@@ -46,6 +46,9 @@ public class LoginController implements Initializable {
     @FXML
     private Button oneDriveButton;
 
+    @FXML
+    private Button boxButton;
+
 
     public LoginController() {
 
@@ -82,7 +85,20 @@ public class LoginController implements Initializable {
         }
     }
 
+<<<<<<< HEAD
     public void showLoginWebView(final Authorizer auth, String authUrl) {
+=======
+    @FXML
+    protected void onBoxButtonClick() {
+        try {
+            this.loginManager.boxLogin();
+        } catch (BaseException ex) {
+            this.loginManager.showError(ex.getMessage());
+        }
+    }
+
+    public void showLoginWebView(final BaseApi api, String authUrl) {
+>>>>>>> assaf_box_api
         final WebView browser = new WebView();
         final WebEngine engine = browser.getEngine();
 

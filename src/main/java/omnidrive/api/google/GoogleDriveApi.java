@@ -34,7 +34,7 @@ public class GoogleDriveApi extends BaseApi {
     private final HttpTransport httpTransport = new NetHttpTransport();
     private final JsonFactory jsonFactory = new JacksonFactory();
 
-    private GoogleAuthorizationCodeFlow auth;
+    private final GoogleAuthorizationCodeFlow auth;
 
     public GoogleDriveApi() {
         super(APP_NAME, CLIENT_ID, CLIENT_SECRET);

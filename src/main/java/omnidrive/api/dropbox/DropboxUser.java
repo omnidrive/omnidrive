@@ -10,7 +10,8 @@ import java.io.*;
 
 
 public class DropboxUser implements BaseUser {
-    private DbxClient client;
+
+    private final DbxClient client;
 
     public DropboxUser(DbxRequestConfig config, String accessToken) {
         this.client = new DbxClient(config, accessToken);
@@ -95,13 +96,13 @@ public class DropboxUser implements BaseUser {
         return outputStream;
     }
 
-    public BaseFolder createFolder(String remoteDestPath) throws BaseException {
+    public BaseFolder createFolder(String remoteParentPath, String folderName) throws BaseException {
         BaseFolder folder = null;
 
         try {
-            DbxEntry.Folder dbxFolder = this.client.createFolder(remoteDestPath);
+            DbxEntry.Folder dbxFolder = this.client.createFolder(remoteParentPath + "/" + folderName);
             if (dbxFolder != null) {
-                folder = new DropboxFolder(getEntryChildren(remoteDestPath), this);
+                folder = new DropboxFolder(getEntryChildren(remoteParentPath + "/" + folderName), this);
             }
         } catch (DbxException ex) {
             throw new DropboxException("Failed to create folder.");
