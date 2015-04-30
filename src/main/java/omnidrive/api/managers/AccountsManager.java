@@ -1,21 +1,17 @@
 package omnidrive.api.managers;
 
-
 import omnidrive.api.base.BaseUser;
 import omnidrive.api.base.DriveType;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class AccountsManager {
 
     private static AccountsManager manager = null;
 
-    private final List<BaseUser> loggedInUsers;
+    private final BaseUser[] loggedInUsers = new BaseUser[DriveType.values().length];
 
     // singleton
     private AccountsManager() {
-        this.loggedInUsers = new ArrayList<BaseUser>(DriveType.values().length);
+
     }
 
     public static AccountsManager getAccountsManager() {
@@ -27,10 +23,10 @@ public class AccountsManager {
     }
 
     public void setLoggedInUser(DriveType type, BaseUser user) {
-        this.loggedInUsers.add(type.ordinal(), user);
+        this.loggedInUsers[type.ordinal()] = user;
     }
 
     public BaseUser getLoggedInUser(DriveType type) {
-        return this.loggedInUsers.get(type.ordinal());
+        return this.loggedInUsers[type.ordinal()];
     }
 }

@@ -22,4 +22,12 @@ public interface BaseUser {
 
     BaseFolder getFolder(String remotePath) throws BaseException;
 
+
+    BaseFolder getRootFolder() throws BaseException;
+
+
+    long getQuotaUsedSize() throws BaseException;
+
+
+    long getQuotaTotalSize() throws BaseException;
 }

@@ -1,11 +1,7 @@
 package omnidrive.api.managers;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import omnidrive.api.base.AuthListener;
 import omnidrive.api.base.BaseApi;
-import omnidrive.api.base.BaseException;
 import omnidrive.api.base.DriveType;
 import omnidrive.api.box.BoxApi;
 import omnidrive.api.dropbox.DropboxApi;
@@ -13,13 +9,11 @@ import omnidrive.api.google.GoogleDriveApi;
 
 public class ApiManager {
 
-    private final List<BaseApi> apis;
+    private final BaseApi[] apis = new BaseApi[DriveType.values().length];
 
     public ApiManager() {
-        this.apis = new ArrayList<BaseApi>(DriveType.values().length);
-
         for (DriveType type : DriveType.values()) {
-            apis.add(type.ordinal(), createApi(type));
+            apis[type.ordinal()] = createApi(type);
         }
     }
 
@@ -42,10 +36,16 @@ public class ApiManager {
     }
 
     public String login(DriveType type, AuthListener listener) throws Exception {
-        return this.apis.get(type.ordinal()).login(listener);
+        String authUrl = null;
+
+        if (this.apis[type.ordinal()] != null) {
+            authUrl = this.apis[type.ordinal()].login(listener);
+        }
+
+        return authUrl;
     }
 
     public BaseApi getApi(DriveType type) {
-        return this.apis.get(type.ordinal());
+        return this.apis[type.ordinal()];
     }
 }

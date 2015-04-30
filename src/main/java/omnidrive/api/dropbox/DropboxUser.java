@@ -135,6 +135,42 @@ public class DropboxUser implements BaseUser {
         return new DropboxFolder(getEntryChildren(path), this);
     }
 
+    public BaseFolder getRootFolder() throws BaseException {
+        DropboxFolder rootFolder = null;
+
+        try {
+            rootFolder = new DropboxFolder(this.client.getMetadataWithChildren("/"), this);
+        } catch (DbxException ex) {
+            throw new DropboxException("Failed to get root folder.");
+        }
+
+        return rootFolder;
+    }
+
+    public long getQuotaUsedSize() throws BaseException {
+        long usedQuota;
+
+        try {
+            usedQuota = this.client.getAccountInfo().quota.normal;
+        } catch (DbxException ex) {
+            throw new DropboxException("Failed to get quota used size.");
+        }
+
+        return usedQuota;
+    }
+
+    public long getQuotaTotalSize() throws BaseException {
+        long totalQuota;
+
+        try {
+            totalQuota = this.client.getAccountInfo().quota.total;
+        } catch (DbxException ex) {
+            throw new DropboxException("Failed to get quota total size.");
+        }
+
+        return totalQuota;
+    }
+
     /*****************************************************************
      * Local methods
      *****************************************************************/

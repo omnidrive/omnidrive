@@ -90,4 +90,18 @@ public class BoxUser implements BaseUser {
 
         return new BoxFolder(this, this.user.getAPI(), info);
     }
+
+    public BaseFolder getRootFolder() throws BaseException {
+        com.box.sdk.BoxFolder rootFolder = com.box.sdk.BoxFolder.getRootFolder(this.user.getAPI());
+
+        return new BoxFolder(this, this.user.getAPI(), rootFolder.getInfo());
+    }
+
+    public long getQuotaUsedSize() throws BaseException {
+        return this.user.getInfo().getSpaceUsed();
+    }
+
+    public long getQuotaTotalSize() throws BaseException {
+        return this.user.getInfo().getSpaceUsed();
+    }
 }

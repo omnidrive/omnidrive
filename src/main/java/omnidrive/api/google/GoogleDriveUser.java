@@ -2,6 +2,7 @@ package omnidrive.api.google;
 
 import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.ParentReference;
 import omnidrive.api.base.*;
 
 import java.io.FileOutputStream;
@@ -101,17 +102,44 @@ public class GoogleDriveUser implements BaseUser {
     }
 
     public BaseFolder getFolder(String remoteId) throws BaseException {
-        GoogleDriveFolder folder = null;
-
-        try {
-            // FIXME - not sure that 'null' is OK, needed file id.
-            com.google.api.services.drive.model.ParentReference parent = this.service.parents().get(null, remoteId).execute();
-            folder = new GoogleDriveFolder(parent, this);
-        } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to get file info");
-        }
-
-        return folder;
+        // TODO - get folder info
+        return null;
     }
 
+    public BaseFolder getRootFolder() throws BaseException {
+        GoogleDriveFolder rootFolder = null;
+
+        try {
+            String rootFolderId = this.service.about().get().execute().getRootFolderId();
+            rootFolder = new GoogleDriveFolder(rootFolderId, this);
+        } catch (IOException ex) {
+            throw new GoogleDriveException("Failed to get root folder.");
+        }
+
+        return rootFolder;
+    }
+
+    public long getQuotaUsedSize() throws BaseException {
+        long usedQuota;
+
+        try {
+            usedQuota = this.service.about().get().execute().getQuotaBytesUsed();
+        } catch (IOException ex) {
+            throw new GoogleDriveException("Failed to get quota used size.");
+        }
+
+        return usedQuota;
+    }
+
+    public long getQuotaTotalSize() throws BaseException {
+        long totalQuota;
+
+        try {
+            totalQuota = this.service.about().get().execute().getQuotaBytesTotal();
+        } catch (IOException ex) {
+            throw new GoogleDriveException("Failed to get quota total size.");
+        }
+
+        return totalQuota;
+    }
 }

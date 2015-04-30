@@ -27,8 +27,6 @@ public class LoginController implements Initializable {
 
     private final LoginManager loginManager = LoginManager.getLoginManager();
 
-    private final BorderPane borderPane = new BorderPane();
-
     @FXML
     private GridPane loginPane;
 
@@ -70,11 +68,13 @@ public class LoginController implements Initializable {
     public void showLoginWebView(final Authorizer auth, String authUrl) {
         final WebView browser = new WebView();
         final WebEngine engine = browser.getEngine();
+        final LoginManager manager = this.loginManager;
+
+        BorderPane authPane = new BorderPane();
 
         engine.load(authUrl);
-        this.borderPane.setCenter(browser);
 
-        final LoginManager manager = this.loginManager;
+        authPane.setCenter(browser);
 
         // listen to document load completed event
         engine.getLoadWorker().stateProperty().addListener(new ChangeListener<Worker.State>() {
@@ -93,9 +93,9 @@ public class LoginController implements Initializable {
 
         // create scene
         this.loginStage.setTitle(auth.getName());
-        Scene scene = new Scene(this.borderPane, 750, 500);
+        Scene scene = new Scene(authPane, 750, 500);
         this.loginStage.setScene(scene);
-        this.loginStage.show();
+        this.loginStage.showAndWait();
     }
 
     public void closeLoginWebView() {

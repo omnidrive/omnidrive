@@ -8,12 +8,12 @@ import java.util.List;
 
 public class GoogleDriveFolder extends BaseFolder {
 
-    private ParentReference parent;
+    private String folderId;
 
-    public GoogleDriveFolder(ParentReference parent, GoogleDriveUser owner) {
+    public GoogleDriveFolder(String folderId, GoogleDriveUser owner) {
         super(owner);
 
-        this.parent = parent;
+        this.folderId = folderId;
     }
 
     /*****************************************************************
@@ -21,7 +21,7 @@ public class GoogleDriveFolder extends BaseFolder {
      *****************************************************************/
 
     public final String getName() {
-        return parent.getId();
+        return null; // TODO - how the hell to get folder name??
     }
 
     public String getPath() {
@@ -29,6 +29,6 @@ public class GoogleDriveFolder extends BaseFolder {
     }
 
     public final String getId() {
-        return parent.getId();
+        return folderId;
     }
 }
