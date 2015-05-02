@@ -147,6 +147,32 @@ public class DropboxUser implements BaseUser {
         return rootFolder;
     }
 
+    public void removeFile(String remotePath) throws BaseException {
+        try {
+            DbxEntry entry = this.client.getMetadata(remotePath);
+            if (entry.isFile()) {
+                this.client.delete(remotePath);
+            } else {
+                throw new DropboxException("Not a file.");
+            }
+        } catch (DbxException ex) {
+            throw new DropboxException(ex.getMessage());
+        }
+    }
+
+    public void removeFolder(String remotePath) throws BaseException {
+        try {
+            DbxEntry entry = this.client.getMetadata(remotePath);
+            if (entry.isFolder()) {
+                this.client.delete(remotePath);
+            } else {
+                throw new DropboxException("Not a folder.");
+            }
+        } catch (DbxException ex) {
+            throw new DropboxException(ex.getMessage());
+        }
+    }
+
     public long getQuotaUsedSize() throws BaseException {
         long usedQuota;
 

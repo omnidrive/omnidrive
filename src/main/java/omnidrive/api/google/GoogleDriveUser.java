@@ -2,7 +2,6 @@ package omnidrive.api.google;
 
 import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.ParentReference;
 import omnidrive.api.base.*;
 
 import java.io.FileOutputStream;
@@ -24,7 +23,7 @@ public class GoogleDriveUser implements BaseUser {
      *****************************************************************/
 
     public String getName() {
-        String name = null;
+        String name;
 
         try {
             name = this.service.about().get().execute().getName();
@@ -36,7 +35,7 @@ public class GoogleDriveUser implements BaseUser {
     }
 
     public String getId() {
-        String id = null;
+        String id;
 
         try {
             id = this.service.about().get().execute().getUser().getPermissionId();
@@ -103,6 +102,7 @@ public class GoogleDriveUser implements BaseUser {
 
     public BaseFolder getFolder(String remoteId) throws BaseException {
         // TODO - get folder info
+        // you can only get parents of a file
         return null;
     }
 
@@ -117,6 +117,19 @@ public class GoogleDriveUser implements BaseUser {
         }
 
         return rootFolder;
+    }
+
+    public void removeFile(String remoteId) throws BaseException {
+        try {
+            this.service.files().delete(remoteId).execute();
+        } catch (IOException ex) {
+            throw new GoogleDriveException(ex.getMessage());
+        }
+    }
+
+    public void removeFolder(String remoteId) throws BaseException {
+        // TODO - remove parent
+        // you can only remove a parent from a specific file
     }
 
     public long getQuotaUsedSize() throws BaseException {

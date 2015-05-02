@@ -97,6 +97,26 @@ public class BoxUser implements BaseUser {
         return new BoxFolder(this, this.user.getAPI(), rootFolder.getInfo());
     }
 
+    public void removeFile(String remoteId) throws BaseException {
+        com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), remoteId);
+
+        try {
+            file.delete();
+        } catch (Exception ex) {
+            throw new BoxException(ex.getMessage());
+        }
+    }
+
+    public void removeFolder(String remoteId) throws BaseException {
+        com.box.sdk.BoxFolder folder = new com.box.sdk.BoxFolder(this.user.getAPI(), remoteId);
+
+        try {
+            folder.delete(true);
+        } catch (Exception ex) {
+            throw new BoxException(ex.getMessage());
+        }
+    }
+
     public long getQuotaUsedSize() throws BaseException {
         return this.user.getInfo().getSpaceUsed();
     }

@@ -6,7 +6,9 @@ public interface BaseUser {
 
     String getName() throws BaseException;
 
+
     String getId() throws BaseException;
+
 
     BaseFile uploadFile(String localSrcPath, String remoteDestPath) throws BaseException;
 
@@ -24,6 +26,12 @@ public interface BaseUser {
 
 
     BaseFolder getRootFolder() throws BaseException;
+
+
+    void removeFile(String remotePath) throws BaseException;
+
+
+    void removeFolder(String remotePath) throws BaseException;
 
 
     long getQuotaUsedSize() throws BaseException;
