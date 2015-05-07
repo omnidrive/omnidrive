@@ -1,19 +1,16 @@
 package omnidrive.api.google;
 
-import com.google.api.services.drive.model.ParentReference;
-import omnidrive.api.base.BaseFile;
+import com.google.api.services.drive.model.File;
 import omnidrive.api.base.BaseFolder;
-
-import java.util.List;
 
 public class GoogleDriveFolder extends BaseFolder {
 
-    private String folderId;
+    private File file; // In the Drive API, a folder is essentially a file [https://developers.google.com/drive/web/folder]
 
-    public GoogleDriveFolder(String folderId, GoogleDriveUser owner) {
+    public GoogleDriveFolder(File folder, GoogleDriveUser owner) {
         super(owner);
 
-        this.folderId = folderId;
+        this.file = folder;
     }
 
     /*****************************************************************
@@ -21,7 +18,7 @@ public class GoogleDriveFolder extends BaseFolder {
      *****************************************************************/
 
     public final String getName() {
-        return null; // TODO - how the hell to get folder name??
+        return this.file.getTitle();
     }
 
     public String getPath() {
@@ -29,6 +26,6 @@ public class GoogleDriveFolder extends BaseFolder {
     }
 
     public final String getId() {
-        return folderId;
+        return this.file.getId();
     }
 }

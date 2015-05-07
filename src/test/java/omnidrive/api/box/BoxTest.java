@@ -52,9 +52,4 @@ public class BoxTest {
 
         assertNotNull(downloadedFile);
     }
-
-    @Test
-    public void testCreateFolder() throws Exception {
-
-    }
 }

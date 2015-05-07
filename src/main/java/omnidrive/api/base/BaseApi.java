@@ -41,8 +41,10 @@ public abstract class BaseApi implements Authorizer {
     }
 
     protected void addListener(AuthListener listener) {
-        if (!this.listeners.contains(listener)) {
-            this.listeners.add(listener);
+        if (listener != null) {
+            if (!this.listeners.contains(listener)) {
+                this.listeners.add(listener);
+            }
         }
     }
 }

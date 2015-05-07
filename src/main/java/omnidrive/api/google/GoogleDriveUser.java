@@ -12,6 +12,12 @@ import com.google.api.services.drive.model.File;
 
 public class GoogleDriveUser implements BaseUser {
 
+    private static final String MimeTypeFile = "application/vnd.google-apps.file";
+    private static final String MimeTypeFolder = "application/vnd.google-apps.folder";
+
+    private static final String GoogleFileKind = "drive#file";
+    private static final String GoogleFolderKind = "drive#parentReference";
+
     private Drive service;
 
     public GoogleDriveUser(Drive service) {
@@ -52,7 +58,7 @@ public class GoogleDriveUser implements BaseUser {
         body.setTitle(remoteDestPath);
 
         java.io.File fileContent = new java.io.File(localSrcPath);
-        FileContent mediaContent = new FileContent(null, fileContent);
+        FileContent mediaContent = new FileContent(MimeTypeFile, fileContent);
 
         File uploadedFile = null;
         try {
@@ -84,7 +90,25 @@ public class GoogleDriveUser implements BaseUser {
     }
 
     public BaseFolder createFolder(String remoteParentPath, String folderName) throws BaseException {
-        return null;
+        GoogleDriveFolder folder = null;
+
+        File body = new File();
+        body.setTitle(folderName);
+        body.setMimeType(MimeTypeFolder);
+
+        // File's content.
+        java.io.File fileContent = new java.io.File(remoteParentPath);
+        FileContent mediaContent = new FileContent(MimeTypeFolder, fileContent);
+        try {
+            File gooleFolder = service.files().insert(body, mediaContent).execute();
+            if (gooleFolder.getKind() == GoogleFolderKind) {
+                folder = new GoogleDriveFolder(gooleFolder, this);
+            }
+        } catch (IOException ex) {
+            throw new GoogleDriveException(ex.getMessage());
+        }
+
+        return folder;
     }
 
     public BaseFile getFile(String remoteId) throws BaseException {
@@ -101,9 +125,20 @@ public class GoogleDriveUser implements BaseUser {
     }
 
     public BaseFolder getFolder(String remoteId) throws BaseException {
-        // TODO - get folder info
-        // you can only get parents of a file
-        return null;
+        GoogleDriveFolder folder = null;
+
+        try {
+            com.google.api.services.drive.model.File googleFolder = this.service.files().get(remoteId).execute();
+            if (googleFolder.getKind() == GoogleFolderKind) {
+                folder = new GoogleDriveFolder(googleFolder, this);
+            } else {
+                throw new GoogleDriveException("Not a folder");
+            }
+        } catch (IOException ex) {
+            throw new GoogleDriveException("Failed to get file info");
+        }
+
+        return folder;
     }
 
     public BaseFolder getRootFolder() throws BaseException {
@@ -111,7 +146,8 @@ public class GoogleDriveUser implements BaseUser {
 
         try {
             String rootFolderId = this.service.about().get().execute().getRootFolderId();
-            rootFolder = new GoogleDriveFolder(rootFolderId, this);
+            com.google.api.services.drive.model.File googleRootFolder = this.service.files().get(rootFolderId).execute();
+            rootFolder = new GoogleDriveFolder(googleRootFolder, this);
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to get root folder.");
         }
@@ -128,8 +164,7 @@ public class GoogleDriveUser implements BaseUser {
     }
 
     public void removeFolder(String remoteId) throws BaseException {
-        // TODO - remove parent
-        // you can only remove a parent from a specific file
+        removeFile(remoteId); // In the Drive API, a folder is essentially a file [https://developers.google.com/drive/web/folder]
     }
 
     public long getQuotaUsedSize() throws BaseException {

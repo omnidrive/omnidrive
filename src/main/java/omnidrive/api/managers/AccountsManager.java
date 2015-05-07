@@ -3,6 +3,9 @@ package omnidrive.api.managers;
 import omnidrive.api.base.BaseUser;
 import omnidrive.api.base.DriveType;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class AccountsManager {
 
     private static AccountsManager manager = null;
@@ -28,5 +31,17 @@ public class AccountsManager {
 
     public BaseUser getLoggedInUser(DriveType type) {
         return this.loggedInUsers[type.ordinal()];
+    }
+
+    public List<BaseUser> getLoggedInUsers() {
+        List<BaseUser> users = new LinkedList<BaseUser>();
+
+        for (BaseUser user : this.loggedInUsers) {
+            if (user != null) {
+                users.add(user);
+            }
+        }
+
+        return users;
     }
 }
