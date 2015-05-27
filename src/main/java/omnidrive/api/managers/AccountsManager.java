@@ -29,6 +29,12 @@ public class AccountsManager {
         this.loggedInUsers[type.ordinal()] = user;
     }
 
+    public void removeLoggedInUser(DriveType type) {
+        if (this.loggedInUsers[type.ordinal()] != null) {
+            this.loggedInUsers[type.ordinal()] = null;
+        }
+    }
+
     public BaseUser getLoggedInUser(DriveType type) {
         return this.loggedInUsers[type.ordinal()];
     }

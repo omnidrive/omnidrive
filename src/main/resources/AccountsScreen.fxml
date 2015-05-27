@@ -13,7 +13,7 @@
          <children>
             <ImageView fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@omnidrive_128.png" />
+                  <Image url="@omnidrive_icon.png" />
                </image>
                <HBox.margin>
                   <Insets left="20.0" top="20.0" />
@@ -40,7 +40,7 @@
                      <children>
                         <Button fx:id="addAccountButton" mnemonicParsing="false" onAction="#onAddAccountButtonClicked" prefHeight="25.0" prefWidth="25.0" style="-fx-background-radius: 0;" text="+" />
                         <Button fx:id="removeAccountButton" mnemonicParsing="false" onAction="#onRemoveAccountButtonClicked" prefHeight="25.0" prefWidth="25.0" style="-fx-background-radius: 0;" text="-" />
-                        <Pane prefHeight="25.0" prefWidth="129.0" style="-fx-border-color: #CCCCCC;" />
+                        <Pane prefHeight="25.0" prefWidth="129.0" style="-fx-border-color: #CCCCCC; -fx-background-color: #E0E0E0;" />
                      </children>
                   </HBox>
                   <ListView fx:id="accountsListView" layoutX="20.0" layoutY="-1.0" prefHeight="242.0" prefWidth="180.0" />

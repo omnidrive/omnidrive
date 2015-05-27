@@ -1,61 +1,64 @@
 package omnidrive.api.managers;
 
 import omnidrive.api.base.*;
-import omnidrive.ui.login.LoginController;
+import omnidrive.ui.general.LoginService;
 
 public class LoginManager implements AuthListener {
 
     private static LoginManager manager = null;
 
-    private LoginController loginController;
+    private LoginService loginService;
 
-    private final ApiManager apiManager = new ApiManager();
+    private final ApiManager apiManager;
 
     // singleton
     private LoginManager() {
-
+        this.apiManager = new ApiManager();
     }
 
-    public void login(DriveType type) {
+    public void login(DriveType type, LoginService service) {
+
+        this.loginService = service;
+
         try {
             String authUrl = this.apiManager.login(type, this);
             if (authUrl != null) {
                 BaseApi api = this.apiManager.getApi(type);
-                showLoginView(api, authUrl);
+                requestLogin(type, api, authUrl);
             } else {
-                showError("Failed to login.");
+                failure(type, "Failed to get auth url.");
             }
         } catch (Exception ex) {
-            showError(ex.getMessage());
+            failure(type, "Error occured: " + ex.getMessage());
         }
     }
 
-    public void setLoginController(LoginController loginController) {
-        this.loginController = loginController;
-    }
+    /*************************************************
+     * AuthListener
+     *************************************************/
 
-
-    public void register(DriveType type, BaseUser user) {
-        registerUser(type, user);
-
-        if (this.loginController != null) {
-            this.loginController.closeLoginWebView();
+    public void authenticated(DriveType type, BaseUser user) {
+        if (this.loginService != null) {
+            this.loginService.terminate(type, user);
         }
     }
 
-    public void showLoginView(final Authorizer auth, String authUrl) {
-        if (this.loginController != null) {
-            this.loginController.showLoginWebView(auth, authUrl);
+    public void failure(DriveType type, String error) {
+        if (this.loginService != null) {
+            this.loginService.report(type, error);
         }
     }
 
-    private void registerUser(DriveType type, BaseUser user) {
-        AccountsManager.getAccountsManager().setLoggedInUser(type, user);
+    /**************************************************/
+
+    public void remove(DriveType type) {
+        // TODO - remove drive account from user
     }
 
-    public void showError(String errorMessage) {
-        //PopUpView popup = new PopUpView(errorMessage, Alert.AlertType.ERROR);
-        //popup.show();
+    private void requestLogin(DriveType type, BaseApi api, String authUrl) {
+        if (this.loginService != null) {
+            this.loginService.connect(type, api, authUrl);
+        }
     }
 
     public static LoginManager getLoginManager() {

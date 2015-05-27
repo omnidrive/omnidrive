@@ -36,7 +36,7 @@ public abstract class BaseApi implements Authorizer {
 
     protected void notifyLoginListeners(DriveType type, BaseUser user) {
         for (AuthListener listener : this.listeners) {
-            listener.register(type, user);
+            listener.authenticated(type, user);
         }
     }
 
