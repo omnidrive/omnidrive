@@ -14,14 +14,14 @@ import omnidrive.api.base.BaseUser;
 import omnidrive.api.base.DriveType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.api.managers.LoginManager;
-import omnidrive.ui.general.LoginService;
+import omnidrive.api.auth.AuthService;
 import omnidrive.ui.general.LoginView;
 import omnidrive.ui.general.PopupView;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class AccountsController implements Initializable, LoginService {
+public class AccountsController implements Initializable, AuthService {
 
     private static final int NUM_OF_ACCOUNTS = DriveType.values().length;
     private static final int CLOUD_ICON_SIZE = 80;

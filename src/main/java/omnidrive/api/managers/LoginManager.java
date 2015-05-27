@@ -1,13 +1,14 @@
 package omnidrive.api.managers;
 
+import omnidrive.api.auth.AuthListener;
 import omnidrive.api.base.*;
-import omnidrive.ui.general.LoginService;
+import omnidrive.api.auth.AuthService;
 
 public class LoginManager implements AuthListener {
 
     private static LoginManager manager = null;
 
-    private LoginService loginService;
+    private AuthService authService;
 
     private final ApiManager apiManager;
 
@@ -16,9 +17,9 @@ public class LoginManager implements AuthListener {
         this.apiManager = new ApiManager();
     }
 
-    public void login(DriveType type, LoginService service) {
+    public void login(DriveType type, AuthService service) {
 
-        this.loginService = service;
+        this.authService = service;
 
         try {
             String authUrl = this.apiManager.login(type, this);
@@ -38,14 +39,14 @@ public class LoginManager implements AuthListener {
      *************************************************/
 
     public void authenticated(DriveType type, BaseUser user) {
-        if (this.loginService != null) {
-            this.loginService.terminate(type, user);
+        if (this.authService != null) {
+            this.authService.terminate(type, user);
         }
     }
 
     public void failure(DriveType type, String error) {
-        if (this.loginService != null) {
-            this.loginService.report(type, error);
+        if (this.authService != null) {
+            this.authService.report(type, error);
         }
     }
 
@@ -56,8 +57,8 @@ public class LoginManager implements AuthListener {
     }
 
     private void requestLogin(DriveType type, BaseApi api, String authUrl) {
-        if (this.loginService != null) {
-            this.loginService.connect(type, api, authUrl);
+        if (this.authService != null) {
+            this.authService.connect(type, api, authUrl);
         }
     }
 

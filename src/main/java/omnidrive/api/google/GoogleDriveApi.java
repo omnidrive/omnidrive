@@ -81,7 +81,7 @@ public class GoogleDriveApi extends BaseApi {
             //Create a new authorized API client
             Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).build();
 
-            notifyLoginListeners(DriveType.GoogleDrive, new GoogleDriveUser(service));
+            notifyAll(DriveType.GoogleDrive, new GoogleDriveUser(service));
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to finish auth process.");
         }

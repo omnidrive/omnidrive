@@ -43,7 +43,7 @@ public class BoxApi extends BaseApi {
     public final void finishAuthProcess(String code) throws BaseException {
         this.connection.authenticate(code);
         String id = com.box.sdk.BoxUser.getCurrentUser(this.connection).getID();
-        notifyLoginListeners(DriveType.Box, new BoxUser(this.connection, id));
+        notifyAll(DriveType.Box, new BoxUser(this.connection, id));
     }
 
 }

@@ -55,7 +55,7 @@ public class DropboxApi extends BaseApi {
     public final void finishAuthProcess(String code) throws BaseException {
         try {
             DbxAuthFinish authFinish = this.auth.finish(code);
-            notifyLoginListeners(DriveType.Dropbox, new DropboxUser(this.config, authFinish.accessToken));
+            notifyAll(DriveType.Dropbox, new DropboxUser(this.config, authFinish.accessToken));
         } catch (DbxException ex) {
             throw new DropboxException("Failed to finish auth process.");
         }

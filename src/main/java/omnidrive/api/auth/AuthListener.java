@@ -1,4 +1,7 @@
-package omnidrive.api.base;
+package omnidrive.api.auth;
+
+import omnidrive.api.base.BaseUser;
+import omnidrive.api.base.DriveType;
 
 public interface AuthListener {
 

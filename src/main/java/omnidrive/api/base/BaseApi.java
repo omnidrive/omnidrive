@@ -1,5 +1,8 @@
 package omnidrive.api.base;
 
+import omnidrive.api.auth.AuthListener;
+import omnidrive.api.auth.Authorizer;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -34,7 +37,7 @@ public abstract class BaseApi implements Authorizer {
         return this.appSecret;
     }
 
-    protected void notifyLoginListeners(DriveType type, BaseUser user) {
+    protected void notifyAll(DriveType type, BaseUser user) {
         for (AuthListener listener : this.listeners) {
             listener.authenticated(type, user);
         }

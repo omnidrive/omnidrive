@@ -8,11 +8,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
-import omnidrive.api.base.Authorizer;
+import omnidrive.api.auth.AuthListener;
+import omnidrive.api.auth.Authorizer;
 import omnidrive.api.base.BaseException;
 import omnidrive.api.base.DriveType;
-
-import omnidrive.api.base.*;
 
 public class LoginView {
 

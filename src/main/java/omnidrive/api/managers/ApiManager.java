@@ -1,6 +1,6 @@
 package omnidrive.api.managers;
 
-import omnidrive.api.base.AuthListener;
+import omnidrive.api.auth.AuthListener;
 import omnidrive.api.base.BaseApi;
 import omnidrive.api.base.DriveType;
 import omnidrive.api.box.BoxApi;
