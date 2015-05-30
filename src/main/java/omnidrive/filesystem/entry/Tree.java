@@ -12,4 +12,9 @@ public class Tree implements Entry {
         return null;
     }
 
+    @Override
+    public EntryMetadata getMetadata() {
+        return null;
+    }
+
 }

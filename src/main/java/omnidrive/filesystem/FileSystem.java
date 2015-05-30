@@ -1,6 +1,9 @@
 package omnidrive.filesystem;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class FileSystem {
 
@@ -8,16 +11,16 @@ public class FileSystem {
 
     private static final String ROOT_NAME = "OmniDrive";
 
-    public String getRootDirectory() {
-        return USER_HOME + File.pathSeparator + ROOT_NAME;
+    public Path getRootPath() {
+        return Paths.get(USER_HOME, ROOT_NAME);
     }
 
     public boolean isReady() {
-        return false;
+        return Files.isDirectory(getRootPath());
     }
 
-    public void initialize() {
-
+    public void initialize() throws IOException {
+        Files.createDirectory(getRootPath());
     }
 
     public void startSync() {

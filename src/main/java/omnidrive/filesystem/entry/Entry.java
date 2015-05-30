@@ -6,4 +6,6 @@ public interface Entry {
 
     UUID getId();
 
+    EntryMetadata getMetadata();
+
 }
