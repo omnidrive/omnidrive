@@ -34,23 +34,19 @@ public class LoginManager implements AuthListener {
         }
     }
 
-    /*************************************************
-     * AuthListener
-     *************************************************/
-
+    @Override
     public void authenticated(DriveType type, BaseUser user) {
         if (this.authService != null) {
             this.authService.terminate(type, user);
         }
     }
 
+    @Override
     public void failure(DriveType type, String error) {
         if (this.authService != null) {
             this.authService.report(type, error);
         }
     }
-
-    /**************************************************/
 
     public void remove(DriveType type) {
         // TODO - remove drive account from user

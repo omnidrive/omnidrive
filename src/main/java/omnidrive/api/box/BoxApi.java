@@ -22,6 +22,7 @@ public class BoxApi extends BaseApi {
         super(APP_NAME, CLIENT_ID, CLIENT_SECRET);
     }
 
+    @Override
     public final String authorize() {
         String baseUrl = "https://www.box.com/api/oauth2/authorize?";
         String clientId = "client_id=" + CLIENT_ID;
@@ -31,6 +32,7 @@ public class BoxApi extends BaseApi {
         return baseUrl + clientId + responseType + redirectUri;
     }
 
+    @Override
     public final void fetchAuthCode(WebEngine engine) throws BaseException {
         String url = engine.getLocation();
         if (url.contains(REDIRECT_URI) && url.contains("code=")) {
@@ -40,6 +42,7 @@ public class BoxApi extends BaseApi {
         }
     }
 
+    @Override
     public final void finishAuthProcess(String code) throws BaseException {
         this.connection.authenticate(code);
         String id = com.box.sdk.BoxUser.getCurrentUser(this.connection).getID();

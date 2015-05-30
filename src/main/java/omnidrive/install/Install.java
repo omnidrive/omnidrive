@@ -14,10 +14,6 @@ public class Install {
         this.fileSystem = fileSystem;
     }
 
-    public boolean isFirstInstallation() {
-        return this.fileSystem.isReady();
-    }
-
     public void doFirstInstallation() {
         try {
 
@@ -31,7 +27,7 @@ public class Install {
     }
 
     public void doFirstInstallationIfNeeded() {
-        if (isFirstInstallation()) {
+        if (!this.fileSystem.isReady()) {
             doFirstInstallation();
         }
     }
