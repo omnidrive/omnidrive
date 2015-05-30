@@ -15,22 +15,27 @@ public class BoxFile extends BaseFile {
         this.file = new com.box.sdk.BoxFile(connection, info.getID());
     }
 
+    @Override
     public final String getName() {
         return this.file.getInfo().getName();
     }
 
+    @Override
     public final String getPath() {
         return null;
     }
 
+    @Override
     public final String getId() {
         return this.file.getInfo().getID();
     }
 
+    @Override
     public final long getSize() {
         return this.file.getInfo().getSize();
     }
 
+    @Override
     public final Date getLastModified() {
         return this.file.getInfo().getModifiedAt();
     }

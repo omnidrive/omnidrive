@@ -19,26 +19,27 @@ public class DropboxFile extends BaseFile {
         }
     }
 
-    /*****************************************************************
-     * Interface methods
-     *****************************************************************/
-
+    @Override
     public final String getPath() {
         return this.entry.asFile().path;
     }
 
+    @Override
     public final String getId() {
         return null;
     }
 
+    @Override
     public final String getName() {
         return this.entry.asFile().name;
     }
 
+    @Override
     public final Date getLastModified() {
         return this.entry.asFile().lastModified;
     }
 
+    @Override
     public final long getSize() {
         return this.entry.asFile().numBytes;
     }

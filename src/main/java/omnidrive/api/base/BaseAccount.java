@@ -1,41 +1,52 @@
 package omnidrive.api.base;
 
-import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-public interface BaseAccount {
+public abstract class BaseAccount {
 
-    String getName() throws BaseException;
-
-
-    String getId() throws BaseException;
-
-
-    BaseFile uploadFile(String localSrcPath, String remoteDestPath) throws BaseException;
+    protected static final String ROOT_FOLDER_NAME = ".omnidrive";
+    protected static final String ROOT_FOLDER_PATH = "/" + ROOT_FOLDER_NAME;
 
 
-    FileOutputStream downloadFile(String remoteSrcPath, String localDestPath) throws BaseException;
+    protected String getFullRootFolderPath() {
+        return ROOT_FOLDER_PATH + "/";
+    }
 
 
-    BaseFolder createFolder(String remoteParentPath, String folderName) throws BaseException;
+    protected String getFullPath(String name) {
+        return getFullRootFolderPath() + name;
+    }
 
 
-    BaseFile getFile(String remotePath) throws BaseException;
+    public void initialize() throws BaseException {
+        createRootFolder();
+    }
 
 
-    BaseFolder getFolder(String remotePath) throws BaseException;
+    protected abstract void createRootFolder() throws BaseException;
 
 
-    BaseFolder getRootFolder() throws BaseException;
+    public abstract String getUsername() throws BaseException;
 
 
-    void removeFile(String remotePath) throws BaseException;
+    public abstract String getUserId() throws BaseException;
 
 
-    void removeFolder(String remotePath) throws BaseException;
+    public abstract String uploadFile(String name, InputStream inputStream, long size) throws BaseException;
 
 
-    long getQuotaUsedSize() throws BaseException;
+    public abstract long downloadFile(String fileId, OutputStream outputStream) throws BaseException;
 
 
-    long getQuotaTotalSize() throws BaseException;
+    public abstract void removeFile(String fileId) throws BaseException;
+
+
+    public abstract void removeFolder(String fileId) throws BaseException;
+
+
+    public abstract long getQuotaUsedSize() throws BaseException;
+
+
+    public abstract long getQuotaTotalSize() throws BaseException;
 }

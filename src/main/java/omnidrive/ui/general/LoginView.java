@@ -10,8 +10,10 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import omnidrive.api.auth.AuthListener;
 import omnidrive.api.auth.Authorizer;
+import omnidrive.api.base.BaseApi;
 import omnidrive.api.base.BaseException;
 import omnidrive.api.base.DriveType;
+import omnidrive.api.managers.ApiManager;
 
 public class LoginView {
 
@@ -47,7 +49,7 @@ public class LoginView {
         });
 
         // create scene
-        this.loginStage.setTitle(authorizer.getName());
+        this.loginStage.setTitle(type.toString());
         Scene scene = new Scene(authPane, 750, 500);
         this.loginStage.setScene(scene);
         this.loginStage.showAndWait();

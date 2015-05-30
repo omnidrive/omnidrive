@@ -29,14 +29,12 @@ public class DropboxApi extends BaseApi {
         this.auth = new DbxWebAuthNoRedirect(this.config, appInfo);
     }
 
-    /*****************************************************************
-     * Interface methods
-     *****************************************************************/
-
+    @Override
     public final String authorize() {
         return this.auth.start();
     }
 
+    @Override
     public final void fetchAuthCode(WebEngine engine) throws BaseException {
         Document doc = engine.getDocument();
 
@@ -51,6 +49,7 @@ public class DropboxApi extends BaseApi {
         }
     }
 
+    @Override
     public final void finishAuthProcess(String code) throws BaseException {
         try {
             DbxAuthFinish authFinish = this.auth.finish(code);
@@ -59,10 +58,6 @@ public class DropboxApi extends BaseApi {
             throw new DropboxException("Failed to finish auth process.");
         }
     }
-
-    /*****************************************************************
-     * Local methods
-     *****************************************************************/
 
     public DbxRequestConfig getConfig() {
         return this.config;

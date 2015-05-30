@@ -46,14 +46,12 @@ public class GoogleDriveApi extends BaseApi {
                 .setApprovalPrompt("auto").build();
     }
 
-    /*****************************************************************
-     * Interface methods
-     *****************************************************************/
-
+    @Override
     public final String authorize() {
         return this.auth.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
     }
 
+    @Override
     public final void fetchAuthCode(WebEngine engine) throws BaseException {
         String code = null;
 
@@ -73,6 +71,7 @@ public class GoogleDriveApi extends BaseApi {
         }
     }
 
+    @Override
     public final void finishAuthProcess(String code) throws BaseException {
         try {
             GoogleTokenResponse response = this.auth.newTokenRequest(code).setRedirectUri(REDIRECT_URI).execute();

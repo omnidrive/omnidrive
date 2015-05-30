@@ -13,7 +13,7 @@ public class FileSystem {
     }
 
     public boolean isReady() {
-        return true;
+        return false;
     }
 
     public void initialize() {

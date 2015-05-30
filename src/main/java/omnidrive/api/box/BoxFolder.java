@@ -12,14 +12,17 @@ public class BoxFolder extends BaseFolder {
         this.folder = new com.box.sdk.BoxFolder(connection, info.getID());
     }
 
+    @Override
     public final String getName() {
         return this.folder.getInfo().getName();
     }
 
+    @Override
     public final String getId() {
         return this.folder.getID();
     }
 
+    @Override
     public final String getPath() {
         return null;
     }

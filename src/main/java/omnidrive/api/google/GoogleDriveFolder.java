@@ -13,18 +13,17 @@ public class GoogleDriveFolder extends BaseFolder {
         this.file = folder;
     }
 
-    /*****************************************************************
-     * Interface methods
-     *****************************************************************/
-
+    @Override
     public final String getName() {
         return this.file.getTitle();
     }
 
+    @Override
     public String getPath() {
         return null;
     }
 
+    @Override
     public final String getId() {
         return this.file.getId();
     }

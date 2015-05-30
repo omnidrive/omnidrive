@@ -1,16 +1,18 @@
 package omnidrive.api.google;
 
+import com.google.api.client.http.AbstractInputStreamContent;
 import com.google.api.client.http.FileContent;
+import com.google.api.client.http.InputStreamContent;
 import com.google.api.services.drive.Drive;
 import omnidrive.api.base.*;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.google.api.services.drive.model.File;
 
-public class GoogleDriveAccount implements BaseAccount {
+public class GoogleDriveAccount extends BaseAccount {
 
     private static final String MimeTypeFile = "application/vnd.google-apps.file";
     private static final String MimeTypeFolder = "application/vnd.google-apps.folder";
@@ -24,11 +26,29 @@ public class GoogleDriveAccount implements BaseAccount {
         this.service = service;
     }
 
-    /*****************************************************************
-     * Interface methods
-     *****************************************************************/
+    @Override
+    protected void createRootFolder() throws BaseException {
+        File body = new File();
+        body.setTitle(ROOT_FOLDER_NAME);
+        body.setMimeType(MimeTypeFolder);
 
-    public String getName() {
+        GoogleDriveFolder folder = null;
+        GoogleDriveFolder rootFolder = null;
+
+        try {
+            String rootFolderId = this.service.about().get().execute().getRootFolderId();
+            com.google.api.services.drive.model.File googleRootFolder = this.service.files().get(rootFolderId).execute();
+
+            java.io.File fileContent = new java.io.File(googleRootFolder.getTitle());
+            FileContent mediaContent = new FileContent(MimeTypeFolder, fileContent);
+            this.service.files().insert(body, mediaContent).execute();
+        } catch (IOException ex) {
+            throw new GoogleDriveException("Failed to create root folder.");
+        }
+    }
+
+    @Override
+    public String getUsername() {
         String name;
 
         try {
@@ -40,7 +60,8 @@ public class GoogleDriveAccount implements BaseAccount {
         return name;
     }
 
-    public String getId() {
+    @Override
+    public String getUserId() {
         String id;
 
         try {
@@ -52,121 +73,60 @@ public class GoogleDriveAccount implements BaseAccount {
         return id;
     }
 
-    public BaseFile uploadFile(String localSrcPath, String remoteDestPath) throws BaseException {
-        //Insert a file
+    @Override
+    public String uploadFile(String name, InputStream inputStream, long size) throws BaseException {
+        String fileId = null;
+
         File body = new File();
-        body.setTitle(remoteDestPath);
+        body.setTitle(name);
 
-        java.io.File fileContent = new java.io.File(localSrcPath);
-        FileContent mediaContent = new FileContent(MimeTypeFile, fileContent);
+        AbstractInputStreamContent mediaContent = new InputStreamContent(MimeTypeFile, inputStream);
 
-        File uploadedFile = null;
         try {
-            uploadedFile = this.service.files().insert(body, mediaContent).execute();
+            File uploadedFile = this.service.files().insert(body, mediaContent).execute();
+            fileId = uploadedFile.getId();
         } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to insert file");
+            throw new GoogleDriveException("Failed to upload file");
         }
 
-        return new GoogleDriveFile(uploadedFile, this);
+        return fileId;
     }
 
-    public FileOutputStream downloadFile(String remoteSrcId, String localDestPath) throws BaseException {
-        FileOutputStream outStream = null;
+    @Override
+    public long downloadFile(String fileId, OutputStream outputStream) throws BaseException {
+        long size = 0;
+
         try {
-            InputStream inputStream = this.service.files().get(remoteSrcId).executeAsInputStream();
-            outStream = new FileOutputStream(localDestPath);
+            InputStream inputStream = this.service.files().get(fileId).executeAsInputStream();
 
             while (inputStream.available() > 0) {
-                outStream.write(inputStream.read());
+                outputStream.write(inputStream.read());
+                size++;
             }
 
             inputStream.close();
-            outStream.close();
         } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to insert file");
+            throw new GoogleDriveException("Failed to download file");
         }
 
-        return outStream;
+        return size;
     }
 
-    public BaseFolder createFolder(String remoteParentPath, String folderName) throws BaseException {
-        GoogleDriveFolder folder = null;
-
-        File body = new File();
-        body.setTitle(folderName);
-        body.setMimeType(MimeTypeFolder);
-
-        // File's content.
-        java.io.File fileContent = new java.io.File(remoteParentPath);
-        FileContent mediaContent = new FileContent(MimeTypeFolder, fileContent);
+    @Override
+    public void removeFile(String fileId) throws BaseException {
         try {
-            File gooleFolder = service.files().insert(body, mediaContent).execute();
-            if (gooleFolder.getKind() == GoogleFolderKind) {
-                folder = new GoogleDriveFolder(gooleFolder, this);
-            }
-        } catch (IOException ex) {
-            throw new GoogleDriveException(ex.getMessage());
-        }
-
-        return folder;
-    }
-
-    public BaseFile getFile(String remoteId) throws BaseException {
-        GoogleDriveFile file = null;
-
-        try {
-            com.google.api.services.drive.model.File googleFile = this.service.files().get(remoteId).execute();
-            file = new GoogleDriveFile(googleFile, this);
-        } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to get file info");
-        }
-
-        return file;
-    }
-
-    public BaseFolder getFolder(String remoteId) throws BaseException {
-        GoogleDriveFolder folder = null;
-
-        try {
-            com.google.api.services.drive.model.File googleFolder = this.service.files().get(remoteId).execute();
-            if (googleFolder.getKind() == GoogleFolderKind) {
-                folder = new GoogleDriveFolder(googleFolder, this);
-            } else {
-                throw new GoogleDriveException("Not a folder");
-            }
-        } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to get file info");
-        }
-
-        return folder;
-    }
-
-    public BaseFolder getRootFolder() throws BaseException {
-        GoogleDriveFolder rootFolder = null;
-
-        try {
-            String rootFolderId = this.service.about().get().execute().getRootFolderId();
-            com.google.api.services.drive.model.File googleRootFolder = this.service.files().get(rootFolderId).execute();
-            rootFolder = new GoogleDriveFolder(googleRootFolder, this);
-        } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to get root folder.");
-        }
-
-        return rootFolder;
-    }
-
-    public void removeFile(String remoteId) throws BaseException {
-        try {
-            this.service.files().delete(remoteId).execute();
+            this.service.files().delete(fileId).execute();
         } catch (IOException ex) {
             throw new GoogleDriveException(ex.getMessage());
         }
     }
 
-    public void removeFolder(String remoteId) throws BaseException {
-        removeFile(remoteId); // In the Drive API, a folder is essentially a file [https://developers.google.com/drive/web/folder]
+    @Override
+    public void removeFolder(String fileId) throws BaseException {
+        removeFile(fileId); // In the Drive API, a folder is essentially a file [https://developers.google.com/drive/web/folder]
     }
 
+    @Override
     public long getQuotaUsedSize() throws BaseException {
         long usedQuota;
 
@@ -179,6 +139,7 @@ public class GoogleDriveAccount implements BaseAccount {
         return usedQuota;
     }
 
+    @Override
     public long getQuotaTotalSize() throws BaseException {
         long totalQuota;
 

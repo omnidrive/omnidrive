@@ -37,4 +37,7 @@ public class AccountsFXML extends Application {
         stage.show();
     }
 
+    public static void show() {
+        launch(null);
+    }
 }

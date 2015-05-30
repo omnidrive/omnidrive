@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 
 public class DropboxTest {
 
-    private static final String DbxAccessToken = "-rySTYC5rUYAAAAAAAASMYqQ3DAEEHcjDEyJl4q_qXH-8A6Md7gquyCChGh3o0iE";
+    /*private static final String DbxAccessToken = "-rySTYC5rUYAAAAAAAASMYqQ3DAEEHcjDEyJl4q_qXH-8A6Md7gquyCChGh3o0iE";
     private static final DbxRequestConfig DbxConfig = new DbxRequestConfig("omnidrive", Locale.getDefault().toString());
 
     private BaseAccount dbxAccount;
@@ -49,5 +49,5 @@ public class DropboxTest {
                                                                         "/Users/assafey/Downloads/dropbox_download_test.txt");
 
         assertNotNull(downloadedFile);
-    }
+    }*/
 }

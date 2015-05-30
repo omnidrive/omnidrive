@@ -48,4 +48,18 @@ public class ApiManager {
     public BaseApi getApi(DriveType type) {
         return this.apis[type.ordinal()];
     }
+
+    public static DriveType toType(BaseApi api) {
+        DriveType type = null;
+
+        if (api instanceof DropboxApi) {
+            type = DriveType.Dropbox;
+        } else if (api instanceof GoogleDriveApi) {
+            type = DriveType.GoogleDrive;
+        } else if (api instanceof BoxApi) {
+            type = DriveType.Box;
+        }
+
+        return type;
+    }
 }
