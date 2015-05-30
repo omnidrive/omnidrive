@@ -75,7 +75,7 @@ public class AccountsController implements Initializable, AuthService {
     public void report(DriveType type, String message) {
         // TODO - popup message
         PopupView popUp = new PopupView();
-        popUp.show(message);
+        popUp.info(message);
     }
 
     @Override

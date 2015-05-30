@@ -5,8 +5,11 @@ package omnidrive.ui.general;
  */
 public class PopupView {
 
-    public void show(String message) {
+    public static void info(String message) {
 
     }
 
+    public static void error(String message) {
+
+    }
 }

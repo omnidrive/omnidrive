@@ -2,14 +2,12 @@ package omnidrive.api.dropbox;
 
 import com.dropbox.core.*;
 import omnidrive.api.base.BaseException;
-import omnidrive.api.base.BaseFile;
-import omnidrive.api.base.BaseFolder;
 import omnidrive.api.base.BaseAccount;
 
 import java.io.*;
 
 
-public class DropboxAccount implements BaseAccount {
+public class DropboxAccount extends BaseAccount {
 
     private final DbxClient client;
 
@@ -17,11 +15,17 @@ public class DropboxAccount implements BaseAccount {
         this.client = new DbxClient(config, accessToken);
     }
 
-    /*****************************************************************
-     * Interface methods
-     *****************************************************************/
+    @Override
+    protected void createRootFolder() throws BaseException {
+        try {
+            this.client.createFolder(ROOT_FOLDER_PATH);
+        } catch (DbxException ex) {
+            throw new DropboxException("Failed to create folder.");
+        }
+    }
 
-    public String getName() {
+    @Override
+    public String getUsername() {
         String name;
 
         try {
@@ -33,7 +37,8 @@ public class DropboxAccount implements BaseAccount {
         return name;
     }
 
-    public String getId() {
+    @Override
+    public String getUserId() {
         String id;
 
         try {
@@ -45,113 +50,46 @@ public class DropboxAccount implements BaseAccount {
         return id;
     }
 
-    public BaseFile uploadFile(String localSrcPath, String remoteDestPath) throws BaseException {
-        File inputFile = new File(localSrcPath);
-        BaseFile file = null;
-        FileInputStream inputStream = null;
+    @Override
+    public String uploadFile(String name, InputStream inputStream, long size) throws BaseException {
+        String fileId = null;
 
         try {
-            inputStream = new FileInputStream(inputFile);
-            DbxEntry.File uploadedFile = this.client.uploadFile(remoteDestPath, DbxWriteMode.add(), inputFile.length(), inputStream);
-            if (uploadedFile != null) {
-                file = new DropboxFile(this.client.getMetadata(remoteDestPath), this);
-            }
+            DbxEntry.File file = this.client.uploadFile(getFullPath(name), DbxWriteMode.add(), size, inputStream);
+            fileId = file.asFile().name;
         } catch (FileNotFoundException ex) {
-            throw new DropboxException("Input file not found..");
+            throw new DropboxException("Input file not found.");
         } catch (DbxException ex) {
             throw new DropboxException("Failed to get file metadata.");
         } catch (IOException ex) {
             throw new DropboxException("Failed to upload file.");
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException ex) {
-                    throw new DropboxException("Failed to close input stream.");
-                }
-            }
         }
 
-        return file;
+        return fileId;
     }
 
-    public FileOutputStream downloadFile(String remoteSrcPath, String localDestPath) throws BaseException {
-        FileOutputStream outputStream = null;
+    @Override
+    public long downloadFile(String name, OutputStream outputStream) throws BaseException {
+        long size = 0;
 
         try {
-            outputStream = new FileOutputStream(localDestPath);
-            this.client.getFile(remoteSrcPath, null, outputStream);
+            DbxEntry.File dbxFile = this.client.getFile(getFullPath(name), null, outputStream);
+            size = dbxFile.numBytes;
         } catch (IOException ex) {
             throw new DropboxException("Failed to download file.");
         } catch (DbxException ex) {
             throw new DropboxException("Failed to access remote path.");
-        } finally {
-            try {
-                outputStream.close();
-            } catch (IOException ex) {
-                throw new DropboxException("Failed to close output stream.");
-            }
         }
 
-        return outputStream;
+        return size;
     }
 
-    public BaseFolder createFolder(String remoteParentPath, String folderName) throws BaseException {
-        BaseFolder folder = null;
-
+    @Override
+    public void deleteFile(String name) throws BaseException {
         try {
-            DbxEntry.Folder dbxFolder = this.client.createFolder(remoteParentPath + "/" + folderName);
-            if (dbxFolder != null) {
-                folder = new DropboxFolder(getEntryChildren(remoteParentPath + "/" + folderName), this);
-            }
-        } catch (DbxException ex) {
-            throw new DropboxException("Failed to create folder.");
-        }
-
-        return folder;
-    }
-
-    public DropboxFile getFile(String remotePath) throws BaseException {
-        DropboxFile dbxFile = null;
-
-        try {
-            DbxEntry entry = this.client.getMetadata(remotePath);
-
-            if (entry == null) {
-                throw new DropboxException("Failed to get file info.");
-            } else if (!entry.isFile()) {
-                throw new DropboxException("Entry is not a file.");
-            } else {
-                dbxFile = new DropboxFile(entry.asFile(), this);
-            }
-        } catch (DbxException ex) {
-            throw new DropboxException(ex.getMessage());
-        }
-
-        return dbxFile;
-    }
-
-    public BaseFolder getFolder(String path) throws BaseException {
-        return new DropboxFolder(getEntryChildren(path), this);
-    }
-
-    public BaseFolder getRootFolder() throws BaseException {
-        DropboxFolder rootFolder = null;
-
-        try {
-            rootFolder = new DropboxFolder(this.client.getMetadataWithChildren("/"), this);
-        } catch (DbxException ex) {
-            throw new DropboxException("Failed to get root folder.");
-        }
-
-        return rootFolder;
-    }
-
-    public void removeFile(String remotePath) throws BaseException {
-        try {
-            DbxEntry entry = this.client.getMetadata(remotePath);
+            DbxEntry entry = this.client.getMetadata(getFullPath(name));
             if (entry.isFile()) {
-                this.client.delete(remotePath);
+                this.client.delete(getFullPath(name));
             } else {
                 throw new DropboxException("Not a file.");
             }
@@ -160,11 +98,12 @@ public class DropboxAccount implements BaseAccount {
         }
     }
 
-    public void removeFolder(String remotePath) throws BaseException {
+    @Override
+    public void deleteFolder(String name) throws BaseException {
         try {
-            DbxEntry entry = this.client.getMetadata(remotePath);
+            DbxEntry entry = this.client.getMetadata(getFullPath(name));
             if (entry.isFolder()) {
-                this.client.delete(remotePath);
+                this.client.delete(getFullPath(name));
             } else {
                 throw new DropboxException("Not a folder.");
             }
@@ -173,6 +112,7 @@ public class DropboxAccount implements BaseAccount {
         }
     }
 
+    @Override
     public long getQuotaUsedSize() throws BaseException {
         long usedQuota;
 
@@ -185,6 +125,7 @@ public class DropboxAccount implements BaseAccount {
         return usedQuota;
     }
 
+    @Override
     public long getQuotaTotalSize() throws BaseException {
         long totalQuota;
 
@@ -195,21 +136,5 @@ public class DropboxAccount implements BaseAccount {
         }
 
         return totalQuota;
-    }
-
-    /*****************************************************************
-     * Local methods
-     *****************************************************************/
-
-    private DbxEntry.WithChildren getEntryChildren(String path) throws DropboxException {
-        DbxEntry.WithChildren rootEntry = null;
-
-        try {
-            rootEntry = this.client.getMetadataWithChildren(path);
-        } catch (DbxException ex) {
-            throw new DropboxException(ex.getMessage());
-        }
-
-        return rootEntry;
     }
 }

@@ -11,5 +11,5 @@ public interface Authorizer {
 
     void finishAuthProcess(String code) throws BaseException;
 
-    String getName();
+
 }

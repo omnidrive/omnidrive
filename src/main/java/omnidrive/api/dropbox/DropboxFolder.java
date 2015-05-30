@@ -33,25 +33,20 @@ public class DropboxFolder extends BaseFolder {
         }
     }
 
-    /*****************************************************************
-     * Interface methods
-     *****************************************************************/
-
+    @Override
     public final String getPath() {
         return this.entry.asFolder().path;
     }
 
+    @Override
     public final String getId() {
         return null;
     }
 
+    @Override
     public final String getName() {
         return this.entry.asFolder().name;
     }
-
-    /*****************************************************************
-     * Local methods
-     *****************************************************************/
 
     private void fetchEntries(DbxEntry.WithChildren entryWithChildren) throws DropboxException {
         for (DbxEntry entry : entryWithChildren.children) {

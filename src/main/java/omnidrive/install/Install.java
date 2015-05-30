@@ -2,10 +2,9 @@ package omnidrive.install;
 
 import omnidrive.filesystem.FileSystem;
 import omnidrive.ui.accounts.AccountsFXML;
+import omnidrive.ui.general.PopupView;
 
-/**
- * Created by assafey on 5/30/15.
- */
+
 public class Install {
 
     private final FileSystem fileSystem;
@@ -16,13 +15,10 @@ public class Install {
 
     public void doFirstInstallation() {
         try {
-
             this.fileSystem.initialize();
-
             showAccountsView();
-
         } catch (Exception ex) {
-
+            PopupView.error(ex.getMessage());
         }
     }
 
@@ -33,7 +29,7 @@ public class Install {
     }
 
     public void showAccountsView() {
-        AccountsFXML.launch(null);
+        AccountsFXML.show();
     }
 
 }

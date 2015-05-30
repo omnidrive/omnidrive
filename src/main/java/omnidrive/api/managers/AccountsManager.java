@@ -2,6 +2,9 @@ package omnidrive.api.managers;
 
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.DriveType;
+import omnidrive.api.box.BoxAccount;
+import omnidrive.api.dropbox.DropboxAccount;
+import omnidrive.api.google.GoogleDriveAccount;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -49,5 +52,19 @@ public class AccountsManager {
         }
 
         return activeAccounts;
+    }
+
+    public static DriveType toType(BaseAccount account) {
+        DriveType type = null;
+
+        if (account instanceof DropboxAccount) {
+            type = DriveType.Dropbox;
+        } else if (account instanceof GoogleDriveAccount) {
+            type = DriveType.GoogleDrive;
+        } else if (account instanceof BoxAccount) {
+            type = DriveType.Box;
+        }
+
+        return type;
     }
 }

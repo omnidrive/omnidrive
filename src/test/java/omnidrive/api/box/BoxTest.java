@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 
 public class BoxTest {
 
-    private static final String DEVELOPER_TOKEN = "u40j2wV4rHZQLPICBJlFaMiCGukNVJmw";
+    /*private static final String DEVELOPER_TOKEN = "u40j2wV4rHZQLPICBJlFaMiCGukNVJmw";
 
     private BoxAPIConnection connection;
     private BoxAccount boxAccount;
@@ -51,5 +51,5 @@ public class BoxTest {
         FileOutputStream downloadedFile = this.boxAccount.downloadFile(uploadFileId, "/Users/assafey/Downloads/box_download_test.txt");
 
         assertNotNull(downloadedFile);
-    }
+    }*/
 }
