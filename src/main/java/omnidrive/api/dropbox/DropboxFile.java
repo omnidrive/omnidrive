@@ -9,7 +9,7 @@ public class DropboxFile extends BaseFile {
 
     private final DbxEntry entry;
 
-    public DropboxFile(DbxEntry entry, DropboxUser owner) throws DropboxException {
+    public DropboxFile(DbxEntry entry, DropboxAccount owner) throws DropboxException {
         super(owner);
 
         if (!entry.isFile()) {

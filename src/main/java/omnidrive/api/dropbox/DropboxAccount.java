@@ -4,16 +4,16 @@ import com.dropbox.core.*;
 import omnidrive.api.base.BaseException;
 import omnidrive.api.base.BaseFile;
 import omnidrive.api.base.BaseFolder;
-import omnidrive.api.base.BaseUser;
+import omnidrive.api.base.BaseAccount;
 
 import java.io.*;
 
 
-public class DropboxUser implements BaseUser {
+public class DropboxAccount implements BaseAccount {
 
     private final DbxClient client;
 
-    public DropboxUser(DbxRequestConfig config, String accessToken) {
+    public DropboxAccount(DbxRequestConfig config, String accessToken) {
         this.client = new DbxClient(config, accessToken);
     }
 

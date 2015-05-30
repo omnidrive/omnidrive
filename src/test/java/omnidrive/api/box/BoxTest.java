@@ -18,26 +18,26 @@ public class BoxTest {
     private static final String DEVELOPER_TOKEN = "u40j2wV4rHZQLPICBJlFaMiCGukNVJmw";
 
     private BoxAPIConnection connection;
-    private BoxUser boxUser;
+    private BoxAccount boxAccount;
 
     private static String uploadFileId = null;
 
     @Before
     public void setUp() {
         this.connection = new BoxAPIConnection(DEVELOPER_TOKEN);
-        this.boxUser = new BoxUser(this.connection, com.box.sdk.BoxUser.getCurrentUser(this.connection).getID());
+        this.boxAccount = new BoxAccount(this.connection, com.box.sdk.BoxUser.getCurrentUser(this.connection).getID());
     }
 
     @After
     public void tearDown() {
-        this.boxUser = null;
+        this.boxAccount = null;
     }
 
     @Test
     public void testUploadFile() throws Exception {
         URL url = this.getClass().getResource("/upload_test.txt");
 
-        BaseFile uploadedFile = this.boxUser.uploadFile(url.getPath(), "/upload_test.txt");
+        BaseFile uploadedFile = this.boxAccount.uploadFile(url.getPath(), "/upload_test.txt");
 
         assertNotNull(uploadedFile);
 
@@ -48,7 +48,7 @@ public class BoxTest {
     public void testDownloadFile() throws Exception {
         assertNotNull(uploadFileId);
 
-        FileOutputStream downloadedFile = this.boxUser.downloadFile(uploadFileId, "/Users/assafey/Downloads/box_download_test.txt");
+        FileOutputStream downloadedFile = this.boxAccount.downloadFile(uploadFileId, "/Users/assafey/Downloads/box_download_test.txt");
 
         assertNotNull(downloadedFile);
     }

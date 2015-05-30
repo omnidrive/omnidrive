@@ -7,7 +7,7 @@ public class GoogleDriveFolder extends BaseFolder {
 
     private File file; // In the Drive API, a folder is essentially a file [https://developers.google.com/drive/web/folder]
 
-    public GoogleDriveFolder(File folder, GoogleDriveUser owner) {
+    public GoogleDriveFolder(File folder, GoogleDriveAccount owner) {
         super(owner);
 
         this.file = folder;

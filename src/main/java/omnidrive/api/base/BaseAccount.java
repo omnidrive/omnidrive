@@ -2,7 +2,7 @@ package omnidrive.api.base;
 
 import java.io.FileOutputStream;
 
-public interface BaseUser {
+public interface BaseAccount {
 
     String getName() throws BaseException;
 

@@ -4,13 +4,13 @@ import java.util.Date;
 
 public abstract class BaseFile {
 
-    private final BaseUser owner;
+    private final BaseAccount owner;
 
-    public BaseFile(BaseUser owner) {
+    public BaseFile(BaseAccount owner) {
         this.owner = owner;
     }
 
-    public BaseUser getOwner() {
+    public BaseAccount getOwner() {
         return this.owner;
     }
 

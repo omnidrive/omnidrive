@@ -1,6 +1,6 @@
 package omnidrive.api.managers;
 
-import omnidrive.api.base.BaseUser;
+import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.DriveType;
 
 import java.util.LinkedList;
@@ -10,7 +10,7 @@ public class AccountsManager {
 
     private static AccountsManager manager = null;
 
-    private final BaseUser[] loggedInUsers = new BaseUser[DriveType.values().length];
+    private final BaseAccount[] accounts = new BaseAccount[DriveType.values().length];
 
     // singleton
     private AccountsManager() {
@@ -25,29 +25,29 @@ public class AccountsManager {
         return manager;
     }
 
-    public void setLoggedInUser(DriveType type, BaseUser user) {
-        this.loggedInUsers[type.ordinal()] = user;
+    public void setAccount(DriveType type, BaseAccount account) {
+        this.accounts[type.ordinal()] = account;
     }
 
-    public void removeLoggedInUser(DriveType type) {
-        if (this.loggedInUsers[type.ordinal()] != null) {
-            this.loggedInUsers[type.ordinal()] = null;
+    public void removeAccount(DriveType type) {
+        if (this.accounts[type.ordinal()] != null) {
+            this.accounts[type.ordinal()] = null;
         }
     }
 
-    public BaseUser getLoggedInUser(DriveType type) {
-        return this.loggedInUsers[type.ordinal()];
+    public BaseAccount getAccount(DriveType type) {
+        return this.accounts[type.ordinal()];
     }
 
-    public List<BaseUser> getLoggedInUsers() {
-        List<BaseUser> users = new LinkedList<BaseUser>();
+    public List<BaseAccount> getActiveAccounts() {
+        List<BaseAccount> activeAccounts = new LinkedList<BaseAccount>();
 
-        for (BaseUser user : this.loggedInUsers) {
-            if (user != null) {
-                users.add(user);
+        for (BaseAccount account : this.accounts) {
+            if (account != null) {
+                activeAccounts.add(account);
             }
         }
 
-        return users;
+        return activeAccounts;
     }
 }

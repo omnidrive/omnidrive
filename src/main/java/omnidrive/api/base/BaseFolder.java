@@ -5,12 +5,12 @@ import java.util.List;
 
 public abstract class BaseFolder {
 
-    private final BaseUser owner;
+    private final BaseAccount owner;
 
     protected final List<BaseFile> files = new ArrayList<BaseFile>();
     protected final List<BaseFolder> folders = new ArrayList<BaseFolder>();
 
-    public BaseFolder(BaseUser owner) {
+    public BaseFolder(BaseAccount owner) {
         this.owner = owner;
     }
 
@@ -23,7 +23,7 @@ public abstract class BaseFolder {
     public abstract String getId();
 
 
-    public BaseUser getOwner() {
+    public BaseAccount getOwner() {
         return this.owner;
     }
 

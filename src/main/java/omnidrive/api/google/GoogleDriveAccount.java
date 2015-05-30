@@ -10,7 +10,7 @@ import java.io.InputStream;
 
 import com.google.api.services.drive.model.File;
 
-public class GoogleDriveUser implements BaseUser {
+public class GoogleDriveAccount implements BaseAccount {
 
     private static final String MimeTypeFile = "application/vnd.google-apps.file";
     private static final String MimeTypeFolder = "application/vnd.google-apps.folder";
@@ -20,7 +20,7 @@ public class GoogleDriveUser implements BaseUser {
 
     private Drive service;
 
-    public GoogleDriveUser(Drive service) {
+    public GoogleDriveAccount(Drive service) {
         this.service = service;
     }
 

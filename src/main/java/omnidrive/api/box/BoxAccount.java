@@ -7,18 +7,18 @@ import com.box.sdk.BoxFile.Info;
 import omnidrive.api.base.BaseException;
 import omnidrive.api.base.BaseFile;
 import omnidrive.api.base.BaseFolder;
-import omnidrive.api.base.BaseUser;
+import omnidrive.api.base.BaseAccount;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class BoxUser implements BaseUser {
+public class BoxAccount implements BaseAccount {
 
     com.box.sdk.BoxUser user;
 
-    public BoxUser(BoxAPIConnection connection, String id) {
+    public BoxAccount(BoxAPIConnection connection, String id) {
         this.user = new com.box.sdk.BoxUser(connection, id);
     }
 

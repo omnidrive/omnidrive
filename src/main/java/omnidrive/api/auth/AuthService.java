@@ -1,7 +1,7 @@
 package omnidrive.api.auth;
 
 import omnidrive.api.base.BaseApi;
-import omnidrive.api.base.BaseUser;
+import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.DriveType;
 
 public interface AuthService {
@@ -12,6 +12,6 @@ public interface AuthService {
     void report(DriveType type, String message);
 
 
-    void terminate(DriveType type, BaseUser user);
+    void terminate(DriveType type, BaseAccount account);
 
 }

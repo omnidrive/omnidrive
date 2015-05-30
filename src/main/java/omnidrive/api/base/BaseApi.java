@@ -37,9 +37,9 @@ public abstract class BaseApi implements Authorizer {
         return this.appSecret;
     }
 
-    protected void notifyAll(DriveType type, BaseUser user) {
+    protected void notifyAll(DriveType type, BaseAccount account) {
         for (AuthListener listener : this.listeners) {
-            listener.authenticated(type, user);
+            listener.authenticated(type, account);
         }
     }
 

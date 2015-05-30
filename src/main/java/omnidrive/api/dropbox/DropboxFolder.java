@@ -8,7 +8,7 @@ public class DropboxFolder extends BaseFolder {
 
     private final DbxEntry entry;
 
-    public DropboxFolder(DbxEntry.WithChildren entryWithChildren, DropboxUser owner) throws DropboxException {
+    public DropboxFolder(DbxEntry.WithChildren entryWithChildren, DropboxAccount owner) throws DropboxException {
         super(owner);
 
         if (entryWithChildren == null) {
@@ -21,7 +21,7 @@ public class DropboxFolder extends BaseFolder {
         }
     }
 
-    private DropboxFolder(DbxEntry entry, DropboxUser owner) throws DropboxException {
+    private DropboxFolder(DbxEntry entry, DropboxAccount owner) throws DropboxException {
         super(owner);
 
         if (entry == null) {
@@ -55,7 +55,7 @@ public class DropboxFolder extends BaseFolder {
 
     private void fetchEntries(DbxEntry.WithChildren entryWithChildren) throws DropboxException {
         for (DbxEntry entry : entryWithChildren.children) {
-            DropboxUser owner = (DropboxUser)getOwner();
+            DropboxAccount owner = (DropboxAccount)getOwner();
             if (entry.isFile()) {
                 this.files.add(new DropboxFile(entry, owner));
             } else if (entry.isFolder()) {

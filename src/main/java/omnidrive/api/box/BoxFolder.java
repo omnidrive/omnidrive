@@ -7,7 +7,7 @@ public class BoxFolder extends BaseFolder {
 
     private final com.box.sdk.BoxFolder folder;
 
-    public BoxFolder(BoxUser owner, BoxAPIConnection connection, com.box.sdk.BoxFolder.Info info) {
+    public BoxFolder(BoxAccount owner, BoxAPIConnection connection, com.box.sdk.BoxFolder.Info info) {
         super(owner);
         this.folder = new com.box.sdk.BoxFolder(connection, info.getID());
     }

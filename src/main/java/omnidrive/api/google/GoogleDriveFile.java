@@ -2,7 +2,6 @@ package omnidrive.api.google;
 
 import com.google.api.services.drive.model.File;
 import omnidrive.api.base.BaseFile;
-import omnidrive.api.base.BaseUser;
 
 import java.util.Date;
 
@@ -10,7 +9,7 @@ public class GoogleDriveFile extends BaseFile {
 
     private final File file;
 
-    public GoogleDriveFile(File file, GoogleDriveUser owner) {
+    public GoogleDriveFile(File file, GoogleDriveAccount owner) {
         super(owner);
 
         this.file = file;

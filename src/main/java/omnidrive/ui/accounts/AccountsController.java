@@ -10,7 +10,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import omnidrive.api.base.BaseApi;
-import omnidrive.api.base.BaseUser;
+import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.DriveType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.api.managers.LoginManager;
@@ -79,8 +79,8 @@ public class AccountsController implements Initializable, AuthService {
     }
 
     @Override
-    public void terminate(DriveType type, BaseUser user) {
-        this.accountsManager.setLoggedInUser(type, user);
+    public void terminate(DriveType type, BaseAccount account) {
+        this.accountsManager.setAccount(type, account);
         addAccountToListView(type);
         this.loginView.close();
     }
@@ -100,7 +100,7 @@ public class AccountsController implements Initializable, AuthService {
         if (selectedIndex >= 0) {
             DriveType type = DriveType.values()[selectedIndex];
             this.loginManager.remove(type);
-            this.accountsManager.removeLoggedInUser(type);
+            this.accountsManager.removeAccount(type);
         }
     }
 

@@ -35,9 +35,9 @@ public class LoginManager implements AuthListener {
     }
 
     @Override
-    public void authenticated(DriveType type, BaseUser user) {
+    public void authenticated(DriveType type, BaseAccount account) {
         if (this.authService != null) {
-            this.authService.terminate(type, user);
+            this.authService.terminate(type, account);
         }
     }
 
