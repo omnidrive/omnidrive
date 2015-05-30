@@ -14,7 +14,6 @@ public class Bootstarp {
     private final App app;
     private final Install install;
 
-
     public Bootstarp() {
 
         Injector injector = Guice.createInjector(new FileSystemModule());
