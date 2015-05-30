@@ -1,5 +1,6 @@
 package omnidrive.install;
 
+import omnidrive.filesystem.FileSystem;
 import omnidrive.ui.accounts.AccountsFXML;
 
 /**
@@ -7,10 +8,10 @@ import omnidrive.ui.accounts.AccountsFXML;
  */
 public class Install {
 
-    private final Filesystem filesystem;
+    private final FileSystem fileSystem;
 
-    public Install(Filesystem filesystem) {
-        this.filesystem = filesystem;
+    public Install(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
     }
 
     public boolean isFirstInstallation() {

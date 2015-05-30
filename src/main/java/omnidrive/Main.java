@@ -1,15 +1,16 @@
 package omnidrive;
 
 import omnidrive.app.App;
+import omnidrive.filesystem.FileSystem;
 import omnidrive.install.Install;
 
 
 public class Main {
 
     public static void main(String[] args) {
-        Filesystem filesystem = new FileSystem();
-        App app = new App(filesystem);
-        Install install = new Install(filesystem);
+        FileSystem fileSystem = new FileSystem();
+        App app = new App(fileSystem);
+        Install install = new Install(fileSystem);
 
         install.doFirstInstallationIfNeeded();
 

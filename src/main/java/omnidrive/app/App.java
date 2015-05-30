@@ -1,17 +1,19 @@
 package omnidrive.app;
 
+import omnidrive.filesystem.FileSystem;
+
 /**
  * Created by assafey on 5/30/15.
  */
 public class App implements Runnable {
 
-    private final Filesystem filesystem;
+    private final FileSystem fileSystem;
 
-    public App(Filesystem filesystem) {
-        this.filesystem = filesystem;
+    public App(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
     }
 
     public void run() {
-        this.filesystem.startSync();
+        this.fileSystem.startSync();
     }
 }
