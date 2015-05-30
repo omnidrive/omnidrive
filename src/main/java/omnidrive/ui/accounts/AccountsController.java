@@ -60,36 +60,30 @@ public class AccountsController implements Initializable, AuthService {
         this.loginView = new LoginView();
     }
 
-    /*******************************************
-     * Initializable
-     *******************************************/
-
+    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         addAllCloudsToListView();
         disableControlsFocus();
     }
 
-    /*******************************************
-     * LoginService
-     *******************************************/
-
+    @Override
     public void connect(DriveType type, BaseApi api, String authUrl) {
         this.loginView.show(this.loginManager, api, type, authUrl);
     }
 
+    @Override
     public void report(DriveType type, String message) {
         // TODO - popup message
         PopupView popUp = new PopupView();
         popUp.show(message);
     }
 
+    @Override
     public void terminate(DriveType type, BaseUser user) {
         this.accountsManager.setLoggedInUser(type, user);
         addAccountToListView(type);
         this.loginView.close();
     }
-
-    /*******************************************/
 
     @FXML
     protected void onAddAccountButtonClicked() {
