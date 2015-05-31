@@ -1,11 +1,11 @@
 package omnidrive.filesystem.entry;
 
-import java.util.UUID;
+import java.io.Serializable;
 
 public interface Entry {
 
-    UUID getId();
+    String getId();
 
-    EntryMetadata getMetadata();
+    Serializable getMetadata();
 
 }

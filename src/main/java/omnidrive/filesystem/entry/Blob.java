@@ -1,27 +1,28 @@
 package omnidrive.filesystem.entry;
 
 import java.io.File;
-import java.util.UUID;
+import java.io.Serializable;
 
 public class Blob implements Entry {
 
-    private final UUID id;
+    private final String id;
 
-    public Blob(UUID id) {
+    public Blob(String id) {
         this.id = id;
     }
 
     @Override
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
     @Override
-    public EntryMetadata getMetadata() {
+    public Serializable getMetadata() {
         return null;
     }
 
-    public static Blob from(File file) {
-        return null;
+    public static Blob from(String fileId, File file) {
+        return new Blob(fileId);
     }
+
 }

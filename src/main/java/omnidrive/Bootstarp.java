@@ -1,7 +1,10 @@
 package omnidrive;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import omnidrive.app.App;
 import omnidrive.filesystem.FileSystem;
+import omnidrive.filesystem.FileSystemModule;
 import omnidrive.install.Install;
 
 
@@ -13,6 +16,10 @@ public class Bootstarp {
 
 
     public Bootstarp() {
+
+        Injector injector = Guice.createInjector(new FileSystemModule());
+        FileSystem fs = injector.getInstance(FileSystem.class);
+
         this.fileSystem = new FileSystem();
         this.app = new App(this.fileSystem);
         this.install = new Install(this.fileSystem);
