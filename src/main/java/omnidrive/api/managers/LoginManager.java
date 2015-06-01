@@ -37,7 +37,7 @@ public class LoginManager implements AuthListener {
     @Override
     public void authenticated(DriveType type, BaseAccount account) {
         if (this.authService != null) {
-            this.authService.terminate(type, account);
+            this.authService.succeed(type, account);
         }
     }
 
@@ -54,7 +54,7 @@ public class LoginManager implements AuthListener {
 
     private void requestLogin(DriveType type, BaseApi api, String authUrl) {
         if (this.authService != null) {
-            this.authService.connect(type, api, authUrl);
+            this.authService.attempt(type, api, authUrl);
         }
     }
 

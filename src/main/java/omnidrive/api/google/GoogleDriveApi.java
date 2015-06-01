@@ -78,7 +78,7 @@ public class GoogleDriveApi extends BaseApi {
             GoogleCredential credential = new GoogleCredential().setFromTokenResponse(response);
 
             //Create a new authorized API client
-            Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).build();
+            Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("omnidrive").build();
 
             notifyAll(DriveType.GoogleDrive, new GoogleDriveAccount(service));
         } catch (IOException ex) {

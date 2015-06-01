@@ -6,12 +6,12 @@ import omnidrive.api.base.DriveType;
 
 public interface AuthService {
 
-    void connect(DriveType type, BaseApi api, String authUrl);
+    void attempt(DriveType type, BaseApi api, String authUrl);
 
 
     void report(DriveType type, String message);
 
 
-    void terminate(DriveType type, BaseAccount account);
+    void succeed(DriveType type, BaseAccount account);
 
 }
