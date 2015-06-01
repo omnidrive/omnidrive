@@ -1,13 +1,14 @@
 package omnidrive.filesystem.watcher;
 
+import omnidrive.filesystem.entry.Blob;
+
 import java.io.File;
 
 public interface Handler {
 
-    void create(File file);
+    void create(Blob blob) throws Exception;
 
-    void modify(File file);
+    void modify(File file) throws Exception;
 
-    void delete(File file);
-
+    void delete(File file) throws Exception;
 }

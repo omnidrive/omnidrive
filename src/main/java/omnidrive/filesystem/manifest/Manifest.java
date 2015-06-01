@@ -1,9 +1,8 @@
 package omnidrive.filesystem.manifest;
 
 import com.google.inject.Inject;
+import omnidrive.api.base.BaseAccount;
 import omnidrive.filesystem.entry.Blob;
-
-import java.io.File;
 
 public class Manifest {
 
@@ -14,10 +13,14 @@ public class Manifest {
         this.storage = storage;
     }
 
-    public void add(String fileId, File file) {
-        Blob blob = Blob.from(fileId, file);
-        storage.put(blob.getId(), blob.getMetadata());
+    public void add(Blob blob) {
+//        Blob blob = Blob.from(fileId, file);
+//        storage.put(blob.getId(), blob.getMetadata());
         storage.commit();
+    }
+
+    public void sync(BaseAccount account) {
+
     }
 
 }

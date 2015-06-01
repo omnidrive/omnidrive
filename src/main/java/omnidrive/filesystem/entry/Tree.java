@@ -11,12 +11,10 @@ public class Tree implements Entry {
         this.items = items;
     }
 
-    @Override
     public String getId() {
         return null;
     }
 
-    @Override
     public Serializable getMetadata() {
         return null;
     }

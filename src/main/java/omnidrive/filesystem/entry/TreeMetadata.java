@@ -14,6 +14,6 @@ public class TreeMetadata implements Serializable {
 
     }
 
-    public List<Item> items = new ArrayList<>();
+    public List<Item> items = new ArrayList();
 
 }

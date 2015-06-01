@@ -2,12 +2,12 @@ package omnidrive.filesystem.sync;
 
 import com.google.inject.Inject;
 import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.BaseException;
 import omnidrive.api.managers.AccountsManager;
+import omnidrive.filesystem.entry.Blob;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.watcher.Handler;
 
-import java.io.*;
+import java.io.File;
 
 public class SyncHandler implements Handler {
 
@@ -15,56 +15,36 @@ public class SyncHandler implements Handler {
 
     private final UploadStrategy uploadStrategy;
 
-    private final AccountsManager accountsManager = AccountsManager.getAccountsManager();
+    private final AccountsManager accountsManager;
 
     @Inject
-    public SyncHandler(Manifest manifest, UploadStrategy uploadStrategy) {
+    public SyncHandler(Manifest manifest,
+                       UploadStrategy uploadStrategy,
+                       AccountsManager accountsManager) {
         this.manifest = manifest;
         this.uploadStrategy = uploadStrategy;
+        this.accountsManager = accountsManager;
     }
 
-    @Override
-    public void create(File file) {
-        if (file.isFile()) {
-            try {
-                createFile(file);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (BaseException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Override
-    public void modify(File file) {
-
-    }
-
-    @Override
-    public void delete(File file) {
-
-    }
-
-    private void createFile(File file) throws FileNotFoundException, BaseException {
+    public void create(Blob blob) throws Exception {
         BaseAccount account = uploadStrategy.selectAccount();
-        String fileId = account.uploadFile(file.getName(), new FileInputStream(file), file.length());
-        manifest.add(fileId, file);
+        String newId = account.uploadFile(blob.getId(), blob.getInputStream(), blob.getSize());
+        blob = blob.copyWithNewId(newId);
+        manifest.add(blob);
         syncManifest();
+    }
 
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream os = new ObjectOutputStream(baos);
-            os.writeObject(fileId);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void modify(File file) throws Exception {
+
+    }
+
+    public void delete(File file) throws Exception {
 
     }
 
     private void syncManifest() {
         for (BaseAccount account : accountsManager.getActiveAccounts()) {
-//            account.uploadFile()
+            manifest.sync(account);
         }
     }
 

@@ -35,7 +35,6 @@ public class Watcher implements Runnable {
                 StandardWatchEventKinds.ENTRY_MODIFY);
     }
 
-    @Override
     public void run() {
         running = true;
         try {
@@ -63,13 +62,13 @@ public class Watcher implements Runnable {
             if (file.isDirectory()) {
                 registerRecursive(file.toPath());
             }
-            handler.create(file);
+//            handler.create(file);
         }
         if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
-            handler.modify(file);
+//            handler.modify(file);
         }
         if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
-            handler.delete(file);
+//            handler.delete(file);
         }
     }
 
