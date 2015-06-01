@@ -54,6 +54,10 @@ public class AccountsManager {
         return activeAccounts;
     }
 
+    public boolean isRegistered(DriveType type) {
+        return this.accounts[type.ordinal()] != null;
+    }
+
     public DriveType toType(BaseAccount account) {
         DriveType type = null;
 

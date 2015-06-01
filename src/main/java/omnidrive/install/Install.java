@@ -18,7 +18,7 @@ public class Install {
             this.fileSystem.initialize();
             showAccountsView();
         } catch (Exception ex) {
-            PopupView.error(ex.getMessage());
+            PopupView.popup().error(ex.getMessage());
         }
     }
 

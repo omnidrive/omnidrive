@@ -33,7 +33,7 @@ public class AccountsFXML extends Application {
         stage.setResizable(false);
         stage.setScene(scene);
         stage.setTitle("OmniDrive");
-        stage.getIcons().add(new Image("/omnidrive_icon.png"));
+        stage.getIcons().add(new Image("/omnidrive_icon_rounded_128.png"));
         stage.show();
     }
 
