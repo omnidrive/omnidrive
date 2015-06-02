@@ -30,7 +30,7 @@ public class SyncHandler implements Handler {
         BaseAccount account = uploadStrategy.selectAccount();
         String newId = account.uploadFile(blob.getId(), blob.getInputStream(), blob.getSize());
         blob = blob.copyWithNewId(newId);
-        manifest.add(blob);
+        manifest.add(account, blob);
         syncManifest();
     }
 

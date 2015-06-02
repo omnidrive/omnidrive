@@ -27,6 +27,11 @@ public class GoogleDriveAccount extends BaseAccount {
     }
 
     @Override
+    public String getName() {
+        return "drive";
+    }
+
+    @Override
     protected void createRootFolder() throws BaseException {
         File body = new File();
         body.setTitle(ROOT_FOLDER_NAME);

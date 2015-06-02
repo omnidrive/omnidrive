@@ -16,6 +16,11 @@ public class DropboxAccount extends BaseAccount {
     }
 
     @Override
+    public String getName() {
+        return "dropbox";
+    }
+
+    @Override
     protected void createRootFolder() throws BaseException {
         try {
             this.client.createFolder(ROOT_FOLDER_PATH);

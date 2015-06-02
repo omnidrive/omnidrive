@@ -51,7 +51,7 @@ public class SyncHandlerTest extends BaseTest {
         handler.create(blob);
 
         Blob newBlob = blob.copyWithNewId(newId);
-        verify(manifest).add(newBlob);
+        verify(manifest).add(account, newBlob);
     }
 
     @Test

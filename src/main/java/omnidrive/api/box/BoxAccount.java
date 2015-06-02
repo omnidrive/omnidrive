@@ -18,6 +18,11 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
+    public String getName() {
+        return "box";
+    }
+
+    @Override
     protected void createRootFolder() throws BaseException {
         com.box.sdk.BoxFolder parentFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), "/");
         parentFolder.createFolder(ROOT_FOLDER_NAME);
