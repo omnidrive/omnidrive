@@ -1,6 +1,8 @@
 package omnidrive.api.managers;
 
+import omnidrive.api.auth.AuthTokens;
 import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.BaseException;
 import omnidrive.api.base.DriveType;
 import omnidrive.api.box.BoxAccount;
 import omnidrive.api.dropbox.DropboxAccount;
@@ -8,11 +10,13 @@ import omnidrive.api.google.GoogleDriveAccount;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class AccountsManager {
 
     private static AccountsManager manager = null;
 
+    private final ApiManager apiManager = ApiManager.getApiManager();
     private final BaseAccount[] accounts = new BaseAccount[DriveType.length()];
 
     // singleton
@@ -26,6 +30,17 @@ public class AccountsManager {
         }
 
         return manager;
+    }
+
+    public void createAndStoreAccounts(Map<DriveType, AuthTokens> accountsInfo) throws BaseException {
+        for (DriveType type : accountsInfo.keySet()) {
+            BaseAccount account = createAccount(type, accountsInfo.get(type));
+            setAccount(type, account);
+        }
+    }
+
+    public BaseAccount createAccount(DriveType type, AuthTokens tokens) throws BaseException {
+        return this.apiManager.getApi(type).createAccount(tokens);
     }
 
     public void setAccount(DriveType type, BaseAccount account) {

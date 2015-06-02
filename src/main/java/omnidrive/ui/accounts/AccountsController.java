@@ -31,9 +31,6 @@ public class AccountsController implements Initializable, AuthService {
     private static final int HeightOfUnregisteredCell = 80;
     private static final int HeightOfRegisteredCell = 40;
 
-    private LogoListCell unregisteredClouds[];
-    private LogoListCell registeredClouds[];
-
     private final LoginManager loginManager;
 
     private final AccountsManager accountsManager;
@@ -61,7 +58,6 @@ public class AccountsController implements Initializable, AuthService {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        createListCollections();
         addAccountsToUnregisteredListView();
         disableControlsFocus();
     }
@@ -82,29 +78,37 @@ public class AccountsController implements Initializable, AuthService {
         this.accountsManager.setAccount(type, account);
         addAccountToListView(type);
         this.loginView.close();
+
+        // TODO - save token to manifest
     }
 
     @FXML
     protected void onAddAccountButtonClicked() {
         int selectedIndex = this.unregisteredAccountsListView.getFocusModel().getFocusedIndex();
+
         if (selectedIndex >= 0) {
-            DriveType type = DriveType.getType(selectedIndex);
+            LogoListCell selectedCell = (LogoListCell)this.unregisteredAccountsListView.getItems().get(selectedIndex);
+            DriveType type = selectedCell.getType();
             if (!this.accountsManager.isRegistered(type)) {
                 this.loginManager.login(type, this);
             }
         } else {
-            PopupView.popup().info("Please select account from the clouds list.");
+            PopupView.popup().info("Please select an unregistered cloud.");
         }
     }
 
     @FXML
     protected void onRemoveAccountButtonClicked() {
         int selectedIndex = this.registeredAccountsListView.getFocusModel().getFocusedIndex();
+
         if (selectedIndex >= 0) {
-            DriveType type = DriveType.getType(selectedIndex);
+            LogoListCell selectedCell = (LogoListCell)this.registeredAccountsListView.getItems().get(selectedIndex);
+            DriveType type = selectedCell.getType();
             this.loginManager.remove(type);
             this.accountsManager.removeAccount(type);
-            removeAccountFromListView(type);
+            removeAccountFromListView(selectedIndex);
+        } else {
+            PopupView.popup().info("Please select a registered cloud.");
         }
     }
 
@@ -115,50 +119,44 @@ public class AccountsController implements Initializable, AuthService {
         this.registeredAccountsListView.setFocusTraversable(false);
     }
 
-    private void createListCollections() {
-        this.unregisteredClouds = createUnregisteredCloudCells();
-        this.registeredClouds = createRegisteredCloudCells();
-    }
-
     private LogoListCell[] createUnregisteredCloudCells() {
         LogoListCell cells[] = new LogoListCell[NUM_OF_ACCOUNTS];
 
         for (int cellIdx = 0; cellIdx < NUM_OF_ACCOUNTS; cellIdx++) {
             DriveType type = DriveType.getType(cellIdx);
             Image iconImage = new Image(BigIconImagePaths[cellIdx]);
-            cells[cellIdx] = new LogoListCell(iconImage, type.toString());
+            cells[cellIdx] = new LogoListCell(type, iconImage);
             cells[cellIdx].setSize(this.unregisteredAccountsListView.getPrefWidth() - 10, HeightOfUnregisteredCell);
         }
 
         return cells;
     }
 
-    private LogoListCell[] createRegisteredCloudCells() {
+    private LogoListCell createRegisteredCloudCell(DriveType type) {
         final int SmallGap = 5;
-        LogoListCell cells[] = new LogoListCell[NUM_OF_ACCOUNTS];
 
-        for (int cellIdx = 0; cellIdx < NUM_OF_ACCOUNTS; cellIdx++) {
-            DriveType type = DriveType.getType(cellIdx);
-            Image iconImage = new Image(SmallIconImagePaths[cellIdx]);
-            cells[cellIdx] = new LogoListCell(iconImage, type.toString(), 18, SmallGap, SmallGap);
-            cells[cellIdx].setSize(this.registeredAccountsListView.getPrefWidth() - 10, HeightOfRegisteredCell);
-        }
+        Image iconImage = new Image(SmallIconImagePaths[type.ordinal()]);
 
-        return cells;
+        LogoListCell cell = new LogoListCell(type, iconImage, 16, SmallGap, SmallGap);
+        cell.setSize(this.registeredAccountsListView.getPrefWidth() - 10, HeightOfRegisteredCell);
+
+        return cell;
     }
 
     private void addAccountsToUnregisteredListView() {
-        this.unregisteredAccountsListView.getItems().addAll(this.unregisteredClouds);
+        LogoListCell cells[] = createUnregisteredCloudCells();
+        this.unregisteredAccountsListView.getItems().addAll(cells);
         this.unregisteredAccountsListView.layout();
     }
 
     private void addAccountToListView(DriveType type) {
-        this.registeredAccountsListView.getItems().add(this.registeredClouds[type.ordinal()]);
+        LogoListCell logoListCell = createRegisteredCloudCell(type);
+        this.registeredAccountsListView.getItems().add(logoListCell);
         this.registeredAccountsListView.layout();
     }
 
-    private void removeAccountFromListView(DriveType type) {
-        this.registeredAccountsListView.getItems().remove(this.registeredClouds[type.ordinal()]);
+    private void removeAccountFromListView(int index) {
+        this.registeredAccountsListView.getItems().remove(index);
         this.registeredAccountsListView.layout();
     }
 }

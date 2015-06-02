@@ -1,6 +1,7 @@
 package omnidrive.api.auth;
 
 import javafx.scene.web.WebEngine;
+import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.BaseException;
 
 public interface Authorizer {
@@ -11,5 +12,5 @@ public interface Authorizer {
 
     void finishAuthProcess(String code) throws BaseException;
 
-
+    BaseAccount createAccount(AuthTokens tokens) throws BaseException;
 }

@@ -10,11 +10,11 @@ public class LoginManager implements AuthListener {
 
     private AuthService authService;
 
-    private final ApiManager apiManager;
+    private final ApiManager apiManager = ApiManager.getApiManager();
 
     // singleton
     private LoginManager() {
-        this.apiManager = new ApiManager();
+
     }
 
     public void login(DriveType type, AuthService service) {
