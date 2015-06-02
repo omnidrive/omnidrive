@@ -13,8 +13,8 @@ public class BoxAccount extends BaseAccount {
 
     com.box.sdk.BoxUser user;
 
-    public BoxAccount(BoxAPIConnection connection, String id) {
-        this.user = new com.box.sdk.BoxUser(connection, id);
+    public BoxAccount(BoxAPIConnection connection) {
+        this.user = new com.box.sdk.BoxUser(connection, com.box.sdk.BoxUser.getCurrentUser(connection).getID());
     }
 
     @Override

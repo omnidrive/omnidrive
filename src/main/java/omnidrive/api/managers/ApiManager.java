@@ -11,10 +11,20 @@ public class ApiManager {
 
     private final BaseApi[] apis = new BaseApi[DriveType.length()];
 
-    public ApiManager() {
+    private static ApiManager apiManager = null;
+
+    private ApiManager() {
         for (DriveType type : DriveType.values()) {
             apis[type.ordinal()] = createApi(type);
         }
+    }
+
+    public static ApiManager getApiManager() {
+        if (apiManager == null) {
+            apiManager = new ApiManager();
+        }
+
+        return apiManager;
     }
 
     private BaseApi createApi(DriveType type) {

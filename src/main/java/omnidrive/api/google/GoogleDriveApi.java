@@ -10,9 +10,12 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import javafx.scene.web.WebEngine;
+import omnidrive.api.auth.AuthTokens;
+import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.BaseApi;
 import omnidrive.api.base.BaseException;
 import omnidrive.api.base.DriveType;
+import omnidrive.api.dropbox.DropboxAccount;
 import omnidrive.api.managers.LoginManager;
 
 import java.beans.PropertyChangeListener;
@@ -44,6 +47,19 @@ public class GoogleDriveApi extends BaseApi {
                 this.httpTransport, this.jsonFactory, CLIENT_ID, CLIENT_SECRET, Arrays.asList(DriveScopes.DRIVE))
                 .setAccessType("online")
                 .setApprovalPrompt("auto").build();
+    }
+
+    @Override
+    public BaseAccount createAccount(AuthTokens tokens) throws BaseException {
+        GoogleCredential credential = new GoogleCredential.Builder()
+                .setClientSecrets(CLIENT_ID, CLIENT_SECRET)
+                .setJsonFactory(jsonFactory).setTransport(httpTransport).build()
+                .setRefreshToken(tokens.getRefreshToken()).setAccessToken(tokens.getAccessToken());
+
+        //Create a new authorized API client
+        Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("omnidrive").build();
+
+        return new GoogleDriveAccount(service);
     }
 
     @Override
