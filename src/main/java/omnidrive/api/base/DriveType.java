@@ -11,6 +11,14 @@ public enum DriveType {
         this.text = text;
     }
 
+    public static DriveType getType(int index) {
+        return DriveType.values()[index];
+    }
+
+    public static int length() {
+        return DriveType.values().length;
+    }
+
     @Override
     public String toString() {
         return this.text;

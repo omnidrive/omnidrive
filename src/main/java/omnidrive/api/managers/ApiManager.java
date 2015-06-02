@@ -9,7 +9,7 @@ import omnidrive.api.google.GoogleDriveApi;
 
 public class ApiManager {
 
-    private final BaseApi[] apis = new BaseApi[DriveType.values().length];
+    private final BaseApi[] apis = new BaseApi[DriveType.length()];
 
     public ApiManager() {
         for (DriveType type : DriveType.values()) {

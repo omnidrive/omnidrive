@@ -43,13 +43,13 @@
                         <Pane prefHeight="25.0" prefWidth="129.0" style="-fx-border-color: #CCCCCC; -fx-background-color: #E0E0E0;" />
                      </children>
                   </HBox>
-                  <ListView fx:id="accountsListView" layoutX="20.0" layoutY="-1.0" prefHeight="242.0" prefWidth="180.0" />
+                  <ListView fx:id="registeredAccountsListView" layoutX="20.0" layoutY="-1.0" prefHeight="242.0" prefWidth="180.0" />
                </children>
             </Pane>
             <Pane prefHeight="280.0" prefWidth="60.0" />
             <Pane prefHeight="280.0" prefWidth="339.0">
                <children>
-                  <ListView fx:id="cloudsListView" prefHeight="265.0" prefWidth="320.0" />
+                  <ListView fx:id="unregisteredAccountsListView" prefHeight="265.0" prefWidth="320.0" />
                </children>
             </Pane>
          </children>
