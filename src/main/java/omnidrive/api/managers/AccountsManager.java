@@ -13,7 +13,7 @@ public class AccountsManager {
 
     private static AccountsManager manager = null;
 
-    private final BaseAccount[] accounts = new BaseAccount[DriveType.values().length];
+    private final BaseAccount[] accounts = new BaseAccount[DriveType.length()];
 
     // singleton
     private AccountsManager() {

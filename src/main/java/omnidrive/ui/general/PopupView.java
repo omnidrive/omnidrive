@@ -32,13 +32,14 @@ public class PopupView {
         this.iconImageView.setLayoutY(20);
 
         this.messageLabel = new Label();
-        this.messageLabel.setFont(new Font(18));
+        this.messageLabel.setFont(new Font(16));
         this.messageLabel.setPrefWidth(360);
         this.messageLabel.setPrefHeight(200);
         this.messageLabel.setLayoutX(20);
-        this.messageLabel.setLayoutY(100);
+        this.messageLabel.setLayoutY(120);
         this.messageLabel.setAlignment(Pos.TOP_LEFT);
         this.messageLabel.setTextAlignment(TextAlignment.LEFT);
+        this.messageLabel.setWrapText(true); // multiline
 
         final PopupView self = this;
 
