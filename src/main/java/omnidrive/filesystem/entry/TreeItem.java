@@ -1,6 +1,8 @@
 package omnidrive.filesystem.entry;
 
-public class TreeItem {
+import java.io.Serializable;
+
+public class TreeItem implements Serializable {
 
     final private String id;
 

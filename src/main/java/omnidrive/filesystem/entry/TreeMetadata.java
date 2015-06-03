@@ -2,18 +2,16 @@ package omnidrive.filesystem.entry;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class TreeMetadata implements Serializable {
 
-    public class Item {
+    final public List<TreeItem> items = new ArrayList<TreeItem>();
 
-        public String id;
-
-        public String name;
-
+    public TreeMetadata(TreeItem... items) {
+        Collections.addAll(this.items, items);
     }
 
-    public List<Item> items = new ArrayList();
 
 }

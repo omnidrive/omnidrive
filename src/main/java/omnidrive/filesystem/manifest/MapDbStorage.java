@@ -1,6 +1,7 @@
 package omnidrive.filesystem.manifest;
 
 import com.google.inject.Inject;
+import omnidrive.filesystem.entry.TreeMetadata;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
@@ -28,6 +29,10 @@ public class MapDbStorage implements Storage {
 
     public void put(String id, Serializable metadata) {
         map.put(id, metadata);
+    }
+
+    public TreeMetadata get(String id) {
+        return (TreeMetadata) map.get(id);
     }
 
     public void commit() {

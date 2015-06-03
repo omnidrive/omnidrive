@@ -5,12 +5,19 @@ import omnidrive.api.base.BaseAccount;
 import omnidrive.filesystem.entry.Blob;
 import omnidrive.filesystem.entry.BlobMetadata;
 
+import java.nio.file.Path;
+
 public class Manifest {
+
+    public static final String ROOT_KEY = "root";
+
+    private final Path root;
 
     private final Storage storage;
 
     @Inject
-    public Manifest(Storage storage) {
+    public Manifest(Path root, Storage storage) {
+        this.root = root;
         this.storage = storage;
     }
 
