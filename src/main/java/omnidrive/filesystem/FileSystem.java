@@ -1,5 +1,8 @@
 package omnidrive.filesystem;
 
+import omnidrive.api.auth.AuthTokens;
+import omnidrive.api.base.DriveType;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,4 +30,7 @@ public class FileSystem {
 
     }
 
+    public Map<DriveType, AuthTokens> getRegisteredAccounts() {
+        return new TreeMap<DriveType, AuthTokens>();
+    }
 }
