@@ -32,10 +32,13 @@ public class AccountsManager {
         return manager;
     }
 
-    public void createAndStoreAccounts(Map<DriveType, AuthTokens> accountsInfo) throws BaseException {
+    public void restoreAccounts(Map<DriveType, AuthTokens> accountsInfo) throws BaseException {
         for (DriveType type : accountsInfo.keySet()) {
-            BaseAccount account = createAccount(type, accountsInfo.get(type));
-            setAccount(type, account);
+            AuthTokens tokens = accountsInfo.get(type);
+            BaseAccount account = createAccount(type, tokens);
+            if (account != null) {
+                setAccount(type, account);
+            }
         }
     }
 

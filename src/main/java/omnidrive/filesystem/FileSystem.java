@@ -1,6 +1,11 @@
 package omnidrive.filesystem;
 
+import omnidrive.api.auth.AuthTokens;
+import omnidrive.api.base.DriveType;
+
 import java.io.File;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class FileSystem {
 
@@ -24,4 +29,7 @@ public class FileSystem {
 
     }
 
+    public Map<DriveType, AuthTokens> getRegisteredAccounts() {
+        return new TreeMap<DriveType, AuthTokens>();
+    }
 }

@@ -3,6 +3,9 @@ package omnidrive.ui.accounts;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -26,14 +29,28 @@ public class AccountsFXML extends Application {
         this.controller = fxmlLoader.getController();
 
         InputStream stream = fxmlLoader.getLocation().openStream();
-        VBox rootPane = (VBox)fxmlLoader.load(stream);
+        VBox rootPane = fxmlLoader.load(stream);
+
+        /*MenuBar menuBar = new MenuBar();
+        menuBar.useSystemMenuBarProperty().set(true);
+
+        Menu menu = new Menu("java");
+        MenuItem item = new MenuItem("Test");
+
+        menu.getItems().add(item);
+        menuBar.getMenus().add(menu);
+
+        rootPane.getChildren().add(menuBar);*/
 
         Scene scene = new Scene(rootPane, 600, 400);
         stage.initStyle(StageStyle.DECORATED);
+
+        stage.getIcons().add(new Image("/omnidrive_icon_1024.png"));
+        stage.getIcons().add(new Image("/omnidrive_icon_rounded_128.png"));
+
         stage.setResizable(false);
         stage.setScene(scene);
         stage.setTitle("OmniDrive");
-        stage.getIcons().add(new Image("/omnidrive_icon_rounded_128.png"));
         stage.show();
     }
 
