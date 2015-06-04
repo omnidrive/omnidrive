@@ -20,20 +20,9 @@ public class BlobTest extends BaseTest {
         Blob blob = new Blob(file);
 
         UUID.fromString(blob.getId());
+        assertEquals("hello.txt", blob.getName());
         assertEquals("Hello World", inputStreamToString(blob.getInputStream()));
         assertEquals(11, blob.getSize());
-    }
-
-    @Test
-    public void testCopyWithNewId() throws Exception {
-        File file = getResource("hello.txt");
-        Blob blob = new Blob(file);
-        String newId = "new id";
-        Blob newBlob = blob.copyWithNewId(newId);
-
-        assertEquals(newId, newBlob.getId());
-        assertEquals("Hello World", inputStreamToString(newBlob.getInputStream()));
-        assertEquals(11, newBlob.getSize());
     }
 
     private String inputStreamToString(InputStream inputStream) throws IOException {

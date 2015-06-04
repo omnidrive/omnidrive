@@ -5,38 +5,33 @@ import java.util.UUID;
 
 public class Blob implements Entry {
 
-    private final String id;
+    private String id;
 
-    private final InputStream inputStream;
+    private final File file;
 
-    private final long size;
-
-    public Blob(File file) throws FileNotFoundException {
+    public Blob(File file) {
         id = UUID.randomUUID().toString();
-        inputStream = new FileInputStream(file);
-        size = file.length();
-    }
-
-    public Blob(String id, InputStream inputStream, long size) {
-        this.id = id;
-        this.inputStream = inputStream;
-        this.size = size;
+        this.file = file;
     }
 
     public String getId() {
         return id;
     }
 
-    public InputStream getInputStream() {
-        return inputStream;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return file.getName();
+    }
+
+    public InputStream getInputStream() throws FileNotFoundException {
+        return new FileInputStream(file);
     }
 
     public long getSize() {
-        return size;
-    }
-
-    public Blob copyWithNewId(String newId) {
-        return new Blob(newId, inputStream, size);
+        return file.length();
     }
 
     @Override

@@ -15,6 +15,10 @@ public class Tree implements Entry {
         return null;
     }
 
+    public String getName() {
+        return null;
+    }
+
     public Serializable getMetadata() {
         return null;
     }

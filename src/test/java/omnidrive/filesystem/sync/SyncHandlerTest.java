@@ -14,9 +14,12 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.Collections;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class SyncHandlerTest extends BaseTest {
+
+    public static final String UPLOAD_ID = "new-id";
 
     private Manifest manifest = mock(Manifest.class);
 
@@ -29,29 +32,28 @@ public class SyncHandlerTest extends BaseTest {
     private SyncHandler handler = new SyncHandler(manifest, uploadStrategy, accountsManager);
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         when(uploadStrategy.selectAccount()).thenReturn(account);
         when(accountsManager.getActiveAccounts()).thenReturn(Collections.singletonList(account));
+        when(account.uploadFile(anyString(), any(InputStream.class), anyLong())).thenReturn(UPLOAD_ID);
     }
 
     @Test
     public void testCreateBlobUploadsToAccountUsingStrategy() throws Exception {
         Blob blob = createBlob();
+        String originalId = blob.getId();
 
         handler.create(blob);
-        verify(account).uploadFile(blob.getId(), blob.getInputStream(), blob.getSize());
+        verify(account).uploadFile(eq(originalId), any(InputStream.class), eq(blob.getSize()));
     }
 
     @Test
     public void testCreateBlobAddsToManifestWithNewId() throws Exception {
-        String newId = "new id";
-        when(account.uploadFile(anyString(), any(InputStream.class), anyLong())).thenReturn(newId);
-
         Blob blob = createBlob();
         handler.create(blob);
 
-        Blob newBlob = blob.copyWithNewId(newId);
-        verify(manifest).add(account, newBlob);
+        assertEquals(UPLOAD_ID, blob.getId());
+        verify(manifest).add(account, blob);
     }
 
     @Test

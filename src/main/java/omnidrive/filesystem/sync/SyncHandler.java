@@ -29,7 +29,7 @@ public class SyncHandler implements Handler {
     public void create(Blob blob) throws Exception {
         BaseAccount account = uploadStrategy.selectAccount();
         String newId = account.uploadFile(blob.getId(), blob.getInputStream(), blob.getSize());
-        blob = blob.copyWithNewId(newId);
+        blob.setId(newId);
         manifest.add(account, blob);
         syncManifest();
     }
