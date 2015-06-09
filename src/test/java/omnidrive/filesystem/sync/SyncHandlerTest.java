@@ -4,6 +4,7 @@ import omnidrive.api.base.BaseAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
 import omnidrive.filesystem.entry.Blob;
+import omnidrive.filesystem.entry.Tree;
 import omnidrive.filesystem.manifest.Manifest;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,9 +65,20 @@ public class SyncHandlerTest extends BaseTest {
         verify(manifest).sync(account);
     }
 
+    @Test
+    public void testCreateTreeAdsToManifest() throws Exception {
+        Tree tree = createTree();
+//        handler.create(tree);
+    }
+
     private Blob createBlob() throws URISyntaxException, FileNotFoundException {
         File file = getResource("hello.txt");
         return new Blob(file);
+    }
+
+    private Tree createTree() throws URISyntaxException {
+        File file = getResource("foo");
+        return new Tree(file);
     }
 
 }

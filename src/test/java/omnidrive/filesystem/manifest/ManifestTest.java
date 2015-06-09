@@ -2,17 +2,15 @@ package omnidrive.filesystem.manifest;
 
 import omnidrive.api.base.BaseAccount;
 import omnidrive.filesystem.BaseTest;
-import omnidrive.filesystem.entry.Blob;
-import omnidrive.filesystem.entry.BlobMetadata;
-import omnidrive.filesystem.entry.TreeItem;
+import omnidrive.filesystem.entry.*;
 import omnidrive.stub.Account;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -31,7 +29,7 @@ public class ManifestTest extends BaseTest {
     private Manifest manifest;
 
     @Before
-    public void setUp() throws URISyntaxException {
+    public void setUp() throws Exception {
         root = getResource(".").toPath().getParent();
 
         DB db = DBMaker.newMemoryDB().make();
@@ -41,13 +39,25 @@ public class ManifestTest extends BaseTest {
     }
 
     @Test
-    public void testAddFilePutsMetadataInStorage() throws Exception {
+    public void testAddBlobPutsMetadataInStorage() throws Exception {
         File file = getResource("hello.txt");
         Blob blob = new Blob(file);
 
         manifest.add(account, blob);
         BlobMetadata metadata = storage.getBlobMetadata(blob.getId());
         assertEquals(metadata, new BlobMetadata(file.length(), ACCOUNT_NAME));
+    }
+
+    @Test
+    @Ignore
+    public void testAddTreePutsMetadataInStorage() throws Exception {
+//        TreeItem item = new TreeItem("id", "name");
+//        Tree tree = new Tree(item);
+//
+//        manifest.add(account, tree);
+//        TreeMetadata metadata = storage.getTreeMetadata(tree.getId());
+//        assertEquals(1, metadata.items.size());
+//        assertEquals(item, metadata.items.get(0));
     }
 
     @Test
@@ -59,6 +69,11 @@ public class ManifestTest extends BaseTest {
         List<TreeItem> rootItems = storage.getTreeMetadata(Manifest.ROOT_KEY).items;
         assertEquals(1, rootItems.size());
         assertEquals("hello.txt", rootItems.get(0).getName());
+    }
+
+    @Test
+    @Ignore
+    public void testAddBlobUpdatesParentTreeInNestedFile() throws Exception {
     }
 
 }

@@ -1,26 +1,37 @@
 package omnidrive.filesystem.entry;
 
+import java.io.File;
 import java.io.Serializable;
-import java.util.List;
+import java.util.UUID;
 
 public class Tree implements Entry {
 
-    final private List<TreeItem> items;
+    final private String id;
 
-    public Tree(List<TreeItem> items) {
-        this.items = items;
+    final private File file;
+
+    public Tree(File file) {
+        id = UUID.randomUUID().toString();
+        this.file = file;
     }
 
     public String getId() {
-        return null;
+        return id;
     }
 
     public String getName() {
-        return null;
+        return file.getName();
     }
 
     public Serializable getMetadata() {
         return null;
     }
 
+    public TreeItem[] getItems() {
+        File[] files = file.listFiles();
+        assert files != null;
+        TreeItem[] items = new TreeItem[files.length];
+
+        return items;
+    }
 }
