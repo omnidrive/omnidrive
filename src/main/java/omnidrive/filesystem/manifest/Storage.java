@@ -1,17 +1,17 @@
 package omnidrive.filesystem.manifest;
 
-import omnidrive.filesystem.entry.BlobMetadata;
-import omnidrive.filesystem.entry.TreeMetadata;
+import omnidrive.filesystem.entry.Blob;
+import omnidrive.filesystem.entry.Tree;
 
 public interface Storage {
 
-    void put(String id, TreeMetadata metadata);
+    void put(Tree tree);
 
-    void put(String id, BlobMetadata metadata);
+    void put(Blob blob);
 
-    TreeMetadata getTreeMetadata(String id);
+    Tree getTree(String id);
 
-    BlobMetadata getBlobMetadata(String id);
+    Blob getBlob(String id);
 
     void commit();
 

@@ -2,7 +2,8 @@ package omnidrive.filesystem.manifest;
 
 import com.google.inject.Inject;
 import omnidrive.api.base.BaseAccount;
-import omnidrive.filesystem.entry.*;
+import omnidrive.filesystem.entry.Blob;
+import omnidrive.filesystem.entry.Tree;
 
 import java.nio.file.Path;
 
@@ -22,21 +23,21 @@ public class Manifest {
     }
 
     private void initRoot() {
-        storage.put(ROOT_KEY, new TreeMetadata());
+//        storage.put(ROOT_KEY, new TreeMetadata());
     }
 
     public void add(BaseAccount account, Blob blob) {
-        BlobMetadata metadata = new BlobMetadata(blob.getSize(), account.getName());
-        storage.put(blob.getId(), metadata);
-        updateParent(blob);
-        storage.commit();
+//        BlobMetadata metadata = new BlobMetadata(blob.getSize(), account.getName());
+//        storage.put(blob.getId(), metadata);
+//        updateParent(blob);
+//        storage.commit();
     }
 
     public void add(Tree tree) {
     }
 
     private void updateParent(Blob blob) {
-//        TreeMetadata metadata = storage.getTreeMetadata(ROOT_KEY);
+//        TreeMetadata metadata = storage.getTree(ROOT_KEY);
 //        metadata.items.add(new TreeItem(blob.getId(), blob.getName()));
     }
 

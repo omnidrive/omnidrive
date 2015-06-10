@@ -2,7 +2,6 @@ package omnidrive.filesystem.manifest;
 
 import omnidrive.api.base.BaseAccount;
 import omnidrive.filesystem.BaseTest;
-import omnidrive.filesystem.entry.*;
 import omnidrive.stub.Account;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -10,11 +9,7 @@ import org.junit.Test;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
-import java.io.File;
 import java.nio.file.Path;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 public class ManifestTest extends BaseTest {
 
@@ -44,7 +39,7 @@ public class ManifestTest extends BaseTest {
 //        Blob blob = new Blob(file);
 //
 //        manifest.add(account, blob);
-//        BlobMetadata metadata = storage.getBlobMetadata(blob.getId());
+//        BlobMetadata metadata = storage.getBlob(blob.getId());
 //        assertEquals(metadata, new BlobMetadata(file.length(), ACCOUNT_NAME));
     }
 
@@ -55,7 +50,7 @@ public class ManifestTest extends BaseTest {
 //        Tree tree = new Tree(item);
 //
 //        manifest.add(account, tree);
-//        TreeMetadata metadata = storage.getTreeMetadata(tree.getId());
+//        TreeMetadata metadata = storage.getTree(tree.getId());
 //        assertEquals(1, metadata.items.size());
 //        assertEquals(item, metadata.items.get(0));
     }
@@ -66,7 +61,7 @@ public class ManifestTest extends BaseTest {
 //        Blob blob = new Blob(file);
 //        manifest.add(account, blob);
 //
-//        List<TreeItem> rootItems = storage.getTreeMetadata(Manifest.ROOT_KEY).items;
+//        List<TreeItem> rootItems = storage.getTree(Manifest.ROOT_KEY).items;
 //        assertEquals(1, rootItems.size());
 //        assertEquals("hello.txt", rootItems.get(0).getName());
     }

@@ -1,8 +1,8 @@
 package omnidrive.filesystem.manifest;
 
 import com.google.inject.Inject;
-import omnidrive.filesystem.entry.BlobMetadata;
-import omnidrive.filesystem.entry.TreeMetadata;
+import omnidrive.filesystem.entry.Blob;
+import omnidrive.filesystem.entry.Tree;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
@@ -17,9 +17,9 @@ public class MapDbStorage implements Storage {
 
     final private DB db;
 
-    final private HTreeMap<String, TreeMetadata> trees;
+    final private HTreeMap<String, Tree> trees;
 
-    final private HTreeMap<String, BlobMetadata> blobs;
+    final private HTreeMap<String, Blob> blobs;
 
     @Inject
     public MapDbStorage(DB db) {
@@ -32,19 +32,19 @@ public class MapDbStorage implements Storage {
         this(makeDb(file));
     }
 
-    public void put(String id, TreeMetadata metadata) {
-        trees.put(id, metadata);
+    public void put(Tree tree) {
+        trees.put(tree.getId(), tree);
     }
 
-    public void put(String id, BlobMetadata metadata) {
-        blobs.put(id, metadata);
+    public void put(Blob blob) {
+        blobs.put(blob.getId(), blob);
     }
 
-    public TreeMetadata getTreeMetadata(String id) {
+    public Tree getTree(String id) {
         return trees.get(id);
     }
 
-    public BlobMetadata getBlobMetadata(String id) {
+    public Blob getBlob(String id) {
         return blobs.get(id);
     }
 

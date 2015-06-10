@@ -6,9 +6,12 @@ public class Blob implements Entry {
 
     private final long size;
 
-    public Blob(String id, long size) {
+    private final String account;
+
+    public Blob(String id, long size, String account) {
         this.id = id;
         this.size = size;
+        this.account = account;
     }
 
     public String getId() {
@@ -17,6 +20,10 @@ public class Blob implements Entry {
 
     public long getSize() {
         return size;
+    }
+
+    public String getAccount() {
+        return account;
     }
 
     @Override
@@ -33,5 +40,4 @@ public class Blob implements Entry {
     public int hashCode() {
         return id.hashCode();
     }
-
 }

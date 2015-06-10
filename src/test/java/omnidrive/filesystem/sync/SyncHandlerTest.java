@@ -61,7 +61,7 @@ public class SyncHandlerTest extends BaseTest {
 
         handler.create(file);
 
-        verify(manifest).add(account, new Blob(UPLOAD_ID, file.length()));
+        verify(manifest).add(account, new Blob(UPLOAD_ID, file.length(), account.getName()));
     }
 
     @Test

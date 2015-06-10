@@ -2,7 +2,6 @@ package omnidrive.filesystem.sync;
 
 import com.google.inject.Inject;
 import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.BaseException;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.entry.Blob;
 import omnidrive.filesystem.entry.Tree;
@@ -11,7 +10,6 @@ import omnidrive.filesystem.watcher.Handler;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.UUID;
 
 public class SyncHandler implements Handler {
@@ -43,24 +41,8 @@ public class SyncHandler implements Handler {
         if (file.isFile()) {
             createFile(file);
         } else if (file.isDirectory()) {
-            createDir(file);
+            createDir();
         }
-    }
-
-    private void createFile(File file) throws Exception {
-        long size = file.length();
-        BaseAccount account = uploadStrategy.selectAccount();
-        UUID uuid = UUID.randomUUID();
-        String id = account.uploadFile(uuid.toString(), new FileInputStream(file), size);
-        Blob blob = new Blob(id, size);
-        manifest.add(account, blob);
-        syncManifest();
-    }
-
-    private void createDir(File dir) {
-        UUID uuid = UUID.randomUUID();
-        Tree tree = new Tree(uuid.toString());
-        manifest.add(tree);
     }
 
     public void modify(File file) throws Exception {
@@ -69,6 +51,22 @@ public class SyncHandler implements Handler {
 
     public void delete(File file) throws Exception {
 
+    }
+
+    private void createFile(File file) throws Exception {
+        long size = file.length();
+        BaseAccount account = uploadStrategy.selectAccount();
+        UUID uuid = UUID.randomUUID();
+        String id = account.uploadFile(uuid.toString(), new FileInputStream(file), size);
+        Blob blob = new Blob(id, size, account.getName());
+        manifest.add(account, blob);
+        syncManifest();
+    }
+
+    private void createDir() {
+        UUID uuid = UUID.randomUUID();
+        Tree tree = new Tree(uuid.toString());
+        manifest.add(tree);
     }
 
     private void syncManifest() {

@@ -1,16 +1,18 @@
 package omnidrive.filesystem.manifest;
 
-import omnidrive.filesystem.entry.BlobMetadata;
+import omnidrive.filesystem.entry.Blob;
+import omnidrive.filesystem.entry.Tree;
 import omnidrive.filesystem.entry.TreeItem;
-import omnidrive.filesystem.entry.TreeMetadata;
 import org.junit.Before;
 import org.junit.Test;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MapDbStorageTest {
 
@@ -23,41 +25,42 @@ public class MapDbStorageTest {
     }
 
     @Test
-    public void testPutAndGetEmptyTreeMetadata() throws Exception {
+    public void testPutAndGetEmptyTree() throws Exception {
         String id = "foo";
 
-        storage.put(id, new TreeMetadata());
+        storage.put(new Tree(id));
 
-        TreeMetadata metadata = storage.getTreeMetadata(id);
-        assertEquals(0, metadata.items.size());
+        Tree tree = storage.getTree(id);
+        assertEquals(id, tree.getId());
+        assertTrue(tree.getItems().isEmpty());
     }
 
     @Test
-    public void testPutAndGetTreeMetadataWithItems() throws Exception {
+    public void testPutAndGetTreeWithItems() throws Exception {
         String id = "foo";
-
         TreeItem item1 = new TreeItem("bar", "bar.txt");
         TreeItem item2 = new TreeItem("baz", "bar.txt");
-        TreeMetadata metadata = new TreeMetadata(item1, item2);
-        storage.put(id, metadata);
+        Tree tree = new Tree(id, Arrays.asList(item1, item2));
 
-        List<TreeItem> result = storage.getTreeMetadata(id).items;
+        storage.put(tree);
+
+        List<TreeItem> result = storage.getTree(id).getItems();
         assertEquals(2, result.size());
         assertEquals(item1, result.get(0));
         assertEquals(item2, result.get(1));
     }
 
     @Test
-    public void testPutAndGetBlobMetadata() throws Exception {
+    public void testPutAndGetBlob() throws Exception {
         String id = "foo";
-
         long size = 10;
         String account = "my-account";
-        BlobMetadata metadata = new BlobMetadata(size, account);
-        storage.put(id, metadata);
+        Blob blob = new Blob(id, size, account);
 
-        BlobMetadata result = storage.getBlobMetadata(id);
-        assertEquals(metadata, result);
+        storage.put(blob);
+
+        Blob result = storage.getBlob(id);
+        assertEquals(blob, result);
     }
 
 }

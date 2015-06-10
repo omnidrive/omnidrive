@@ -1,6 +1,8 @@
 package omnidrive.filesystem.entry;
 
-public interface Entry {
+import java.io.Serializable;
+
+public interface Entry extends Serializable {
 
     String getId();
 
