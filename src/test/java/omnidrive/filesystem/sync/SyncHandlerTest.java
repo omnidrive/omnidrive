@@ -6,7 +6,7 @@ import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Tree;
-import omnidrive.filesystem.manifest.storage.Storage;
+import omnidrive.filesystem.manifest.Manifest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -27,7 +27,7 @@ public class SyncHandlerTest extends BaseTest {
 
     public static final String UPLOAD_ID = "new-id";
 
-    private Storage manifest = mock(Storage.class);
+    private Manifest manifest = mock(Manifest.class);
 
     private BaseAccount account = mock(BaseAccount.class);
 

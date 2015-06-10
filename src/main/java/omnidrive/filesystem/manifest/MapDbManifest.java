@@ -3,14 +3,13 @@ package omnidrive.filesystem.manifest;
 import com.google.inject.Inject;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Tree;
-import omnidrive.filesystem.manifest.storage.Storage;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
 
 import java.io.File;
 
-public class MapDbStorage implements Storage {
+public class MapDbManifest implements Manifest {
 
     public static final String TREES_MAP = "manifest-trees";
 
@@ -23,13 +22,13 @@ public class MapDbStorage implements Storage {
     final private HTreeMap<String, Blob> blobs;
 
     @Inject
-    public MapDbStorage(DB db) {
+    public MapDbManifest(DB db) {
         this.db = db;
         trees = db.getHashMap(TREES_MAP);
         blobs = db.getHashMap(BLOBS_MAP);
     }
 
-    public MapDbStorage(File file) {
+    public MapDbManifest(File file) {
         this(makeDb(file));
     }
 

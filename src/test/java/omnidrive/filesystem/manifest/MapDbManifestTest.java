@@ -3,7 +3,6 @@ package omnidrive.filesystem.manifest;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
-import omnidrive.filesystem.manifest.storage.Storage;
 import org.junit.Before;
 import org.junit.Test;
 import org.mapdb.DB;
@@ -15,23 +14,23 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class MapDbStorageTest {
+public class MapDbManifestTest {
 
-    private Storage storage;
+    private Manifest manifest;
 
     @Before
     public void setUp() throws Exception {
         DB db = DBMaker.newMemoryDB().make();
-        storage = new MapDbStorage(db);
+        manifest = new MapDbManifest(db);
     }
 
     @Test
     public void testPutAndGetEmptyTree() throws Exception {
         String id = "foo";
 
-        storage.put(new Tree(id));
+        manifest.put(new Tree(id));
 
-        Tree tree = storage.getTree(id);
+        Tree tree = manifest.getTree(id);
         assertEquals(id, tree.getId());
         assertTrue(tree.getItems().isEmpty());
     }
@@ -43,9 +42,9 @@ public class MapDbStorageTest {
         TreeItem item2 = new TreeItem("baz", "bar.txt");
         Tree tree = new Tree(id, Arrays.asList(item1, item2));
 
-        storage.put(tree);
+        manifest.put(tree);
 
-        List<TreeItem> result = storage.getTree(id).getItems();
+        List<TreeItem> result = manifest.getTree(id).getItems();
         assertEquals(2, result.size());
         assertEquals(item1, result.get(0));
         assertEquals(item2, result.get(1));
@@ -58,9 +57,9 @@ public class MapDbStorageTest {
         String account = "my-account";
         Blob blob = new Blob(id, size, account);
 
-        storage.put(blob);
+        manifest.put(blob);
 
-        Blob result = storage.getBlob(id);
+        Blob result = manifest.getBlob(id);
         assertEquals(blob, result);
     }
 

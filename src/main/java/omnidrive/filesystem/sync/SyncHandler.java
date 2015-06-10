@@ -5,7 +5,7 @@ import omnidrive.api.base.BaseAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Tree;
-import omnidrive.filesystem.manifest.storage.Storage;
+import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.watcher.Handler;
 
 import java.io.File;
@@ -14,14 +14,14 @@ import java.util.UUID;
 
 public class SyncHandler implements Handler {
 
-    private final Storage manifest;
+    private final Manifest manifest;
 
     private final UploadStrategy uploadStrategy;
 
     private final AccountsManager accountsManager;
 
     @Inject
-    public SyncHandler(Storage manifest,
+    public SyncHandler(Manifest manifest,
                        UploadStrategy uploadStrategy,
                        AccountsManager accountsManager) {
         this.manifest = manifest;

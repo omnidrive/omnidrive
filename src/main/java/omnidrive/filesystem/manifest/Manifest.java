@@ -1,9 +1,9 @@
-package omnidrive.filesystem.manifest.storage;
+package omnidrive.filesystem.manifest;
 
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Tree;
 
-public interface Storage {
+public interface Manifest {
 
     void put(Tree tree);
 

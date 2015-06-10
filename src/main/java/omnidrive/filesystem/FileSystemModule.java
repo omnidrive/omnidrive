@@ -1,8 +1,8 @@
 package omnidrive.filesystem;
 
 import com.google.inject.AbstractModule;
-import omnidrive.filesystem.manifest.MapDbStorage;
-import omnidrive.filesystem.manifest.storage.Storage;
+import omnidrive.filesystem.manifest.MapDbManifest;
+import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.sync.SimpleUploadStrategy;
 import omnidrive.filesystem.sync.SyncHandler;
 import omnidrive.filesystem.sync.UploadStrategy;
@@ -18,7 +18,7 @@ public class FileSystemModule extends AbstractModule {
     protected void configure() {
         try {
             bind(UploadStrategy.class).to(SimpleUploadStrategy.class);
-            bind(Storage.class).to(MapDbStorage.class);
+            bind(Manifest.class).to(MapDbManifest.class);
 
             bind(WatchService.class).toInstance(FileSystems.getDefault().newWatchService());
             bind(Handler.class).to(SyncHandler.class);
