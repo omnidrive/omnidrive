@@ -1,4 +1,4 @@
-package omnidrive.filesystem.entry;
+package omnidrive.filesystem.manifest.entry;
 
 import java.util.Collections;
 import java.util.List;

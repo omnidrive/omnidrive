@@ -3,9 +3,9 @@ package omnidrive.filesystem.sync;
 import com.google.inject.Inject;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.managers.AccountsManager;
-import omnidrive.filesystem.entry.Blob;
-import omnidrive.filesystem.entry.Tree;
-import omnidrive.filesystem.manifest.Manifest;
+import omnidrive.filesystem.manifest.entry.Blob;
+import omnidrive.filesystem.manifest.entry.Tree;
+import omnidrive.filesystem.manifest.storage.Storage;
 import omnidrive.filesystem.watcher.Handler;
 
 import java.io.File;
@@ -14,14 +14,14 @@ import java.util.UUID;
 
 public class SyncHandler implements Handler {
 
-    private final Manifest manifest;
+    private final Storage manifest;
 
     private final UploadStrategy uploadStrategy;
 
     private final AccountsManager accountsManager;
 
     @Inject
-    public SyncHandler(Manifest manifest,
+    public SyncHandler(Storage manifest,
                        UploadStrategy uploadStrategy,
                        AccountsManager accountsManager) {
         this.manifest = manifest;
@@ -59,19 +59,20 @@ public class SyncHandler implements Handler {
         UUID uuid = UUID.randomUUID();
         String id = account.uploadFile(uuid.toString(), new FileInputStream(file), size);
         Blob blob = new Blob(id, size, account.getName());
-        manifest.add(account, blob);
+        manifest.put(blob);
         syncManifest();
     }
 
     private void createDir() {
         UUID uuid = UUID.randomUUID();
         Tree tree = new Tree(uuid.toString());
-        manifest.add(tree);
+        manifest.put(tree);
     }
 
     private void syncManifest() {
         for (BaseAccount account : accountsManager.getActiveAccounts()) {
-            manifest.sync(account);
+//            manifest.commit();
+//            manifest.sync(account);
         }
     }
 

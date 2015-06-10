@@ -1,6 +1,6 @@
 package omnidrive.filesystem.watcher;
 
-import omnidrive.filesystem.entry.Blob;
+import omnidrive.filesystem.manifest.entry.Blob;
 
 import java.io.File;
 

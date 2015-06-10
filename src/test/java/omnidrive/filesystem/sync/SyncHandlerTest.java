@@ -4,9 +4,9 @@ import com.google.common.io.CharStreams;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
-import omnidrive.filesystem.entry.Blob;
-import omnidrive.filesystem.entry.Tree;
-import omnidrive.filesystem.manifest.Manifest;
+import omnidrive.filesystem.manifest.entry.Blob;
+import omnidrive.filesystem.manifest.entry.Tree;
+import omnidrive.filesystem.manifest.storage.Storage;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -25,7 +27,7 @@ public class SyncHandlerTest extends BaseTest {
 
     public static final String UPLOAD_ID = "new-id";
 
-    private Manifest manifest = mock(Manifest.class);
+    private Storage manifest = mock(Storage.class);
 
     private BaseAccount account = mock(BaseAccount.class);
 
@@ -56,12 +58,13 @@ public class SyncHandlerTest extends BaseTest {
     }
 
     @Test
-    public void testCreateFileAddsToManifestWithNewId() throws Exception {
+    public void testCreateFileAddsToManifest() throws Exception {
         File file = getResource("hello.txt");
+        Path path = Paths.get(file.toURI());
 
         handler.create(file);
 
-        verify(manifest).add(account, new Blob(UPLOAD_ID, file.length(), account.getName()));
+        verify(manifest).put(new Blob(UPLOAD_ID, file.length(), account.getName()));
     }
 
     @Test
@@ -70,7 +73,7 @@ public class SyncHandlerTest extends BaseTest {
 
         handler.create(file);
 
-        verify(manifest).sync(account);
+//        verify(manifest).sync(account);
     }
 
     @Test
@@ -80,7 +83,7 @@ public class SyncHandlerTest extends BaseTest {
 
         handler.create(dir);
 
-        verify(manifest).add(argument.capture());
+        verify(manifest).put(argument.capture());
         Tree tree = argument.getValue();
         assertValidUUID(tree.getId());
         assertTrue(tree.getItems().isEmpty());

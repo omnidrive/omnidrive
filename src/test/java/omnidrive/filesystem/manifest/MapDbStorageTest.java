@@ -1,8 +1,9 @@
 package omnidrive.filesystem.manifest;
 
-import omnidrive.filesystem.entry.Blob;
-import omnidrive.filesystem.entry.Tree;
-import omnidrive.filesystem.entry.TreeItem;
+import omnidrive.filesystem.manifest.entry.Blob;
+import omnidrive.filesystem.manifest.entry.Tree;
+import omnidrive.filesystem.manifest.entry.TreeItem;
+import omnidrive.filesystem.manifest.storage.Storage;
 import org.junit.Before;
 import org.junit.Test;
 import org.mapdb.DB;

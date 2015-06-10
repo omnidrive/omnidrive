@@ -1,7 +1,7 @@
-package omnidrive.filesystem.manifest;
+package omnidrive.filesystem.manifest.storage;
 
-import omnidrive.filesystem.entry.Blob;
-import omnidrive.filesystem.entry.Tree;
+import omnidrive.filesystem.manifest.entry.Blob;
+import omnidrive.filesystem.manifest.entry.Tree;
 
 public interface Storage {
 

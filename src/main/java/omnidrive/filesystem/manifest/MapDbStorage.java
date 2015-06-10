@@ -1,8 +1,9 @@
 package omnidrive.filesystem.manifest;
 
 import com.google.inject.Inject;
-import omnidrive.filesystem.entry.Blob;
-import omnidrive.filesystem.entry.Tree;
+import omnidrive.filesystem.manifest.entry.Blob;
+import omnidrive.filesystem.manifest.entry.Tree;
+import omnidrive.filesystem.manifest.storage.Storage;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
