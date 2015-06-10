@@ -34,7 +34,7 @@ public class ManifestTest extends BaseTest {
     }
 
     @Test
-    public void testAddBlobPutsMetadataInStorage() throws Exception {
+    public void testAddBlobPutsInStorage() throws Exception {
 //        File file = getResource("hello.txt");
 //        Blob blob = new Blob(file);
 //

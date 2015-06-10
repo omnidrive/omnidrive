@@ -23,7 +23,7 @@ public class Manifest {
     }
 
     private void initRoot() {
-//        storage.put(ROOT_KEY, new TreeMetadata());
+        storage.put(new Tree(ROOT_KEY));
     }
 
     public void add(BaseAccount account, Blob blob) {
