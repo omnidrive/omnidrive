@@ -1,5 +1,6 @@
 package omnidrive.filesystem.sync;
 
+import com.google.common.io.CharStreams;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
@@ -8,14 +9,16 @@ import omnidrive.filesystem.entry.Tree;
 import omnidrive.filesystem.manifest.Manifest;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.util.Collections;
+import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class SyncHandlerTest extends BaseTest {
@@ -40,45 +43,59 @@ public class SyncHandlerTest extends BaseTest {
     }
 
     @Test
-    public void testCreateBlobUploadsToAccountUsingStrategy() throws Exception {
-        Blob blob = createBlob();
-        String originalId = blob.getId();
+    public void testCreateFileUploadsToAccountUsingStrategy() throws Exception {
+        File file = getResource("hello.txt");
+        ArgumentCaptor<String> nameArgument = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<InputStream> inputStreamArgument = ArgumentCaptor.forClass(InputStream.class);
 
-        handler.create(blob);
-        verify(account).uploadFile(eq(originalId), any(InputStream.class), eq(blob.getSize()));
+        handler.create(file);
+
+        verify(account).uploadFile(nameArgument.capture(), inputStreamArgument.capture(), eq(file.length()));
+        assertValidUUID(nameArgument.getValue());
+        assertEquals("Hello World", CharStreams.toString(new InputStreamReader(inputStreamArgument.getValue())));
     }
 
     @Test
-    public void testCreateBlobAddsToManifestWithNewId() throws Exception {
-        Blob blob = createBlob();
-        handler.create(blob);
+    public void testCreateFileAddsToManifestWithNewId() throws Exception {
+        File file = getResource("hello.txt");
 
-        assertEquals(UPLOAD_ID, blob.getId());
-        verify(manifest).add(account, blob);
+        handler.create(file);
+
+        verify(manifest).add(account, new Blob(UPLOAD_ID, file.length()));
     }
 
     @Test
     public void testCreateBlobSyncsManifestToAllAccounts() throws Exception {
-        Blob blob = createBlob();
-        handler.create(blob);
+        File file = getResource("hello.txt");
+
+        handler.create(file);
 
         verify(manifest).sync(account);
     }
 
     @Test
-    public void testCreateTreeAdsToManifest() throws Exception {
-        Tree tree = createTree();
-//        handler.create(tree);
+    public void testCreateEmptyDirAddsToManifest() throws Exception {
+        File dir = Files.createTempDirectory("empty").toFile();
+        ArgumentCaptor<Tree> argument = ArgumentCaptor.forClass(Tree.class);
+
+        handler.create(dir);
+
+        verify(manifest).add(argument.capture());
+        Tree tree = argument.getValue();
+        assertValidUUID(tree.getId());
+        assertTrue(tree.getItems().isEmpty());
+
+        //noinspection ResultOfMethodCallIgnored
+        dir.delete();
     }
 
-    private Blob createBlob() throws URISyntaxException, FileNotFoundException {
-        File file = getResource("hello.txt");
-        return new Blob(file);
-    }
-
-    private Tree createTree() throws URISyntaxException {
-        File file = getResource("foo");
-        return new Tree(file);
+    private void assertValidUUID(String id) {
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            UUID.fromString(id);
+        } catch (Exception e) {
+            fail("Invalid UUID: " + id);
+        }
     }
 
 }

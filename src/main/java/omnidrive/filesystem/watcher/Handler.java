@@ -8,7 +8,10 @@ public interface Handler {
 
     void create(Blob blob) throws Exception;
 
+    void create(File file) throws Exception;
+
     void modify(File file) throws Exception;
 
     void delete(File file) throws Exception;
+
 }

@@ -32,13 +32,12 @@ public class Manifest {
         storage.commit();
     }
 
-    public void add(BaseAccount account, Tree tree) {
-        TreeMetadata metadata = new TreeMetadata();
+    public void add(Tree tree) {
     }
 
     private void updateParent(Blob blob) {
-        TreeMetadata metadata = storage.getTreeMetadata(ROOT_KEY);
-        metadata.items.add(new TreeItem(blob.getId(), blob.getName()));
+//        TreeMetadata metadata = storage.getTreeMetadata(ROOT_KEY);
+//        metadata.items.add(new TreeItem(blob.getId(), blob.getName()));
     }
 
     public void sync(BaseAccount account) {
