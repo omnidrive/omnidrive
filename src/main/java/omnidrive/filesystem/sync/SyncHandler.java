@@ -6,6 +6,7 @@ import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.Manifest;
+import omnidrive.filesystem.manifest.entry.TreeItem;
 import omnidrive.filesystem.watcher.Handler;
 
 import java.io.File;
@@ -29,20 +30,14 @@ public class SyncHandler implements Handler {
         this.accountsManager = accountsManager;
     }
 
-    public void create(Blob blob) throws Exception {
-//        BaseAccount account = uploadStrategy.selectAccount();
-//        String newId = account.uploadFile(blob.getId(), blob.getInputStream(), blob.getSize());
-//        blob.setId(newId);
-//        manifest.add(account, blob);
-//        syncManifest();
-    }
-
-    public void create(File file) throws Exception {
+    public String create(File file) throws Exception {
+        String id = null;
         if (file.isFile()) {
-            createFile(file);
+            id = createFile(file);
         } else if (file.isDirectory()) {
-            createDir();
+            id = createDir();
         }
+        return id;
     }
 
     public void modify(File file) throws Exception {
@@ -53,27 +48,38 @@ public class SyncHandler implements Handler {
 
     }
 
-    private void createFile(File file) throws Exception {
+    private String createFile(File file) throws Exception {
         long size = file.length();
         BaseAccount account = uploadStrategy.selectAccount();
         UUID uuid = UUID.randomUUID();
         String id = account.uploadFile(uuid.toString(), new FileInputStream(file), size);
         Blob blob = new Blob(id, size, account.getName());
         manifest.put(blob);
+
+        // update parent
+        Tree root = manifest.getRoot();
+        root.getItems().add(new TreeItem(id, file.getName()));
+        manifest.put(root);
+
         syncManifest();
+
+        return id;
     }
 
-    private void createDir() {
+    private String createDir() {
         UUID uuid = UUID.randomUUID();
-        Tree tree = new Tree(uuid.toString());
+        String id = uuid.toString();
+        Tree tree = new Tree(id);
         manifest.put(tree);
+
+        return id;
     }
 
     private void syncManifest() {
-        for (BaseAccount account : accountsManager.getActiveAccounts()) {
+//        for (BaseAccount account : accountsManager.getActiveAccounts()) {
 //            manifest.commit();
 //            manifest.sync(account);
-        }
+//        }
     }
 
 }

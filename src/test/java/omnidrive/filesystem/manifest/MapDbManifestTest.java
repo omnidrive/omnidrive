@@ -8,7 +8,9 @@ import org.junit.Test;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
+import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -61,6 +63,40 @@ public class MapDbManifestTest {
 
         Blob result = manifest.getBlob(id);
         assertEquals(blob, result);
+    }
+
+    @Test
+    public void testInitEmptyRootIfDbIsEmpty() throws Exception {
+        Tree root = manifest.getRoot();
+        assertTrue(root.getItems().isEmpty());
+    }
+
+    @Test
+    public void testUseExistingRootIfPossible() throws Exception {
+        // Temp DB file
+        File file = File.createTempFile("manifest", "db");
+        DB db;
+
+        // Init non-empty root
+        db = DBMaker.newFileDB(file).closeOnJvmShutdown().make();
+        manifest = new MapDbManifest(db);
+        TreeItem item = new TreeItem("foo", "foo.txt");
+        Tree root = new Tree(MapDbManifest.ROOT_KEY, Collections.singletonList(item));
+        manifest.put(root);
+
+        // Close DB
+        db.commit();
+        db.close();
+
+        // Reopen DB to find root
+        db = DBMaker.newFileDB(file).closeOnJvmShutdown().make();
+        manifest = new MapDbManifest(db);
+        List<TreeItem> items = manifest.getRoot().getItems();
+        assertEquals(1, items.size());
+        assertEquals(item, items.get(0));
+
+        //noinspection ResultOfMethodCallIgnored
+        file.delete();
     }
 
 }

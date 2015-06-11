@@ -11,11 +11,11 @@ import java.io.File;
 
 public class MapDbManifest implements Manifest {
 
+    public static final String ROOT_KEY = "root";
+
     public static final String TREES_MAP = "manifest-trees";
 
     public static final String BLOBS_MAP = "manifest-blobs";
-
-    final private DB db;
 
     final private HTreeMap<String, Tree> trees;
 
@@ -23,13 +23,17 @@ public class MapDbManifest implements Manifest {
 
     @Inject
     public MapDbManifest(DB db) {
-        this.db = db;
         trees = db.getHashMap(TREES_MAP);
         blobs = db.getHashMap(BLOBS_MAP);
+        initRoot();
     }
 
     public MapDbManifest(File file) {
         this(makeDb(file));
+    }
+
+    public Tree getRoot() {
+        return getTree(ROOT_KEY);
     }
 
     public void put(Tree tree) {
@@ -48,8 +52,10 @@ public class MapDbManifest implements Manifest {
         return blobs.get(id);
     }
 
-    public void commit() {
-        db.commit();
+    private void initRoot() {
+        if (getRoot() == null) {
+            put(new Tree(ROOT_KEY));
+        }
     }
 
     private static DB makeDb(File file) {

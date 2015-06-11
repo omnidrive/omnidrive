@@ -9,10 +9,10 @@ public interface Manifest {
 
     void put(Blob blob);
 
+    Tree getRoot();
+
     Tree getTree(String id);
 
     Blob getBlob(String id);
-
-    void commit();
 
 }

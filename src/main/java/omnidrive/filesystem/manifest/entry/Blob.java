@@ -14,6 +14,10 @@ public class Blob implements Entry {
         this.account = account;
     }
 
+    public Type getType() {
+        return Type.BLOB;
+    }
+
     public String getId() {
         return id;
     }

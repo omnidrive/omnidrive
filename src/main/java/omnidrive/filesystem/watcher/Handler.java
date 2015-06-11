@@ -6,9 +6,7 @@ import java.io.File;
 
 public interface Handler {
 
-    void create(Blob blob) throws Exception;
-
-    void create(File file) throws Exception;
+    String create(File file) throws Exception;
 
     void modify(File file) throws Exception;
 
