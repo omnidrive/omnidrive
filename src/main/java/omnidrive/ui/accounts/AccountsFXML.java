@@ -1,6 +1,8 @@
 package omnidrive.ui.accounts;
 
 import javafx.application.Application;
+import javafx.embed.swing.JFXPanel;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
@@ -10,19 +12,23 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import omnidrive.OmniDrive;
+import omnidrive.ui.nsmenufx.NSMenuBarAdapter;
+import omnidrive.ui.nsmenufx.convert.ToJavaFXConverter;
 
 import java.io.InputStream;
 import java.net.URL;
 
 public class AccountsFXML extends Application {
 
+    public static FXMLLoader fxmlLoader;
     private static final String SCREEN_FXML_PATH = "/AccountsScreen.fxml";
 
     private AccountsController controller;
 
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader = new FXMLLoader();
         URL url = getClass().getResource(SCREEN_FXML_PATH);
         fxmlLoader.setLocation(url);
 
@@ -30,17 +36,6 @@ public class AccountsFXML extends Application {
 
         InputStream stream = fxmlLoader.getLocation().openStream();
         VBox rootPane = fxmlLoader.load(stream);
-
-        /*MenuBar menuBar = new MenuBar();
-        menuBar.useSystemMenuBarProperty().set(true);
-
-        Menu menu = new Menu("java");
-        MenuItem item = new MenuItem("Test");
-
-        menu.getItems().add(item);
-        menuBar.getMenus().add(menu);
-
-        rootPane.getChildren().add(menuBar);*/
 
         Scene scene = new Scene(rootPane, 600, 400);
         stage.initStyle(StageStyle.DECORATED);
