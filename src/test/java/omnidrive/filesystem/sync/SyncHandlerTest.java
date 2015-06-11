@@ -10,7 +10,6 @@ import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
@@ -20,9 +19,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +33,8 @@ public class SyncHandlerTest extends BaseTest {
 
     public static final String UPLOAD_ID = "new-id";
 
+    private Path root = getRoot();
+
     private Manifest manifest = createInMemoryManifest();
 
     private BaseAccount account = mock(BaseAccount.class);
@@ -42,7 +43,7 @@ public class SyncHandlerTest extends BaseTest {
 
     private AccountsManager accountsManager = mock(AccountsManager.class);
 
-    private SyncHandler handler = new SyncHandler(manifest, uploadStrategy, accountsManager);
+    private SyncHandler handler = new SyncHandler(root, manifest, uploadStrategy, accountsManager);
 
     @Before
     public void setUp() throws Exception {
@@ -65,7 +66,7 @@ public class SyncHandlerTest extends BaseTest {
     }
 
     @Test
-    public void testCreateFileAddsToManifest() throws Exception {
+    public void testCreateFileAddsBlobToManifest() throws Exception {
         File file = getResource("hello.txt");
 
         String id = handler.create(file);
@@ -87,9 +88,6 @@ public class SyncHandlerTest extends BaseTest {
 
     @Test
     public void testCreateBlobAddsEntryInParentTree() throws Exception {
-        manifest = createInMemoryManifest();
-        handler = new SyncHandler(manifest, uploadStrategy, accountsManager);
-
         Tree root = manifest.getRoot();
         assertTrue(root.getItems().isEmpty());
 
@@ -103,17 +101,50 @@ public class SyncHandlerTest extends BaseTest {
     }
 
     @Test
+    public void testCreateBlobInSubDirAddsEntryInParentTree() throws Exception {
+        manifest.put(new Tree("bar"));
+        manifest.put(new Tree("foo", Collections.singletonList(new TreeItem("bar", "bar"))));
+        Tree root = manifest.getRoot();
+        root.addItem(new TreeItem("foo", "foo"));
+        manifest.put(root);
+
+        File file = getResource("foo/bar/baz.txt");
+        handler.create(file);
+
+        List<TreeItem> items = manifest.getTree("bar").getItems();
+        assertEquals(1, items.size());
+        assertEquals("baz.txt", items.get(0).getName());
+    }
+
+    @Test
+    public void testCreateDirAddsEntryInParentTree() throws Exception {
+        manifest.put(new Tree("foo"));
+        Tree root = manifest.getRoot();
+        root.addItem(new TreeItem("foo", "foo"));
+        manifest.put(root);
+
+        File file = getResource("foo/bar");
+        handler.create(file);
+
+        List<TreeItem> items = manifest.getTree("foo").getItems();
+        assertEquals(1, items.size());
+        assertEquals("bar", items.get(0).getName());
+    }
+
+    @Test
     public void testCreateEmptyDirAddsToManifest() throws Exception {
-        File dir = Files.createTempDirectory("empty").toFile();
+        File dir = getResource("foo");
 
         String id = handler.create(dir);
 
         assertValidUUID(id);
         Tree expected = new Tree(id);
         assertEquals(expected, manifest.getTree(id));
+    }
 
-        //noinspection ResultOfMethodCallIgnored
-        dir.delete();
+    private Manifest createInMemoryManifest() {
+        DB db = DBMaker.newMemoryDB().make();
+        return new MapDbManifest(db);
     }
 
     private void assertValidUUID(String id) {
@@ -129,9 +160,12 @@ public class SyncHandlerTest extends BaseTest {
         return CharStreams.toString(new InputStreamReader(value));
     }
 
-    private Manifest createInMemoryManifest() {
-        DB db = DBMaker.newMemoryDB().make();
-        return new MapDbManifest(db);
+    private Path getRoot() {
+        try {
+            return getResource(".").toPath();
+        } catch (URISyntaxException e) {
+            return null;
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 package omnidrive.filesystem.manifest.entry;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Tree implements Entry {
@@ -31,6 +32,19 @@ public class Tree implements Entry {
         return items;
     }
 
+    public TreeItem getItem(String name) {
+        for (TreeItem item : items) {
+            if (item.getName().equals(name)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    public void addItem(TreeItem item) {
+        items.add(item);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -59,5 +73,4 @@ public class Tree implements Entry {
         }
         return true;
     }
-
 }
