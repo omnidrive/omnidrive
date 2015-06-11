@@ -18,7 +18,7 @@ public class FileSystem {
     }
 
     public boolean isReady() {
-        return false;
+        return true;
     }
 
     public void initialize() {
