@@ -7,9 +7,11 @@ import omnidrive.filesystem.BaseTest;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.MapDbManifest;
 import omnidrive.filesystem.manifest.entry.Blob;
+import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
@@ -20,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +31,8 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class SyncHandlerTest extends BaseTest {
+
+    public static final String ACCOUNT_NAME = "my-account";
 
     public static final String UPLOAD_ID = "new-id";
 
@@ -49,6 +52,7 @@ public class SyncHandlerTest extends BaseTest {
     public void setUp() throws Exception {
         when(uploadStrategy.selectAccount()).thenReturn(account);
         when(accountsManager.getActiveAccounts()).thenReturn(Collections.singletonList(account));
+        when(account.getName()).thenReturn(ACCOUNT_NAME);
         when(account.uploadFile(anyString(), any(InputStream.class), anyLong())).thenReturn(UPLOAD_ID);
     }
 
@@ -77,13 +81,13 @@ public class SyncHandlerTest extends BaseTest {
     }
 
     @Test
+    @Ignore
     public void testCreateBlobSyncsManifestToAllAccounts() throws Exception {
         File file = getResource("hello.txt");
 
         handler.create(file);
 
         // TODO: who syncs manifest? (handler / manifest / other)
-//        verify(manifest).sync(account);
     }
 
     @Test
@@ -103,9 +107,9 @@ public class SyncHandlerTest extends BaseTest {
     @Test
     public void testCreateBlobInSubDirAddsEntryInParentTree() throws Exception {
         manifest.put(new Tree("bar"));
-        manifest.put(new Tree("foo", Collections.singletonList(new TreeItem("bar", "bar"))));
+        manifest.put(new Tree("foo", Collections.singletonList(new TreeItem(Entry.Type.TREE, "bar", "bar"))));
         Tree root = manifest.getRoot();
-        root.addItem(new TreeItem("foo", "foo"));
+        root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo"));
         manifest.put(root);
 
         File file = getResource("foo/bar/baz.txt");
@@ -117,10 +121,21 @@ public class SyncHandlerTest extends BaseTest {
     }
 
     @Test
+    public void testCreateEmptyDirAddsTreeToManifest() throws Exception {
+        File dir = getResource("foo");
+
+        String id = handler.create(dir);
+
+        assertValidUUID(id);
+        Tree expected = new Tree(id);
+        assertEquals(expected, manifest.getTree(id));
+    }
+
+    @Test
     public void testCreateDirAddsEntryInParentTree() throws Exception {
         manifest.put(new Tree("foo"));
         Tree root = manifest.getRoot();
-        root.addItem(new TreeItem("foo", "foo"));
+        root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo"));
         manifest.put(root);
 
         File file = getResource("foo/bar");
@@ -129,17 +144,6 @@ public class SyncHandlerTest extends BaseTest {
         List<TreeItem> items = manifest.getTree("foo").getItems();
         assertEquals(1, items.size());
         assertEquals("bar", items.get(0).getName());
-    }
-
-    @Test
-    public void testCreateEmptyDirAddsToManifest() throws Exception {
-        File dir = getResource("foo");
-
-        String id = handler.create(dir);
-
-        assertValidUUID(id);
-        Tree expected = new Tree(id);
-        assertEquals(expected, manifest.getTree(id));
     }
 
     private Manifest createInMemoryManifest() {

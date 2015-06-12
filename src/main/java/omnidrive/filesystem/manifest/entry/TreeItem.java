@@ -4,13 +4,20 @@ import java.io.Serializable;
 
 public class TreeItem implements Serializable {
 
+    final private Entry.Type type;
+
     final private String id;
 
     final private String name;
 
-    public TreeItem(String id, String name) {
+    public TreeItem(Entry.Type type, String id, String name) {
+        this.type = type;
         this.id = id;
         this.name = name;
+    }
+
+    public Entry.Type getType() {
+        return type;
     }
 
     public String getId() {
@@ -28,15 +35,17 @@ public class TreeItem implements Serializable {
 
         TreeItem treeItem = (TreeItem) o;
 
-        return !(id != null ? !id.equals(treeItem.id) : treeItem.id != null) &&
-                !(name != null ? !name.equals(treeItem.name) : treeItem.name != null);
+        return type == treeItem.type &&
+                id.equals(treeItem.id) &&
+                name.equals(treeItem.name);
 
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        int result = type.hashCode();
+        result = 31 * result + id.hashCode();
+        result = 31 * result + name.hashCode();
         return result;
     }
 

@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.manifest.entry.Blob;
+import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.entry.TreeItem;
@@ -59,7 +60,7 @@ public class SyncHandler implements Handler {
         String id = account.uploadFile(getRandomId(), new FileInputStream(file), size);
         Blob blob = new Blob(id, size, account.getName());
         manifest.put(blob);
-        updateParent(file, id);
+        updateParent(file, Entry.Type.BLOB, id);
         syncManifest();
 
         return id;
@@ -69,7 +70,7 @@ public class SyncHandler implements Handler {
         String id = getRandomId();
         Tree tree = new Tree(id);
         manifest.put(tree);
-        updateParent(file, id);
+        updateParent(file, Entry.Type.TREE, id);
 
         return id;
     }
@@ -78,9 +79,9 @@ public class SyncHandler implements Handler {
         return UUID.randomUUID().toString();
     }
 
-    private void updateParent(File file, String id) {
+    private void updateParent(File file, Entry.Type type, String id) {
         Tree parent = findParent(file.toPath());
-        parent.addItem(new TreeItem(id, file.getName()));
+        parent.addItem(new TreeItem(type, id, file.getName()));
         manifest.put(parent);
     }
 

@@ -34,14 +34,20 @@ public class Blob implements Entry {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         Blob blob = (Blob) o;
 
-        return id.equals(blob.id);
-
+        return size == blob.size &&
+                id.equals(blob.id) &&
+                account.equals(blob.account);
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        int result = id.hashCode();
+        result = 31 * result + (int) (size ^ (size >>> 32));
+        result = 31 * result + account.hashCode();
+        return result;
     }
+
 }

@@ -1,6 +1,7 @@
 package omnidrive.filesystem.manifest;
 
 import omnidrive.filesystem.manifest.entry.Blob;
+import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
 import org.junit.Before;
@@ -40,8 +41,8 @@ public class MapDbManifestTest {
     @Test
     public void testPutAndGetTreeWithItems() throws Exception {
         String id = "foo";
-        TreeItem item1 = new TreeItem("bar", "bar.txt");
-        TreeItem item2 = new TreeItem("baz", "bar.txt");
+        TreeItem item1 = new TreeItem(Entry.Type.BLOB, "bar", "bar.txt");
+        TreeItem item2 = new TreeItem(Entry.Type.BLOB, "baz", "bar.txt");
         Tree tree = new Tree(id, Arrays.asList(item1, item2));
 
         manifest.put(tree);
@@ -80,7 +81,7 @@ public class MapDbManifestTest {
         // Init non-empty root
         db = DBMaker.newFileDB(file).closeOnJvmShutdown().make();
         manifest = new MapDbManifest(db);
-        TreeItem item = new TreeItem("foo", "foo.txt");
+        TreeItem item = new TreeItem(Entry.Type.BLOB, "foo", "foo.txt");
         Tree root = new Tree(MapDbManifest.ROOT_KEY, Collections.singletonList(item));
         manifest.put(root);
 
