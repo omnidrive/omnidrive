@@ -23,17 +23,13 @@ public class SyncHandler implements Handler {
 
     private final UploadStrategy uploadStrategy;
 
-    private final AccountsManager accountsManager;
-
     @Inject
     public SyncHandler(Path root,
                        Manifest manifest,
-                       UploadStrategy uploadStrategy,
-                       AccountsManager accountsManager) {
+                       UploadStrategy uploadStrategy) {
         this.root = root;
         this.manifest = manifest;
         this.uploadStrategy = uploadStrategy;
-        this.accountsManager = accountsManager;
     }
 
     public String create(File file) throws Exception {
@@ -57,25 +53,20 @@ public class SyncHandler implements Handler {
     private String createFile(File file) throws Exception {
         long size = file.length();
         BaseAccount account = uploadStrategy.selectAccount();
-        String id = account.uploadFile(getRandomId(), new FileInputStream(file), size);
-        Blob blob = new Blob(id, size, account.getName());
-        manifest.put(blob);
+        String id = account.uploadFile(randomId(), new FileInputStream(file), size);
+        manifest.put(new Blob(id, size, account.getName()));
         updateParent(file, Entry.Type.BLOB, id);
-        syncManifest();
-
         return id;
     }
 
     private String createDir(File file) {
-        String id = getRandomId();
-        Tree tree = new Tree(id);
-        manifest.put(tree);
+        String id = randomId();
+        manifest.put(new Tree(id));
         updateParent(file, Entry.Type.TREE, id);
-
         return id;
     }
 
-    private String getRandomId() {
+    private String randomId() {
         return UUID.randomUUID().toString();
     }
 
@@ -95,13 +86,6 @@ public class SyncHandler implements Handler {
             }
         }
         return current;
-    }
-
-    private void syncManifest() {
-//        for (BaseAccount account : accountsManager.getActiveAccounts()) {
-//            manifest.commit();
-//            manifest.sync(account);
-//        }
     }
 
 }

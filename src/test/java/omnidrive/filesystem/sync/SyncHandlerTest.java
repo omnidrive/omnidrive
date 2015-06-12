@@ -44,14 +44,11 @@ public class SyncHandlerTest extends BaseTest {
 
     private UploadStrategy uploadStrategy = mock(UploadStrategy.class);
 
-    private AccountsManager accountsManager = mock(AccountsManager.class);
-
-    private SyncHandler handler = new SyncHandler(root, manifest, uploadStrategy, accountsManager);
+    private SyncHandler handler = new SyncHandler(root, manifest, uploadStrategy);
 
     @Before
     public void setUp() throws Exception {
         when(uploadStrategy.selectAccount()).thenReturn(account);
-        when(accountsManager.getActiveAccounts()).thenReturn(Collections.singletonList(account));
         when(account.getName()).thenReturn(ACCOUNT_NAME);
         when(account.uploadFile(anyString(), any(InputStream.class), anyLong())).thenReturn(UPLOAD_ID);
     }
@@ -78,16 +75,6 @@ public class SyncHandlerTest extends BaseTest {
         assertEquals(UPLOAD_ID, id);
         Blob expected = new Blob(id, file.length(), account.getName());
         assertEquals(expected, manifest.getBlob(id));
-    }
-
-    @Test
-    @Ignore
-    public void testCreateBlobSyncsManifestToAllAccounts() throws Exception {
-        File file = getResource("hello.txt");
-
-        handler.create(file);
-
-        // TODO: who syncs manifest? (handler / manifest / other)
     }
 
     @Test
