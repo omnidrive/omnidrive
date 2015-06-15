@@ -2,7 +2,6 @@ package omnidrive.filesystem.sync;
 
 import com.google.common.io.CharStreams;
 import omnidrive.api.base.BaseAccount;
-import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.MapDbManifest;
@@ -10,11 +9,9 @@ import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
 import org.mockito.ArgumentCaptor;
 
 import java.io.File;
@@ -36,21 +33,28 @@ public class SyncHandlerTest extends BaseTest {
 
     public static final String UPLOAD_ID = "new-id";
 
-    private Path root = getRoot();
+    private Manifest manifest;
 
-    private Manifest manifest = createInMemoryManifest();
+    private BaseAccount account;
 
-    private BaseAccount account = mock(BaseAccount.class);
-
-    private UploadStrategy uploadStrategy = mock(UploadStrategy.class);
-
-    private SyncHandler handler = new SyncHandler(root, manifest, uploadStrategy);
+    private SyncHandler handler;
 
     @Before
     public void setUp() throws Exception {
+        manifest = createManifest();
+        UploadStrategy uploadStrategy = mock(UploadStrategy.class);
+        handler = new SyncHandler(getRoot(), manifest, uploadStrategy);
+
+        account = mock(BaseAccount.class);
         when(uploadStrategy.selectAccount()).thenReturn(account);
         when(account.getName()).thenReturn(ACCOUNT_NAME);
         when(account.uploadFile(anyString(), any(InputStream.class), anyLong())).thenReturn(UPLOAD_ID);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        manifest.close();
+
     }
 
     @Test
@@ -75,6 +79,15 @@ public class SyncHandlerTest extends BaseTest {
         assertEquals(UPLOAD_ID, id);
         Blob expected = new Blob(id, file.length(), account.getName());
         assertEquals(expected, manifest.getBlob(id));
+    }
+
+    @Test
+    public void testCreateFileSyncsManifest() throws Exception {
+        File file = getResource("hello.txt");
+
+        handler.create(file);
+
+        
     }
 
     @Test
@@ -133,9 +146,9 @@ public class SyncHandlerTest extends BaseTest {
         assertEquals("bar", items.get(0).getName());
     }
 
-    private Manifest createInMemoryManifest() {
-        DB db = DBMaker.newMemoryDB().make();
-        return new MapDbManifest(db);
+    private Manifest createManifest() throws IOException {
+        File manifestFile = File.createTempFile("manifest", ".tmp");
+        return new MapDbManifest(manifestFile);
     }
 
     private void assertValidUUID(String id) {

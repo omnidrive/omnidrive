@@ -1,30 +1,48 @@
 package omnidrive.filesystem.manifest;
 
+import omnidrive.api.base.BaseAccount;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class MapDbManifestTest {
+
+    private File manifestFile;
 
     private Manifest manifest;
 
     @Before
     public void setUp() throws Exception {
-        DB db = DBMaker.newMemoryDB().make();
-        manifest = new MapDbManifest(db);
+        manifestFile = createTempFile();
+        manifest = new MapDbManifest(manifestFile);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        manifest.close();
+        //noinspection ResultOfMethodCallIgnored
+        manifestFile.delete();
     }
 
     @Test
@@ -74,30 +92,33 @@ public class MapDbManifestTest {
 
     @Test
     public void testUseExistingRootIfPossible() throws Exception {
-        // Temp DB file
-        File file = File.createTempFile("manifest", "db");
-        DB db;
-
         // Init non-empty root
-        db = DBMaker.newFileDB(file).closeOnJvmShutdown().make();
-        manifest = new MapDbManifest(db);
         TreeItem item = new TreeItem(Entry.Type.BLOB, "foo", "foo.txt");
         Tree root = new Tree(MapDbManifest.ROOT_KEY, Collections.singletonList(item));
         manifest.put(root);
 
         // Close DB
-        db.commit();
-        db.close();
+        manifest.close();
 
         // Reopen DB to find root
-        db = DBMaker.newFileDB(file).closeOnJvmShutdown().make();
-        manifest = new MapDbManifest(db);
+        manifest = new MapDbManifest(manifestFile);
         List<TreeItem> items = manifest.getRoot().getItems();
         assertEquals(1, items.size());
         assertEquals(item, items.get(0));
+    }
 
-        //noinspection ResultOfMethodCallIgnored
-        file.delete();
+    @Test
+    public void testSyncManifestToAccounts() throws Exception {
+        BaseAccount account = mock(BaseAccount.class);
+        List<BaseAccount> accounts = Collections.singletonList(account);
+
+        manifest.sync(accounts);
+
+        verify(account).uploadFile(eq("manifest"), any(InputStream.class), anyLong());
+    }
+
+    private File createTempFile() throws IOException {
+        return File.createTempFile("manifest", "db");
     }
 
 }

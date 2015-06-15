@@ -2,11 +2,10 @@ package omnidrive.filesystem.sync;
 
 import com.google.inject.Inject;
 import omnidrive.api.base.BaseAccount;
-import omnidrive.api.managers.AccountsManager;
+import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
-import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.entry.TreeItem;
 import omnidrive.filesystem.watcher.Handler;
 
@@ -43,11 +42,11 @@ public class SyncHandler implements Handler {
     }
 
     public void modify(File file) throws Exception {
-
+        // TODO
     }
 
     public void delete(File file) throws Exception {
-
+        // TODO
     }
 
     private String createFile(File file) throws Exception {
