@@ -43,6 +43,7 @@ public class SyncHandler implements Handler {
         } else if (file.isDirectory()) {
             id = createDir(file);
         }
+        syncManifest();
         return id;
     }
 
@@ -60,7 +61,6 @@ public class SyncHandler implements Handler {
         String id = account.uploadFile(randomId(), new FileInputStream(file), size);
         manifest.put(new Blob(id, size, account.getName()));
         updateParent(file, Entry.Type.BLOB, id);
-        syncManifest();
         return id;
     }
 

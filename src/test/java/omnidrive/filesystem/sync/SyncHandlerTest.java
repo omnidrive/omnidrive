@@ -2,6 +2,7 @@ package omnidrive.filesystem.sync;
 
 import com.google.common.io.CharStreams;
 import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.BaseException;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
 import omnidrive.filesystem.manifest.Manifest;
@@ -85,15 +86,6 @@ public class SyncHandlerTest extends BaseTest {
     }
 
     @Test
-    public void testCreateFileSyncsManifest() throws Exception {
-        File file = getResource("hello.txt");
-
-        handler.create(file);
-
-        verify(account).uploadFile(eq("manifest"), any(InputStream.class), anyLong());
-    }
-
-    @Test
     public void testCreateBlobAddsEntryInParentTree() throws Exception {
         Tree root = manifest.getRoot();
         assertTrue(root.getItems().isEmpty());
@@ -147,6 +139,24 @@ public class SyncHandlerTest extends BaseTest {
         List<TreeItem> items = manifest.getTree("foo").getItems();
         assertEquals(1, items.size());
         assertEquals("bar", items.get(0).getName());
+    }
+
+    @Test
+    public void testCreateFileSyncsManifest() throws Exception {
+        File file = getResource("hello.txt");
+        handler.create(file);
+        assertManifestSyncedToAccount();
+    }
+
+    @Test
+    public void testCreateDirSyncsManifest() throws Exception {
+        File dir = getResource("foo");
+        handler.create(dir);
+        assertManifestSyncedToAccount();
+    }
+
+    private void assertManifestSyncedToAccount() throws BaseException {
+        verify(account).uploadFile(eq("manifest"), any(InputStream.class), anyLong());
     }
 
     private Manifest createManifest() throws IOException {
