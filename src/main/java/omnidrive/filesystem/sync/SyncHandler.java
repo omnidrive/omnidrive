@@ -2,6 +2,7 @@ package omnidrive.filesystem.sync;
 
 import com.google.inject.Inject;
 import omnidrive.api.base.BaseAccount;
+import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
@@ -22,13 +23,17 @@ public class SyncHandler implements Handler {
 
     private final UploadStrategy uploadStrategy;
 
+    private final AccountsManager accountsManager;
+
     @Inject
     public SyncHandler(Path root,
                        Manifest manifest,
-                       UploadStrategy uploadStrategy) {
+                       UploadStrategy uploadStrategy,
+                       AccountsManager accountsManager) {
         this.root = root;
         this.manifest = manifest;
         this.uploadStrategy = uploadStrategy;
+        this.accountsManager = accountsManager;
     }
 
     public String create(File file) throws Exception {
@@ -55,6 +60,7 @@ public class SyncHandler implements Handler {
         String id = account.uploadFile(randomId(), new FileInputStream(file), size);
         manifest.put(new Blob(id, size, account.getName()));
         updateParent(file, Entry.Type.BLOB, id);
+        syncManifest();
         return id;
     }
 
@@ -85,6 +91,10 @@ public class SyncHandler implements Handler {
             }
         }
         return current;
+    }
+
+    private void syncManifest() throws Exception {
+        manifest.sync(accountsManager.getActiveAccounts());
     }
 
 }

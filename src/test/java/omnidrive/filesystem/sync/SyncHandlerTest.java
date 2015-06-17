@@ -2,6 +2,7 @@ package omnidrive.filesystem.sync;
 
 import com.google.common.io.CharStreams;
 import omnidrive.api.base.BaseAccount;
+import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.MapDbManifest;
@@ -43,12 +44,14 @@ public class SyncHandlerTest extends BaseTest {
     public void setUp() throws Exception {
         manifest = createManifest();
         UploadStrategy uploadStrategy = mock(UploadStrategy.class);
-        handler = new SyncHandler(getRoot(), manifest, uploadStrategy);
+        AccountsManager accountsManager = mock(AccountsManager.class);
+        handler = new SyncHandler(getRoot(), manifest, uploadStrategy, accountsManager);
 
         account = mock(BaseAccount.class);
         when(uploadStrategy.selectAccount()).thenReturn(account);
         when(account.getName()).thenReturn(ACCOUNT_NAME);
         when(account.uploadFile(anyString(), any(InputStream.class), anyLong())).thenReturn(UPLOAD_ID);
+        when(accountsManager.getActiveAccounts()).thenReturn(Collections.singletonList(account));
     }
 
     @After
@@ -87,7 +90,7 @@ public class SyncHandlerTest extends BaseTest {
 
         handler.create(file);
 
-        
+        verify(account).uploadFile(eq("manifest"), any(InputStream.class), anyLong());
     }
 
     @Test
