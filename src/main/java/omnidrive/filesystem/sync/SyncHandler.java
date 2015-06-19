@@ -2,6 +2,7 @@ package omnidrive.filesystem.sync;
 
 import com.google.inject.Inject;
 import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.DriveType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.entry.Blob;
@@ -37,18 +38,32 @@ public class SyncHandler implements Handler {
     }
 
     public String create(File file) throws Exception {
-        String id = null;
+        String id;
         if (file.isFile()) {
             id = createFile(file);
         } else if (file.isDirectory()) {
             id = createDir(file);
+        } else {
+            throw new Exception("File doesn't exist");
         }
         syncManifest();
         return id;
     }
 
-    public void modify(File file) throws Exception {
-        // TODO
+    public String modify(File file) throws Exception {
+        Tree parent = findParent(file.toPath());
+        TreeItem item = parent.getItem(file.getName());
+        String id = item.getId();
+        Blob blob = manifest.getBlob(id);
+        long size = file.length();
+        Blob updated = new Blob(id, size, blob.getAccount());
+        manifest.put(updated);
+
+        BaseAccount account = accountsManager.getAccount(blob.getAccount());
+        account.deleteFile(id);
+        account.uploadFile(id, new FileInputStream(file), size);
+
+        return id;
     }
 
     public void delete(File file) throws Exception {
@@ -59,7 +74,7 @@ public class SyncHandler implements Handler {
         long size = file.length();
         BaseAccount account = uploadStrategy.selectAccount();
         String id = account.uploadFile(randomId(), new FileInputStream(file), size);
-        manifest.put(new Blob(id, size, account.getName()));
+        manifest.put(new Blob(id, size, accountsManager.toType(account)));
         updateParent(file, Entry.Type.BLOB, id);
         return id;
     }

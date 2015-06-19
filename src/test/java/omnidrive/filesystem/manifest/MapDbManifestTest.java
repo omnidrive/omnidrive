@@ -1,6 +1,7 @@
 package omnidrive.filesystem.manifest;
 
 import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.DriveType;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
@@ -8,8 +9,6 @@ import omnidrive.filesystem.manifest.entry.TreeItem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,9 +19,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -75,7 +72,7 @@ public class MapDbManifestTest {
     public void testPutAndGetBlob() throws Exception {
         String id = "foo";
         long size = 10;
-        String account = "my-account";
+        DriveType account = DriveType.Dropbox;
         Blob blob = new Blob(id, size, account);
 
         manifest.put(blob);

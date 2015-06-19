@@ -3,11 +3,11 @@ package omnidrive.api.box;
 import com.box.sdk.BoxAPIConnection;
 import com.box.sdk.BoxAPIException;
 import com.box.sdk.BoxFile.Info;
-
-import omnidrive.api.base.BaseException;
 import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.BaseException;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class BoxAccount extends BaseAccount {
 
@@ -15,11 +15,6 @@ public class BoxAccount extends BaseAccount {
 
     public BoxAccount(BoxAPIConnection connection, String id) {
         this.user = new com.box.sdk.BoxUser(connection, id);
-    }
-
-    @Override
-    public String getName() {
-        return "box";
     }
 
     @Override
@@ -51,6 +46,11 @@ public class BoxAccount extends BaseAccount {
         }
 
         return fileId;
+    }
+
+    @Override
+    public void deleteFile(String fileId) throws BaseException {
+        throw new BaseException("Not implemented");
     }
 
     @Override

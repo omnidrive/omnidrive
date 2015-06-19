@@ -1,14 +1,16 @@
 package omnidrive.filesystem.manifest.entry;
 
+import omnidrive.api.base.DriveType;
+
 public class Blob implements Entry {
 
     private final String id;
 
     private final long size;
 
-    private final String account;
+    private final DriveType account;
 
-    public Blob(String id, long size, String account) {
+    public Blob(String id, long size, DriveType account) {
         this.id = id;
         this.size = size;
         this.account = account;
@@ -26,7 +28,7 @@ public class Blob implements Entry {
         return size;
     }
 
-    public String getAccount() {
+    public DriveType getAccount() {
         return account;
     }
 
@@ -39,7 +41,7 @@ public class Blob implements Entry {
 
         return size == blob.size &&
                 id.equals(blob.id) &&
-                account.equals(blob.account);
+                account == blob.account;
     }
 
     @Override

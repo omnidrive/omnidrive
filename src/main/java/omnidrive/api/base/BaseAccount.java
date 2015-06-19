@@ -20,8 +20,6 @@ public abstract class BaseAccount {
         createRootFolder();
     }
 
-    public abstract String getName();
-
     protected abstract void createRootFolder() throws BaseException;
 
     public abstract String getUsername() throws BaseException;
@@ -29,6 +27,8 @@ public abstract class BaseAccount {
     public abstract String getUserId() throws BaseException;
 
     public abstract String uploadFile(String name, InputStream inputStream, long size) throws BaseException;
+
+    public abstract void deleteFile(String fileId) throws BaseException;
 
     public abstract long downloadFile(String fileId, OutputStream outputStream) throws BaseException;
 
@@ -39,4 +39,5 @@ public abstract class BaseAccount {
     public abstract long getQuotaUsedSize() throws BaseException;
 
     public abstract long getQuotaTotalSize() throws BaseException;
+
 }

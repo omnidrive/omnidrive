@@ -54,7 +54,7 @@ public class AccountsManager {
         return activeAccounts;
     }
 
-    public static DriveType toType(BaseAccount account) {
+    public DriveType toType(BaseAccount account) {
         DriveType type = null;
 
         if (account instanceof DropboxAccount) {

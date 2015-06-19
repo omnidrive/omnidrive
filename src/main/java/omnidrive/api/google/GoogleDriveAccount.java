@@ -4,13 +4,13 @@ import com.google.api.client.http.AbstractInputStreamContent;
 import com.google.api.client.http.FileContent;
 import com.google.api.client.http.InputStreamContent;
 import com.google.api.services.drive.Drive;
-import omnidrive.api.base.*;
+import com.google.api.services.drive.model.File;
+import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.BaseException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import com.google.api.services.drive.model.File;
 
 public class GoogleDriveAccount extends BaseAccount {
 
@@ -24,11 +24,6 @@ public class GoogleDriveAccount extends BaseAccount {
 
     public GoogleDriveAccount(Drive service) {
         this.service = service;
-    }
-
-    @Override
-    public String getName() {
-        return "drive";
     }
 
     @Override
@@ -95,6 +90,11 @@ public class GoogleDriveAccount extends BaseAccount {
         }
 
         return fileId;
+    }
+
+    @Override
+    public void deleteFile(String fileId) throws BaseException {
+        throw new BaseException("Not implemented");
     }
 
     @Override

@@ -8,17 +8,6 @@ import java.io.OutputStream;
 
 public class Account extends BaseAccount {
 
-    final private String name;
-
-    public Account(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
     @Override
     protected void createRootFolder() throws BaseException {
 
@@ -37,6 +26,10 @@ public class Account extends BaseAccount {
     @Override
     public String uploadFile(String name, InputStream inputStream, long size) throws BaseException {
         return null;
+    }
+
+    @Override
+    public void deleteFile(String fileId) throws BaseException {
     }
 
     @Override

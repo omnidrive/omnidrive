@@ -1,10 +1,13 @@
 package omnidrive.api.dropbox;
 
 import com.dropbox.core.*;
-import omnidrive.api.base.BaseException;
 import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.BaseException;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 
 public class DropboxAccount extends BaseAccount {
@@ -13,11 +16,6 @@ public class DropboxAccount extends BaseAccount {
 
     public DropboxAccount(DbxRequestConfig config, String accessToken) {
         this.client = new DbxClient(config, accessToken);
-    }
-
-    @Override
-    public String getName() {
-        return "dropbox";
     }
 
     @Override
@@ -71,6 +69,11 @@ public class DropboxAccount extends BaseAccount {
         }
 
         return fileId;
+    }
+
+    @Override
+    public void deleteFile(String fileId) throws BaseException {
+        throw new BaseException("Not implemented");
     }
 
     @Override
