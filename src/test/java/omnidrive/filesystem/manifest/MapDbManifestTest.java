@@ -1,53 +1,41 @@
 package omnidrive.filesystem.manifest;
 
-import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.DriveType;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class MapDbManifestTest {
-
-    private File manifestFile;
 
     private Manifest manifest;
 
     @Before
     public void setUp() throws Exception {
-        manifestFile = createTempFile();
-        manifest = new MapDbManifest(manifestFile);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        manifest.close();
-        //noinspection ResultOfMethodCallIgnored
-        manifestFile.delete();
+        DB db = createMemoryDb();
+        manifest = new MapDbManifest(db);
     }
 
     @Test
     public void testPutAndGetEmptyTree() throws Exception {
+        // When you put an empty tree in the manifest
         String id = "foo";
-
         manifest.put(new Tree(id));
 
+        // Then you can get back that tree
         Tree tree = manifest.getTree(id);
         assertEquals(id, tree.getId());
         assertTrue(tree.getItems().isEmpty());
@@ -55,13 +43,14 @@ public class MapDbManifestTest {
 
     @Test
     public void testPutAndGetTreeWithItems() throws Exception {
+        // When you put a non-empty tree in the manifest
         String id = "foo";
         TreeItem item1 = new TreeItem(Entry.Type.BLOB, "bar", "bar.txt");
         TreeItem item2 = new TreeItem(Entry.Type.BLOB, "baz", "bar.txt");
         Tree tree = new Tree(id, Arrays.asList(item1, item2));
-
         manifest.put(tree);
 
+        // Then you can get back that tree
         List<TreeItem> result = manifest.getTree(id).getItems();
         assertEquals(2, result.size());
         assertEquals(item1, result.get(0));
@@ -70,52 +59,62 @@ public class MapDbManifestTest {
 
     @Test
     public void testPutAndGetBlob() throws Exception {
+        // When you put a blob in the manifest
         String id = "foo";
         long size = 10;
         DriveType account = DriveType.Dropbox;
         Blob blob = new Blob(id, size, account);
-
         manifest.put(blob);
 
+        // Then you can get back that blob
         Blob result = manifest.getBlob(id);
         assertEquals(blob, result);
     }
 
     @Test
     public void testInitEmptyRootIfDbIsEmpty() throws Exception {
+        // Given en empty manifest
+        // When you get the root
         Tree root = manifest.getRoot();
+
+        // Then the root has no items
         assertTrue(root.getItems().isEmpty());
     }
 
     @Test
     public void testUseExistingRootIfPossible() throws Exception {
-        // Init non-empty root
+        // Given a non-empty root in the manifest
+        File dbFile = createTempFile();
+        DB db = createFileDb(dbFile);
+        manifest = new MapDbManifest(db);
         TreeItem item = new TreeItem(Entry.Type.BLOB, "foo", "foo.txt");
         Tree root = new Tree(MapDbManifest.ROOT_KEY, Collections.singletonList(item));
         manifest.put(root);
 
-        // Close DB
-        manifest.close();
+        // When you reopen the db
+        db.commit();
+        db.close();
+        db = createFileDb(dbFile);
+        manifest = new MapDbManifest(db);
 
-        // Reopen DB to find root
-        manifest = new MapDbManifest(manifestFile);
+        // Then the root contains the saved items
         List<TreeItem> items = manifest.getRoot().getItems();
         assertEquals(1, items.size());
         assertEquals(item, items.get(0));
     }
 
-    @Test
-    public void testSyncManifestToAccounts() throws Exception {
-        BaseAccount account = mock(BaseAccount.class);
-        List<BaseAccount> accounts = Collections.singletonList(account);
-
-        manifest.sync(accounts);
-
-        verify(account).uploadFile(eq("manifest"), any(InputStream.class), anyLong());
-    }
-
     private File createTempFile() throws IOException {
         return File.createTempFile("manifest", "db");
+    }
+
+    private DB createMemoryDb() {
+        return DBMaker.newMemoryDB().make();
+    }
+
+    private DB createFileDb(File file) {
+        return DBMaker.newFileDB(file)
+                .closeOnJvmShutdown()
+                .make();
     }
 
 }

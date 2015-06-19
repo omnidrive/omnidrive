@@ -2,9 +2,10 @@ package omnidrive.filesystem.sync;
 
 import com.google.inject.Inject;
 import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.DriveType;
 import omnidrive.api.managers.AccountsManager;
+import omnidrive.filesystem.exception.InvalidFileException;
 import omnidrive.filesystem.manifest.Manifest;
+import omnidrive.filesystem.manifest.ManifestSync;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
@@ -22,6 +23,8 @@ public class SyncHandler implements Handler {
 
     private final Manifest manifest;
 
+    private final ManifestSync manifestSync;
+
     private final UploadStrategy uploadStrategy;
 
     private final AccountsManager accountsManager;
@@ -29,10 +32,12 @@ public class SyncHandler implements Handler {
     @Inject
     public SyncHandler(Path root,
                        Manifest manifest,
+                       ManifestSync manifestSync,
                        UploadStrategy uploadStrategy,
                        AccountsManager accountsManager) {
         this.root = root;
         this.manifest = manifest;
+        this.manifestSync = manifestSync;
         this.uploadStrategy = uploadStrategy;
         this.accountsManager = accountsManager;
     }
@@ -44,25 +49,24 @@ public class SyncHandler implements Handler {
         } else if (file.isDirectory()) {
             id = createDir(file);
         } else {
-            throw new Exception("File doesn't exist");
+            throw new InvalidFileException();
         }
-        syncManifest();
+        manifestSync.upload();
         return id;
     }
 
     public String modify(File file) throws Exception {
-        Tree parent = findParent(file.toPath());
-        TreeItem item = parent.getItem(file.getName());
-        String id = item.getId();
-        Blob blob = manifest.getBlob(id);
-        long size = file.length();
-        Blob updated = new Blob(id, size, blob.getAccount());
-        manifest.put(updated);
-
+        if (!file.isFile()) {
+            throw new InvalidFileException();
+        }
+        Blob blob = getBlob(file);
+        String id = blob.getId();
+        Blob updated = new Blob(id, file.length(), blob.getAccount());
         BaseAccount account = accountsManager.getAccount(blob.getAccount());
         account.deleteFile(id);
-        account.uploadFile(id, new FileInputStream(file), size);
-
+        account.uploadFile(id, new FileInputStream(file), updated.getSize());
+        manifest.put(updated);
+        manifestSync.upload();
         return id;
     }
 
@@ -96,6 +100,12 @@ public class SyncHandler implements Handler {
         manifest.put(parent);
     }
 
+    private Blob getBlob(File file) {
+        Tree parent = findParent(file.toPath());
+        TreeItem item = parent.getItem(file.getName());
+        return manifest.getBlob(item.getId());
+    }
+
     private Tree findParent(Path file) {
         Tree current = manifest.getRoot();
         Path relative = root.relativize(file).getParent();
@@ -106,10 +116,6 @@ public class SyncHandler implements Handler {
             }
         }
         return current;
-    }
-
-    private void syncManifest() throws Exception {
-        manifest.sync(accountsManager.getActiveAccounts());
     }
 
 }

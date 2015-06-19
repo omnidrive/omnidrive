@@ -17,8 +17,8 @@ public interface Manifest {
 
     Blob getBlob(String id);
 
-    void sync(Collection<BaseAccount> accounts) throws Exception;
+//    void sync(Collection<BaseAccount> accounts) throws Exception;
 
-    void close();
+//    void close();
 
 }

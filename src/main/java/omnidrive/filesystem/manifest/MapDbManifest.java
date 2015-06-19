@@ -22,7 +22,7 @@ public class MapDbManifest implements Manifest {
 
     public static final String UPLOAD_MANIFEST_FILENAME = "manifest";
 
-    final private File manifestFile;
+    private File manifestFile;
 
     final private DB db;
 
@@ -33,6 +33,13 @@ public class MapDbManifest implements Manifest {
     public MapDbManifest(File manifestFile) {
         this.manifestFile = manifestFile;
         db = makeDb(manifestFile);
+        trees = db.getHashMap(TREES_MAP);
+        blobs = db.getHashMap(BLOBS_MAP);
+        initRoot();
+    }
+
+    public MapDbManifest(DB db) {
+        this.db = db;
         trees = db.getHashMap(TREES_MAP);
         blobs = db.getHashMap(BLOBS_MAP);
         initRoot();
@@ -61,20 +68,20 @@ public class MapDbManifest implements Manifest {
         return blobs.get(id);
     }
 
-    public void sync(Collection<BaseAccount> accounts) throws Exception {
-        db.commit();
-        db.compact();
-        for (BaseAccount account : accounts) {
-            account.uploadFile(UPLOAD_MANIFEST_FILENAME,
-                    new FileInputStream(manifestFile),
-                    manifestFile.length());
-        }
-    }
+//    public void sync(Collection<BaseAccount> accounts) throws Exception {
+//        db.commit();
+//        db.compact();
+//        for (BaseAccount account : accounts) {
+//            account.uploadFile(UPLOAD_MANIFEST_FILENAME,
+//                    new FileInputStream(manifestFile),
+//                    manifestFile.length());
+//        }
+//    }
 
-    public void close() {
-        db.commit();
-        db.close();
-    }
+//    public void close() {
+//        db.commit();
+//        db.close();
+//    }
 
     private void initRoot() {
         if (getRoot() == null) {

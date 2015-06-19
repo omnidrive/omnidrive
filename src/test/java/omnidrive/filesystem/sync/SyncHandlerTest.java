@@ -6,7 +6,9 @@ import omnidrive.api.base.BaseException;
 import omnidrive.api.base.DriveType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
+import omnidrive.filesystem.exception.InvalidFileException;
 import omnidrive.filesystem.manifest.Manifest;
+import omnidrive.filesystem.manifest.ManifestSync;
 import omnidrive.filesystem.manifest.MapDbManifest;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
@@ -35,6 +37,8 @@ public class SyncHandlerTest extends BaseTest {
 
     private Manifest manifest;
 
+    private ManifestSync manifestSync;
+
     private BaseAccount account;
 
     private SyncHandler handler;
@@ -42,9 +46,10 @@ public class SyncHandlerTest extends BaseTest {
     @Before
     public void setUp() throws Exception {
         manifest = createManifest();
+        manifestSync = mock(ManifestSync.class);
         UploadStrategy uploadStrategy = mock(UploadStrategy.class);
         AccountsManager accountsManager = mock(AccountsManager.class);
-        handler = new SyncHandler(getRoot(), manifest, uploadStrategy, accountsManager);
+        handler = new SyncHandler(getRoot(), manifest, manifestSync, uploadStrategy, accountsManager);
 
         account = mock(BaseAccount.class);
         when(accountsManager.getAccount(DRIVE_TYPE)).thenReturn(account);
@@ -56,10 +61,10 @@ public class SyncHandlerTest extends BaseTest {
 
     @After
     public void tearDown() throws Exception {
-        manifest.close();
+//        manifest.close();
     }
 
-    @Test(expected = Exception.class)
+    @Test(expected = InvalidFileException.class)
     public void testCreateFileWhichDoesNotExistThrowsException() throws Exception {
         File file = new File("foo");
         handler.create(file);
@@ -164,7 +169,7 @@ public class SyncHandlerTest extends BaseTest {
         handler.create(file);
 
         // Then the manifest is synced to all accounts
-        assertManifestSyncedToAccount();
+        verify(manifestSync).upload();
     }
 
     @Test
@@ -174,7 +179,32 @@ public class SyncHandlerTest extends BaseTest {
         handler.create(dir);
 
         // Then the manifest is synced to all accounts
-        assertManifestSyncedToAccount();
+        verify(manifestSync).upload();
+    }
+
+    @Test
+    public void testModifyFileSyncsManifest() throws Exception {
+        // Given a file exists in the manifest
+        String id = UPLOAD_ID;
+        String filename = "modify.txt";
+        manifest.put(new Blob(id, 5L, DRIVE_TYPE));
+        Tree root = manifest.getRoot();
+        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename));
+        manifest.put(root);
+
+        // When this file is modified
+        File file = getResource(filename);
+        writeToFile(file, "Hello World");
+        handler.modify(file);
+
+        // Then the manifest is synced to all accounts
+        verify(manifestSync).upload();
+    }
+
+    @Test(expected = InvalidFileException.class)
+    public void testModifyInvalidFileThrowsException() throws Exception {
+        File file = new File("foo");
+        handler.modify(file);
     }
 
     @Test
