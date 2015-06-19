@@ -2,7 +2,6 @@ package omnidrive.filesystem.sync;
 
 import com.google.common.io.CharStreams;
 import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.BaseException;
 import omnidrive.api.base.DriveType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
@@ -14,9 +13,10 @@ import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
-import org.junit.After;
+import omnidrive.util.MapDbUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mapdb.DB;
 import org.mockito.ArgumentCaptor;
 
 import java.io.*;
@@ -45,23 +45,19 @@ public class SyncHandlerTest extends BaseTest {
 
     @Before
     public void setUp() throws Exception {
-        manifest = createManifest();
+        DB db = MapDbUtils.createMemoryDb();
+        manifest = new MapDbManifest(db);
         manifestSync = mock(ManifestSync.class);
         UploadStrategy uploadStrategy = mock(UploadStrategy.class);
         AccountsManager accountsManager = mock(AccountsManager.class);
         handler = new SyncHandler(getRoot(), manifest, manifestSync, uploadStrategy, accountsManager);
-
         account = mock(BaseAccount.class);
+
         when(accountsManager.getAccount(DRIVE_TYPE)).thenReturn(account);
         when(accountsManager.toType(account)).thenReturn(DRIVE_TYPE);
         when(uploadStrategy.selectAccount()).thenReturn(account);
         when(account.uploadFile(anyString(), any(InputStream.class), anyLong())).thenReturn(UPLOAD_ID);
         when(accountsManager.getActiveAccounts()).thenReturn(Collections.singletonList(account));
-    }
-
-    @After
-    public void tearDown() throws Exception {
-//        manifest.close();
     }
 
     @Test(expected = InvalidFileException.class)
@@ -264,15 +260,6 @@ public class SyncHandlerTest extends BaseTest {
         OutputStream outputStream = new FileOutputStream(file);
         outputStream.write(text.getBytes());
         outputStream.close();
-    }
-
-    private void assertManifestSyncedToAccount() throws BaseException {
-        verify(account).uploadFile(eq("manifest"), any(InputStream.class), anyLong());
-    }
-
-    private Manifest createManifest() throws IOException {
-        File manifestFile = File.createTempFile("manifest", ".tmp");
-        return new MapDbManifest(manifestFile);
     }
 
     private void assertValidUUID(String id) {

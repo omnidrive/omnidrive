@@ -5,10 +5,10 @@ import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
+import omnidrive.util.MapDbUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mapdb.DB;
-import org.mapdb.DBMaker;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class MapDbManifestTest {
 
     @Before
     public void setUp() throws Exception {
-        DB db = createMemoryDb();
+        DB db = MapDbUtils.createMemoryDb();
         manifest = new MapDbManifest(db);
     }
 
@@ -85,7 +85,7 @@ public class MapDbManifestTest {
     public void testUseExistingRootIfPossible() throws Exception {
         // Given a non-empty root in the manifest
         File dbFile = createTempFile();
-        DB db = createFileDb(dbFile);
+        DB db = MapDbUtils.createFileDb(dbFile);
         manifest = new MapDbManifest(db);
         TreeItem item = new TreeItem(Entry.Type.BLOB, "foo", "foo.txt");
         Tree root = new Tree(MapDbManifest.ROOT_KEY, Collections.singletonList(item));
@@ -94,7 +94,7 @@ public class MapDbManifestTest {
         // When you reopen the db
         db.commit();
         db.close();
-        db = createFileDb(dbFile);
+        db = MapDbUtils.createFileDb(dbFile);
         manifest = new MapDbManifest(db);
 
         // Then the root contains the saved items
@@ -105,16 +105,6 @@ public class MapDbManifestTest {
 
     private File createTempFile() throws IOException {
         return File.createTempFile("manifest", "db");
-    }
-
-    private DB createMemoryDb() {
-        return DBMaker.newMemoryDB().make();
-    }
-
-    private DB createFileDb(File file) {
-        return DBMaker.newFileDB(file)
-                .closeOnJvmShutdown()
-                .make();
     }
 
 }
