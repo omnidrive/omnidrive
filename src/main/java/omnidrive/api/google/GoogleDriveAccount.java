@@ -93,11 +93,6 @@ public class GoogleDriveAccount extends BaseAccount {
     }
 
     @Override
-    public void deleteFile(String fileId) throws BaseException {
-        throw new BaseException("Not implemented");
-    }
-
-    @Override
     public long downloadFile(String fileId, OutputStream outputStream) throws BaseException {
         long size = 0;
 

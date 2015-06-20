@@ -29,10 +29,6 @@ public class Account extends BaseAccount {
     }
 
     @Override
-    public void deleteFile(String fileId) throws BaseException {
-    }
-
-    @Override
     public long downloadFile(String fileId, OutputStream outputStream) throws BaseException {
         return 0;
     }

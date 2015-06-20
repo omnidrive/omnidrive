@@ -49,11 +49,6 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
-    public void deleteFile(String fileId) throws BaseException {
-        throw new BaseException("Not implemented");
-    }
-
-    @Override
     public long downloadFile(String fileId, OutputStream outputStream) throws BaseException {
         com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
         Info info = file.getInfo();

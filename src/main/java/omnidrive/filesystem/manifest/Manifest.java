@@ -8,10 +8,11 @@ public interface Manifest {
 
     void put(Entry entry);
 
+    void remove(String id);
+
     Tree getRoot();
 
     Tree getTree(String id);
 
     Blob getBlob(String id);
-
 }

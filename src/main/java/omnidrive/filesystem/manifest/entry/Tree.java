@@ -1,6 +1,7 @@
 package omnidrive.filesystem.manifest.entry;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Tree implements Entry {
@@ -41,6 +42,17 @@ public class Tree implements Entry {
 
     public void addItem(TreeItem item) {
         items.add(item);
+    }
+
+    public void removeItem(String id) {
+        Iterator<TreeItem> iterator = items.iterator();
+        while (iterator.hasNext()) {
+            TreeItem item = iterator.next();
+            if (item.getId().equals(id)) {
+                iterator.remove();
+                break;
+            }
+        }
     }
 
     @Override

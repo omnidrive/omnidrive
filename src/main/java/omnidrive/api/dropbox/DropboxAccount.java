@@ -72,11 +72,6 @@ public class DropboxAccount extends BaseAccount {
     }
 
     @Override
-    public void deleteFile(String fileId) throws BaseException {
-        throw new BaseException("Not implemented");
-    }
-
-    @Override
     public long downloadFile(String name, OutputStream outputStream) throws BaseException {
         long size = 0;
 

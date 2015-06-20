@@ -28,8 +28,6 @@ public abstract class BaseAccount {
 
     public abstract String uploadFile(String name, InputStream inputStream, long size) throws BaseException;
 
-    public abstract void deleteFile(String fileId) throws BaseException;
-
     public abstract long downloadFile(String fileId, OutputStream outputStream) throws BaseException;
 
     public abstract void removeFile(String fileId) throws BaseException;

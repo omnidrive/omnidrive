@@ -62,8 +62,8 @@ public class SyncHandler implements Handler {
         Blob blob = getBlob(file);
         String id = blob.getId();
         Blob updated = new Blob(id, file.length(), blob.getAccount());
-        BaseAccount account = accountsManager.getAccount(blob.getAccount());
-        account.deleteFile(id);
+        BaseAccount account = getAccount(blob);
+        account.removeFile(id);
         account.uploadFile(id, new FileInputStream(file), updated.getSize());
         manifest.put(updated);
         manifestSync.upload();
@@ -71,7 +71,16 @@ public class SyncHandler implements Handler {
     }
 
     public void delete(File file) throws Exception {
-        // TODO
+        Tree parent = findParent(file.toPath());
+        TreeItem item = parent.getItem(file.getName());
+        String id = item.getId();
+        Blob blob = manifest.getBlob(id);
+        BaseAccount account = getAccount(blob);
+        account.removeFile(id);
+        parent.removeItem(id);
+        manifest.put(parent);
+        manifest.remove(id);
+        manifestSync.upload();
     }
 
     private String createFile(File file) throws Exception {
@@ -79,14 +88,14 @@ public class SyncHandler implements Handler {
         BaseAccount account = uploadStrategy.selectAccount();
         String id = account.uploadFile(randomId(), new FileInputStream(file), size);
         manifest.put(new Blob(id, size, accountsManager.toType(account)));
-        updateParent(file, Entry.Type.BLOB, id);
+        addEntryToParent(file, Entry.Type.BLOB, id);
         return id;
     }
 
     private String createDir(File file) {
         String id = randomId();
         manifest.put(new Tree(id));
-        updateParent(file, Entry.Type.TREE, id);
+        addEntryToParent(file, Entry.Type.TREE, id);
         return id;
     }
 
@@ -94,7 +103,7 @@ public class SyncHandler implements Handler {
         return UUID.randomUUID().toString();
     }
 
-    private void updateParent(File file, Entry.Type type, String id) {
+    private void addEntryToParent(File file, Entry.Type type, String id) {
         Tree parent = findParent(file.toPath());
         parent.addItem(new TreeItem(type, id, file.getName()));
         manifest.put(parent);
@@ -116,6 +125,10 @@ public class SyncHandler implements Handler {
             }
         }
         return current;
+    }
+
+    private BaseAccount getAccount(Blob blob) {
+        return accountsManager.getAccount(blob.getAccount());
     }
 
 }

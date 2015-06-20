@@ -197,6 +197,24 @@ public class SyncHandlerTest extends BaseTest {
         verify(manifestSync).upload();
     }
 
+    @Test
+    public void testDeleteFileSyncsManifest() throws Exception {
+        // Given a file exists in the manifest
+        String id = UPLOAD_ID;
+        String filename = "delete.txt";
+        manifest.put(new Blob(id, 5L, DRIVE_TYPE));
+        Tree root = manifest.getRoot();
+        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename));
+        manifest.put(root);
+
+        // When this file is deleted
+        File file = getResource(filename);
+        handler.delete(file);
+
+        // Then the manifest is synced to all accounts
+        verify(manifestSync).upload();
+    }
+
     @Test(expected = InvalidFileException.class)
     public void testModifyInvalidFileThrowsException() throws Exception {
         File file = new File("foo");
@@ -247,13 +265,71 @@ public class SyncHandlerTest extends BaseTest {
         handler.modify(file);
 
         // Then original file needs to be deleted from the account
-        verify(account).deleteFile(eq(id));
+        verify(account).removeFile(eq(id));
 
         // And the updated file needs to be uploaded to the account
         ArgumentCaptor<InputStream> argument = ArgumentCaptor.forClass(InputStream.class);
         verify(account).uploadFile(eq(id), argument.capture(), eq(newSize));
         InputStream value = argument.getValue();
         assertEquals(newContents, inputStreamToString(value));
+    }
+
+    @Test
+    public void testDeleteFileRemovesFromManifest() throws Exception {
+        // Given a file is in the manifest
+        String id = UPLOAD_ID;
+        String filename = "delete.txt";
+        manifest.put(new Blob(id, 10L, DRIVE_TYPE));
+        Tree root = manifest.getRoot();
+        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename));
+        manifest.put(root);
+
+        // When this file is deleted
+        File file = getResource(filename);
+        handler.delete(file);
+
+        // Then it should be removed from the manifest
+        assertNull(manifest.getBlob(id));
+    }
+
+    @Test
+    public void testDeleteFileFromRootRemovesEntryInParentTree() throws Exception {
+        // Given two files are in the root
+        String id = UPLOAD_ID;
+        String otherId = "other";
+        String filename = "delete.txt";
+        manifest.put(new Blob(id, 10L, DRIVE_TYPE));
+        Tree root = manifest.getRoot();
+        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename));
+        root.addItem(new TreeItem(Entry.Type.BLOB, otherId, "file"));
+        manifest.put(root);
+
+        // When one of these files is deleted
+        File file = getResource(filename);
+        handler.delete(file);
+
+        // Then its entry is deleted from root
+        List<TreeItem> items = manifest.getRoot().getItems();
+        assertEquals(1, items.size());
+        assertEquals(otherId, items.get(0).getId());
+    }
+
+    @Test
+    public void testDeleteFileDeletesFromAccount() throws Exception {
+        // Given a file is in the manifest
+        String id = UPLOAD_ID;
+        String filename = "delete.txt";
+        manifest.put(new Blob(id, 10L, DRIVE_TYPE));
+        Tree root = manifest.getRoot();
+        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename));
+        manifest.put(root);
+
+        // When one of these files is deleted
+        File file = getResource(filename);
+        handler.delete(file);
+
+        // Then it's deleted from account
+        verify(account).removeFile(eq(id));
     }
 
     private void writeToFile(File file, String text) throws IOException {

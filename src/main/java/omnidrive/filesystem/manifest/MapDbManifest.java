@@ -39,6 +39,10 @@ public class MapDbManifest implements Manifest {
         }
     }
 
+    public void remove(String id) {
+        blobs.remove(id);
+    }
+
     public Tree getTree(String id) {
         return trees.get(id);
     }

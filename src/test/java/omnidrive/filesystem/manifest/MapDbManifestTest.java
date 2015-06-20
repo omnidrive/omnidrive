@@ -17,11 +17,12 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class MapDbManifestTest {
 
-    private Manifest manifest;
+    private MapDbManifest manifest;
 
     @Before
     public void setUp() throws Exception {
@@ -61,7 +62,7 @@ public class MapDbManifestTest {
     public void testPutAndGetBlob() throws Exception {
         // When you put a blob in the manifest
         String id = "foo";
-        long size = 10;
+        long size = 10L;
         DriveType account = DriveType.Dropbox;
         Blob blob = new Blob(id, size, account);
         manifest.put(blob);
@@ -101,6 +102,20 @@ public class MapDbManifestTest {
         List<TreeItem> items = manifest.getRoot().getItems();
         assertEquals(1, items.size());
         assertEquals(item, items.get(0));
+    }
+
+    @Test
+    public void testRemoveBlob() throws Exception {
+        // Given a blob is in the manifest
+        Blob blob = new Blob("foo", 10L, DriveType.Dropbox);
+        manifest.put(blob);
+
+        // When you call remove
+        String id = blob.getId();
+        manifest.remove(id);
+
+        // Then it should be removed
+        assertNull(manifest.getBlob(id));
     }
 
     private File createTempFile() throws IOException {
