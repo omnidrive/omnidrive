@@ -1,6 +1,5 @@
 package omnidrive.filesystem.manifest;
 
-import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import org.mapdb.DB;
@@ -10,45 +9,29 @@ public class MapDbManifest implements Manifest {
 
     public static final String ROOT_KEY = "root";
 
-    public static final String TREES_MAP = "manifest-trees";
+    public static final String ENTRIES_MAP = "manifest-entries";
 
-    public static final String BLOBS_MAP = "manifest-blobs";
-
-    final private HTreeMap<String, Tree> trees;
-
-    final private HTreeMap<String, Blob> blobs;
+    final private HTreeMap<String, Entry> entries;
 
     public MapDbManifest(DB db) {
-        trees = db.getHashMap(TREES_MAP);
-        blobs = db.getHashMap(BLOBS_MAP);
+        entries = db.getHashMap(ENTRIES_MAP);
         initRoot();
     }
 
     public Tree getRoot() {
-        return getTree(ROOT_KEY);
+        return get(ROOT_KEY, Tree.class);
     }
 
     public void put(Entry entry) {
-        switch (entry.getType()) {
-            case TREE:
-                trees.put(entry.getId(), (Tree) entry);
-                break;
-            case BLOB:
-                blobs.put(entry.getId(), (Blob) entry);
-                break;
-        }
+        entries.put(entry.getId(), entry);
     }
 
-    public void remove(String id) {
-        blobs.remove(id);
+    public void remove(Entry entry) {
+        entries.remove(entry.getId());
     }
 
-    public Tree getTree(String id) {
-        return trees.get(id);
-    }
-
-    public Blob getBlob(String id) {
-        return blobs.get(id);
+    public <T extends Entry> T get(String id, Class<T> clazz) {
+        return clazz.cast(entries.get(id));
     }
 
     private void initRoot() {

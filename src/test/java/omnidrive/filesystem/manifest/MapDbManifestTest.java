@@ -16,9 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MapDbManifestTest {
 
@@ -37,7 +35,7 @@ public class MapDbManifestTest {
         manifest.put(new Tree(id));
 
         // Then you can get back that tree
-        Tree tree = manifest.getTree(id);
+        Tree tree = manifest.get(id, Tree.class);
         assertEquals(id, tree.getId());
         assertTrue(tree.getItems().isEmpty());
     }
@@ -52,7 +50,7 @@ public class MapDbManifestTest {
         manifest.put(tree);
 
         // Then you can get back that tree
-        List<TreeItem> result = manifest.getTree(id).getItems();
+        List<TreeItem> result = manifest.get(id, Tree.class).getItems();
         assertEquals(2, result.size());
         assertEquals(item1, result.get(0));
         assertEquals(item2, result.get(1));
@@ -68,7 +66,7 @@ public class MapDbManifestTest {
         manifest.put(blob);
 
         // Then you can get back that blob
-        Blob result = manifest.getBlob(id);
+        Blob result = manifest.get(id, Blob.class);
         assertEquals(blob, result);
     }
 
@@ -111,11 +109,23 @@ public class MapDbManifestTest {
         manifest.put(blob);
 
         // When you call remove
-        String id = blob.getId();
-        manifest.remove(id);
+        manifest.remove(blob);
 
         // Then it should be removed
-        assertNull(manifest.getBlob(id));
+        assertNull(manifest.get(blob.getId(), Blob.class));
+    }
+
+    @Test
+    public void testRemoveTree() throws Exception {
+        // Given a tree is in the manifest
+        Tree tree = new Tree("foo");
+        manifest.put(tree);
+
+        // When you call remove
+        manifest.remove(tree);
+
+        // Then it should be removed
+        assertNull(manifest.get(tree.getId(), Tree.class));
     }
 
     private File createTempFile() throws IOException {

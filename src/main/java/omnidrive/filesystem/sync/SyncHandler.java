@@ -71,15 +71,14 @@ public class SyncHandler implements Handler {
     }
 
     public void delete(File file) throws Exception {
+        if (!file.exists()) {
+            throw new InvalidFileException();
+        }
         Tree parent = findParent(file.toPath());
         TreeItem item = parent.getItem(file.getName());
-        String id = item.getId();
-        Blob blob = manifest.getBlob(id);
-        BaseAccount account = getAccount(blob);
-        account.removeFile(id);
-        parent.removeItem(id);
+        removeItem(item);
+        parent.removeItem(item.getId());
         manifest.put(parent);
-        manifest.remove(id);
         manifestSync.upload();
     }
 
@@ -99,6 +98,22 @@ public class SyncHandler implements Handler {
         return id;
     }
 
+    private void removeItem(TreeItem item) throws Exception {
+        String id = item.getId();
+        if (item.getType() == Entry.Type.BLOB) {
+            Blob blob = manifest.get(id, Blob.class);
+            BaseAccount account = getAccount(blob);
+            account.removeFile(id);
+            manifest.remove(blob);
+        } else {
+            Tree tree = manifest.get(id, Tree.class);
+            for (TreeItem childItem : tree.getItems()) {
+                removeItem(childItem);
+            }
+            manifest.remove(tree);
+        }
+    }
+
     private String randomId() {
         return UUID.randomUUID().toString();
     }
@@ -112,7 +127,7 @@ public class SyncHandler implements Handler {
     private Blob getBlob(File file) {
         Tree parent = findParent(file.toPath());
         TreeItem item = parent.getItem(file.getName());
-        return manifest.getBlob(item.getId());
+        return manifest.get(item.getId(), Blob.class);
     }
 
     private Tree findParent(Path file) {
@@ -121,7 +136,7 @@ public class SyncHandler implements Handler {
         if (relative != null) {
             for (Path part : relative) {
                 TreeItem item = current.getItem(part.toString());
-                current = manifest.getTree(item.getId());
+                current = manifest.get(item.getId(), Tree.class);
             }
         }
         return current;

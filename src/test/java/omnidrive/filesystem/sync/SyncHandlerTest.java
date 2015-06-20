@@ -89,7 +89,7 @@ public class SyncHandlerTest extends BaseTest {
         // Then a blob is added to the manifest
         assertEquals(UPLOAD_ID, id);
         Blob expected = new Blob(id, file.length(), DRIVE_TYPE);
-        assertEquals(expected, manifest.getBlob(id));
+        assertEquals(expected, manifest.get(id, Blob.class));
     }
 
     @Test
@@ -123,7 +123,7 @@ public class SyncHandlerTest extends BaseTest {
         handler.create(file);
 
         // Then an entry is added to parent tree
-        List<TreeItem> items = manifest.getTree("bar").getItems();
+        List<TreeItem> items = manifest.get("bar", Tree.class).getItems();
         assertEquals(1, items.size());
         assertEquals("baz.txt", items.get(0).getName());
     }
@@ -137,7 +137,7 @@ public class SyncHandlerTest extends BaseTest {
         // Then an empty tree is added to the manifest
         assertValidUUID(id);
         Tree expected = new Tree(id);
-        assertEquals(expected, manifest.getTree(id));
+        assertEquals(expected, manifest.get(id, Tree.class));
     }
 
     @Test
@@ -153,7 +153,7 @@ public class SyncHandlerTest extends BaseTest {
         handler.create(file);
 
         // Then an entry is added to parent tree
-        List<TreeItem> items = manifest.getTree("foo").getItems();
+        List<TreeItem> items = manifest.get("foo", Tree.class).getItems();
         assertEquals(1, items.size());
         assertEquals("bar", items.get(0).getName());
     }
@@ -215,6 +215,24 @@ public class SyncHandlerTest extends BaseTest {
         verify(manifestSync).upload();
     }
 
+    @Test
+    public void testDeleteDirSyncsManifest() throws Exception {
+        // Given a file exists in the manifest
+        String id = UPLOAD_ID;
+        String filename = "foo";
+        manifest.put(new Tree(id));
+        Tree root = manifest.getRoot();
+        root.addItem(new TreeItem(Entry.Type.TREE, id, filename));
+        manifest.put(root);
+
+        // When this file is deleted
+        File file = getResource(filename);
+        handler.delete(file);
+
+        // Then the manifest is synced to all accounts
+        verify(manifestSync).upload();
+    }
+
     @Test(expected = InvalidFileException.class)
     public void testModifyInvalidFileThrowsException() throws Exception {
         File file = new File("foo");
@@ -242,7 +260,7 @@ public class SyncHandlerTest extends BaseTest {
 
         // Then the blob in the manifest is updated
         assertEquals(id, modifyId);
-        assertEquals(newSize, manifest.getBlob(id).getSize());
+        assertEquals(newSize, manifest.get(id, Blob.class).getSize());
     }
 
     @Test
@@ -289,7 +307,7 @@ public class SyncHandlerTest extends BaseTest {
         handler.delete(file);
 
         // Then it should be removed from the manifest
-        assertNull(manifest.getBlob(id));
+        assertNull(manifest.get(id, Blob.class));
     }
 
     @Test
@@ -330,6 +348,63 @@ public class SyncHandlerTest extends BaseTest {
 
         // Then it's deleted from account
         verify(account).removeFile(eq(id));
+    }
+
+    @Test
+    public void testDeleteDirRemoveEntryInParentTree() throws Exception {
+        // Given some nested files and dirs exist in the manifest
+        Tree root = manifest.getRoot();
+        root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo"));
+        root.addItem(new TreeItem(Entry.Type.BLOB, "hello", "hello.txt"));
+        Tree foo = new Tree("foo");
+        Blob hello = new Blob("hello", 10L, DriveType.Dropbox);
+        manifest.put(root);
+        manifest.put(foo);
+        manifest.put(hello);
+
+        // When the parent dir is deleted
+        File dir = getResource("foo");
+        handler.delete(dir);
+
+        // Then all its contents is removed from the manifest recursively
+        List<TreeItem> items = manifest.getRoot().getItems();
+        assertEquals(1, items.size());
+        assertEquals("hello", items.get(0).getId());
+    }
+
+    @Test
+    public void testDeleteDirRemovesItsContentsRecursively() throws Exception {
+        // Given some nested files and dirs exist in the manifest
+        Tree root = manifest.getRoot();
+        root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo"));
+        root.addItem(new TreeItem(Entry.Type.BLOB, "hello", "hello.txt"));
+        Tree foo = new Tree("foo");
+        foo.addItem(new TreeItem(Entry.Type.TREE, "bar", "bar"));
+        Tree bar = new Tree("bar");
+        bar.addItem(new TreeItem(Entry.Type.BLOB, "baz", "baz.txt"));
+        Blob baz = new Blob("baz", 5L, DRIVE_TYPE);
+        Blob hello = new Blob("hello", 10L, DRIVE_TYPE);
+        manifest.put(root);
+        manifest.put(foo);
+        manifest.put(bar);
+        manifest.put(baz);
+        manifest.put(hello);
+
+        // When the parent dir is deleted
+        File dir = getResource("foo");
+        handler.delete(dir);
+
+        // Then all its contents is removed recursively
+        assertNull(manifest.get("foo", Tree.class));
+        assertNull(manifest.get("bar", Tree.class));
+        assertNull(manifest.get("baz", Blob.class));
+        verify(account).removeFile(eq("baz"));
+    }
+
+    @Test(expected = InvalidFileException.class)
+    public void testDeleteInvalidFileThrowsException() throws Exception {
+        File file = new File("foo");
+        handler.delete(file);
     }
 
     private void writeToFile(File file, String text) throws IOException {

@@ -46,7 +46,7 @@ public class Watcher implements Runnable {
         }
     }
 
-    private void pollEvents() throws InterruptedException, IOException {
+    private void pollEvents() throws Exception {
         watchKey = watchService.take();
         List<WatchEvent<?>> events = watchKey.pollEvents();
         for (WatchEvent event : events) {
@@ -55,20 +55,20 @@ public class Watcher implements Runnable {
         watchKey.reset();
     }
 
-    private void handleEvent(WatchEvent event) throws IOException {
+    private void handleEvent(WatchEvent event) throws Exception {
         File file = getFile(event);
         WatchEvent.Kind kind = event.kind();
         if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
             if (file.isDirectory()) {
                 registerRecursive(file.toPath());
             }
-//            handler.create(file);
+            handler.create(file);
         }
         if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
-//            handler.modify(file);
+            handler.modify(file);
         }
         if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
-//            handler.delete(file);
+            handler.delete(file);
         }
     }
 
