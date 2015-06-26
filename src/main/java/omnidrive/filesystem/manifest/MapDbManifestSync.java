@@ -23,7 +23,6 @@ public class MapDbManifestSync implements ManifestSync {
         this.db = db;
     }
 
-    @Override
     public void upload() throws Exception {
         db.commit();
         db.compact();

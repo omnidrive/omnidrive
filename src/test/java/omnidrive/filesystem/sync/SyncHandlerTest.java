@@ -55,7 +55,7 @@ public class SyncHandlerTest extends BaseTest {
 
         when(accountsManager.getAccount(DRIVE_TYPE)).thenReturn(account);
         when(accountsManager.toType(account)).thenReturn(DRIVE_TYPE);
-        when(uploadStrategy.selectAccount()).thenReturn(account);
+        when(uploadStrategy.selectAccount(any(File.class))).thenReturn(account);
         when(account.uploadFile(anyString(), any(InputStream.class), anyLong())).thenReturn(UPLOAD_ID);
         when(accountsManager.getActiveAccounts()).thenReturn(Collections.singletonList(account));
     }

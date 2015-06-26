@@ -8,6 +8,15 @@ import java.io.OutputStream;
 
 public class Account extends BaseAccount {
 
+    final private long usedSize;
+
+    final private long totalSize;
+
+    public Account(long usedSize, long totalSize) {
+        this.usedSize = usedSize;
+        this.totalSize = totalSize;
+    }
+
     @Override
     protected void createRootFolder() throws BaseException {
 
@@ -45,12 +54,12 @@ public class Account extends BaseAccount {
 
     @Override
     public long getQuotaUsedSize() throws BaseException {
-        return 0;
+        return usedSize;
     }
 
     @Override
     public long getQuotaTotalSize() throws BaseException {
-        return 0;
+        return totalSize;
     }
 
 }

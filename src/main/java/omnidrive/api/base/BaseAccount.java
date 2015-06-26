@@ -38,4 +38,8 @@ public abstract class BaseAccount {
 
     public abstract long getQuotaTotalSize() throws BaseException;
 
+    public long getQuotaRemainingSize() throws BaseException {
+        return getQuotaTotalSize() - getQuotaUsedSize();
+    }
+
 }

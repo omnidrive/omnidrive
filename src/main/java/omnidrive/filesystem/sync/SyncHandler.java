@@ -84,7 +84,7 @@ public class SyncHandler implements Handler {
 
     private String createFile(File file) throws Exception {
         long size = file.length();
-        BaseAccount account = uploadStrategy.selectAccount();
+        BaseAccount account = uploadStrategy.selectAccount(file);
         String id = account.uploadFile(randomId(), new FileInputStream(file), size);
         manifest.put(new Blob(id, size, accountsManager.toType(account)));
         addEntryToParent(file, Entry.Type.BLOB, id);
