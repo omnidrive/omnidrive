@@ -53,6 +53,11 @@ public class Account extends BaseAccount {
     }
 
     @Override
+    public void updateFile(String fileId, InputStream inputStream, long size) throws BaseException {
+
+    }
+
+    @Override
     public long getQuotaUsedSize() throws BaseException {
         return usedSize;
     }
