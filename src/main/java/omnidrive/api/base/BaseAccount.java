@@ -34,6 +34,8 @@ public abstract class BaseAccount {
 
     public abstract void removeFolder(String fileId) throws BaseException;
 
+    public abstract void updateFile(String fileId, InputStream inputStream, long size) throws BaseException;
+
     public abstract long getQuotaUsedSize() throws BaseException;
 
     public abstract long getQuotaTotalSize() throws BaseException;

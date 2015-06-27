@@ -127,6 +127,25 @@ public class GoogleDriveAccount extends BaseAccount {
     }
 
     @Override
+    public void updateFile(String fileId, InputStream inputStream, long size) throws BaseException {
+        try {
+            // First retrieve the file from the API.
+            File file = service.files().get(fileId).execute();
+
+            // File's new content.
+            AbstractInputStreamContent mediaContent = new InputStreamContent(MimeTypeFile, inputStream);
+
+            // Send the request to the API.
+            File updatedFile = service.files().update(fileId, file, mediaContent).execute();
+            if (updatedFile == null) {
+                throw new GoogleDriveException("Failed to update file");
+            }
+        } catch (IOException ex) {
+            throw new GoogleDriveException("Failed to get file.");
+        }
+    }
+
+    @Override
     public long getQuotaUsedSize() throws BaseException {
         long usedQuota;
 

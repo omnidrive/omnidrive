@@ -55,11 +55,11 @@ public class DropboxAccount extends BaseAccount {
 
     @Override
     public String uploadFile(String name, InputStream inputStream, long size) throws BaseException {
-        String fileId = null;
+        String fileName = null;
 
         try {
             DbxEntry.File file = this.client.uploadFile(getFullPath(name), DbxWriteMode.add(), size, inputStream);
-            fileId = file.asFile().name;
+            fileName = file.asFile().name;
         } catch (FileNotFoundException ex) {
             throw new DropboxException("Input file not found.");
         } catch (DbxException ex) {
@@ -68,7 +68,7 @@ public class DropboxAccount extends BaseAccount {
             throw new DropboxException("Failed to upload file.");
         }
 
-        return fileId;
+        return fileName;
     }
 
     @Override
@@ -96,6 +96,22 @@ public class DropboxAccount extends BaseAccount {
             } else {
                 throw new DropboxException("Not a file.");
             }
+        } catch (DbxException ex) {
+            throw new DropboxException(ex.getMessage());
+        }
+    }
+
+    @Override
+    public void updateFile(String name, InputStream inputStream, long size) throws BaseException {
+        try {
+            DbxEntry entry = this.client.getMetadata(getFullPath(name));
+            if (entry.isFile()) {
+                this.client.uploadFile(entry.asFile().path, DbxWriteMode.update(entry.asFile().rev), size, inputStream);
+            } else {
+                throw new DropboxException("Not a file.");
+            }
+        } catch (IOException ex) {
+            throw new DropboxException("Failed to update file: " + ex.getMessage());
         } catch (DbxException ex) {
             throw new DropboxException(ex.getMessage());
         }

@@ -80,6 +80,12 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
+    public void updateFile(String fileId, InputStream inputStream, long size) throws BaseException {
+        com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
+        file.uploadVersion(inputStream);
+    }
+
+    @Override
     public long getQuotaUsedSize() throws BaseException {
         return this.user.getInfo().getSpaceUsed();
     }

@@ -36,13 +36,11 @@ public class OmniDrive {
     public void start() {
         //MainFXML.run();
 
-        AccountsFXML.show();
+        //AccountsFXML.show();
 
-        restoreRegisteredAccounts();
+        //restoreRegisteredAccounts();
 
         install.doFirstInstallationIfNeeded();
-
-        this.fileSystem.startSync();
     }
 
     public static void main(String[] args) {

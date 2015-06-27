@@ -11,8 +11,9 @@ import omnidrive.api.google.GoogleDriveAccount;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
 
-public class AccountsManager {
+public class AccountsManager extends Observable {
 
     private static AccountsManager manager = null;
 
@@ -48,6 +49,8 @@ public class AccountsManager {
 
     public void setAccount(DriveType type, BaseAccount account) {
         this.accounts[type.ordinal()] = account;
+
+        notifyObservers(account);
     }
 
     public void removeAccount(DriveType type) {
