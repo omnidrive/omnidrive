@@ -17,6 +17,10 @@ public class Account extends BaseAccount {
         this.totalSize = totalSize;
     }
 
+    public Account() {
+        this(0, 0);
+    }
+
     @Override
     protected void createRootFolder() throws BaseException {
 

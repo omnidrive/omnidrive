@@ -4,9 +4,6 @@ import omnidrive.api.auth.AuthTokens;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.BaseException;
 import omnidrive.api.base.DriveType;
-import omnidrive.api.box.BoxAccount;
-import omnidrive.api.dropbox.DropboxAccount;
-import omnidrive.api.google.GoogleDriveAccount;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -81,14 +78,14 @@ public class AccountsManager extends Observable {
     public DriveType toType(BaseAccount account) {
         DriveType type = null;
 
-        if (account instanceof DropboxAccount) {
-            type = DriveType.Dropbox;
-        } else if (account instanceof GoogleDriveAccount) {
-            type = DriveType.GoogleDrive;
-        } else if (account instanceof BoxAccount) {
-            type = DriveType.Box;
+        for (DriveType candidate : DriveType.values()) {
+            if (accounts[candidate.ordinal()] == account) {
+                type = candidate;
+                break;
+            }
         }
 
         return type;
     }
+
 }

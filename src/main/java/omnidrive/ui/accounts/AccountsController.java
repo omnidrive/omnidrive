@@ -52,7 +52,7 @@ public class AccountsController implements Initializable, AuthService {
 
     public AccountsController() {
         this.loginManager = LoginManager.getLoginManager();
-        this.accountsManager = AccountsManager.getAccountsManager();
+        this.accountsManager = new AccountsManager();
         this.loginView = new LoginView();
     }
 
