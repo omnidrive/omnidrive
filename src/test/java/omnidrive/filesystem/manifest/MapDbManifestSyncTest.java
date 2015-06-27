@@ -1,6 +1,7 @@
 package omnidrive.filesystem.manifest;
 
 import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.DriveType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.util.MapDbUtils;
 import org.junit.Test;
@@ -8,7 +9,6 @@ import org.mapdb.DB;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Collections;
 
 import static org.mockito.Mockito.*;
 
@@ -18,8 +18,8 @@ public class MapDbManifestSyncTest {
     public void testUploadManifestToAccounts() throws Exception {
         // Given an account
         BaseAccount account = mock(BaseAccount.class);
-        AccountsManager accountsManager = mock(AccountsManager.class);
-        when(accountsManager.getActiveAccounts()).thenReturn(Collections.singletonList(account));
+        AccountsManager accountsManager = new AccountsManager();
+        accountsManager.setAccount(DriveType.Dropbox, account);
 
         // And a manifest syncer
         File dbFile = File.createTempFile("manifest", "db");

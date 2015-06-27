@@ -28,7 +28,7 @@ public class TreeTest {
     public void testGetItemByName() throws Exception {
         // Given a tree with an item
         String name = "foo.txt";
-        TreeItem item = new TreeItem(Entry.Type.BLOB, "foo", name);
+        TreeItem item = new TreeItem(Entry.Type.BLOB, "foo", name, 0);
         Tree tree = new Tree(id, Collections.singletonList(item));
 
         // When you search for that item
@@ -44,7 +44,7 @@ public class TreeTest {
         Tree tree = new Tree(id);
 
         // When you add an item to that tree
-        TreeItem item = new TreeItem(Entry.Type.BLOB, "foo", "foo.txt");
+        TreeItem item = new TreeItem(Entry.Type.BLOB, "foo", "foo.txt", 0);
         tree.addItem(item);
 
         // Then tree items should be updated
@@ -56,9 +56,9 @@ public class TreeTest {
     @Test
     public void testRemoveItem() throws Exception {
         // Given a tree with 3 items
-        TreeItem item1 = new TreeItem(Entry.Type.BLOB, "item1", "item1");
-        TreeItem item2 = new TreeItem(Entry.Type.BLOB, "item2", "item2");
-        TreeItem item3 = new TreeItem(Entry.Type.BLOB, "item3", "item3");
+        TreeItem item1 = new TreeItem(Entry.Type.BLOB, "item1", "item1", 0);
+        TreeItem item2 = new TreeItem(Entry.Type.BLOB, "item2", "item2", 0);
+        TreeItem item3 = new TreeItem(Entry.Type.BLOB, "item3", "item3", 0);
         Tree tree = new Tree("tree");
         tree.addItem(item1);
         tree.addItem(item2);

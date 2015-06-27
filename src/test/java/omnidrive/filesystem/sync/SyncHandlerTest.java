@@ -35,29 +35,23 @@ public class SyncHandlerTest extends BaseTest {
 
     public static final String UPLOAD_ID = "new-id";
 
-    private Manifest manifest;
+    private Manifest manifest = new MapDbManifest(MapDbUtils.createMemoryDb());
 
-    private ManifestSync manifestSync;
+    private ManifestSync manifestSync = mock(ManifestSync.class);
 
-    private BaseAccount account;
+    private BaseAccount account = mock(BaseAccount.class);
 
     private SyncHandler handler;
 
     @Before
     public void setUp() throws Exception {
-        DB db = MapDbUtils.createMemoryDb();
-        manifest = new MapDbManifest(db);
-        manifestSync = mock(ManifestSync.class);
-        UploadStrategy uploadStrategy = mock(UploadStrategy.class);
-        AccountsManager accountsManager = mock(AccountsManager.class);
+        AccountsManager accountsManager = new AccountsManager();
+        accountsManager.setAccount(DRIVE_TYPE, account);
+        UploadStrategy uploadStrategy = new SimpleUploadStrategy(accountsManager);
         handler = new SyncHandler(getRoot(), manifest, manifestSync, uploadStrategy, accountsManager);
-        account = mock(BaseAccount.class);
 
-        when(accountsManager.getAccount(DRIVE_TYPE)).thenReturn(account);
-        when(accountsManager.toType(account)).thenReturn(DRIVE_TYPE);
-        when(uploadStrategy.selectAccount(any(File.class))).thenReturn(account);
         when(account.uploadFile(anyString(), any(InputStream.class), anyLong())).thenReturn(UPLOAD_ID);
-        when(accountsManager.getActiveAccounts()).thenReturn(Collections.singletonList(account));
+        when(account.getQuotaRemainingSize()).thenReturn(100L);
     }
 
     @Test(expected = InvalidFileException.class)
@@ -89,7 +83,8 @@ public class SyncHandlerTest extends BaseTest {
         // Then a blob is added to the manifest
         assertEquals(UPLOAD_ID, id);
         Blob expected = new Blob(id, file.length(), DRIVE_TYPE);
-        assertEquals(expected, manifest.get(id, Blob.class));
+        Blob actual = manifest.get(id, Blob.class);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -113,9 +108,9 @@ public class SyncHandlerTest extends BaseTest {
     public void testCreateBlobInSubDirAddsEntryInParentTree() throws Exception {
         // Given the manifest contains nested dir foo/bar
         manifest.put(new Tree("bar"));
-        manifest.put(new Tree("foo", Collections.singletonList(new TreeItem(Entry.Type.TREE, "bar", "bar"))));
+        manifest.put(new Tree("foo", Collections.singletonList(new TreeItem(Entry.Type.TREE, "bar", "bar", 0))));
         Tree root = manifest.getRoot();
-        root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo"));
+        root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo", 0));
         manifest.put(root);
 
         // When a file is created in nested dir
@@ -145,7 +140,7 @@ public class SyncHandlerTest extends BaseTest {
         // Given the manifest contains a dir foo
         manifest.put(new Tree("foo"));
         Tree root = manifest.getRoot();
-        root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo"));
+        root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo", 0));
         manifest.put(root);
 
         // When another dir is created in foo
@@ -185,7 +180,7 @@ public class SyncHandlerTest extends BaseTest {
         String filename = "modify.txt";
         manifest.put(new Blob(id, 5L, DRIVE_TYPE));
         Tree root = manifest.getRoot();
-        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename));
+        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename, 0));
         manifest.put(root);
 
         // When this file is modified
@@ -204,7 +199,7 @@ public class SyncHandlerTest extends BaseTest {
         String filename = "delete.txt";
         manifest.put(new Blob(id, 5L, DRIVE_TYPE));
         Tree root = manifest.getRoot();
-        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename));
+        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename, 0));
         manifest.put(root);
 
         // When this file is deleted
@@ -222,7 +217,7 @@ public class SyncHandlerTest extends BaseTest {
         String filename = "foo";
         manifest.put(new Tree(id));
         Tree root = manifest.getRoot();
-        root.addItem(new TreeItem(Entry.Type.TREE, id, filename));
+        root.addItem(new TreeItem(Entry.Type.TREE, id, filename, 0));
         manifest.put(root);
 
         // When this file is deleted
@@ -250,7 +245,7 @@ public class SyncHandlerTest extends BaseTest {
         long newSize = newContents.length();
         manifest.put(new Blob(id, originalSize, DRIVE_TYPE));
         Tree root = manifest.getRoot();
-        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename));
+        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename, 0));
         manifest.put(root);
 
         // When this file is modified
@@ -274,7 +269,7 @@ public class SyncHandlerTest extends BaseTest {
         long newSize = newContents.length();
         manifest.put(new Blob(id, originalSize, DRIVE_TYPE));
         Tree root = manifest.getRoot();
-        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename));
+        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename, 0));
         manifest.put(root);
 
         // When this file is modified
@@ -299,7 +294,7 @@ public class SyncHandlerTest extends BaseTest {
         String filename = "delete.txt";
         manifest.put(new Blob(id, 10L, DRIVE_TYPE));
         Tree root = manifest.getRoot();
-        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename));
+        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename, 0));
         manifest.put(root);
 
         // When this file is deleted
@@ -318,8 +313,8 @@ public class SyncHandlerTest extends BaseTest {
         String filename = "delete.txt";
         manifest.put(new Blob(id, 10L, DRIVE_TYPE));
         Tree root = manifest.getRoot();
-        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename));
-        root.addItem(new TreeItem(Entry.Type.BLOB, otherId, "file"));
+        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename, 0));
+        root.addItem(new TreeItem(Entry.Type.BLOB, otherId, "file", 0));
         manifest.put(root);
 
         // When one of these files is deleted
@@ -339,7 +334,7 @@ public class SyncHandlerTest extends BaseTest {
         String filename = "delete.txt";
         manifest.put(new Blob(id, 10L, DRIVE_TYPE));
         Tree root = manifest.getRoot();
-        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename));
+        root.addItem(new TreeItem(Entry.Type.BLOB, id, filename, 0));
         manifest.put(root);
 
         // When one of these files is deleted
@@ -354,8 +349,8 @@ public class SyncHandlerTest extends BaseTest {
     public void testDeleteDirRemoveEntryInParentTree() throws Exception {
         // Given some nested files and dirs exist in the manifest
         Tree root = manifest.getRoot();
-        root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo"));
-        root.addItem(new TreeItem(Entry.Type.BLOB, "hello", "hello.txt"));
+        root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo", 0));
+        root.addItem(new TreeItem(Entry.Type.BLOB, "hello", "hello.txt", 0));
         Tree foo = new Tree("foo");
         Blob hello = new Blob("hello", 10L, DriveType.Dropbox);
         manifest.put(root);
@@ -376,12 +371,12 @@ public class SyncHandlerTest extends BaseTest {
     public void testDeleteDirRemovesItsContentsRecursively() throws Exception {
         // Given some nested files and dirs exist in the manifest
         Tree root = manifest.getRoot();
-        root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo"));
-        root.addItem(new TreeItem(Entry.Type.BLOB, "hello", "hello.txt"));
+        root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo", 0));
+        root.addItem(new TreeItem(Entry.Type.BLOB, "hello", "hello.txt", 0));
         Tree foo = new Tree("foo");
-        foo.addItem(new TreeItem(Entry.Type.TREE, "bar", "bar"));
+        foo.addItem(new TreeItem(Entry.Type.TREE, "bar", "bar", 0));
         Tree bar = new Tree("bar");
-        bar.addItem(new TreeItem(Entry.Type.BLOB, "baz", "baz.txt"));
+        bar.addItem(new TreeItem(Entry.Type.BLOB, "baz", "baz.txt", 0));
         Blob baz = new Blob("baz", 5L, DRIVE_TYPE);
         Blob hello = new Blob("hello", 10L, DRIVE_TYPE);
         manifest.put(root);

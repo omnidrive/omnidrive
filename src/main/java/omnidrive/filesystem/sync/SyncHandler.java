@@ -120,7 +120,7 @@ public class SyncHandler implements Handler {
 
     private void addEntryToParent(File file, Entry.Type type, String id) {
         Tree parent = findParent(file.toPath());
-        parent.addItem(new TreeItem(type, id, file.getName()));
+        parent.addItem(new TreeItem(type, id, file.getName(), 0));
         manifest.put(parent);
     }
 

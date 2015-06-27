@@ -44,8 +44,8 @@ public class MapDbManifestTest {
     public void testPutAndGetTreeWithItems() throws Exception {
         // When you put a non-empty tree in the manifest
         String id = "foo";
-        TreeItem item1 = new TreeItem(Entry.Type.BLOB, "bar", "bar.txt");
-        TreeItem item2 = new TreeItem(Entry.Type.BLOB, "baz", "bar.txt");
+        TreeItem item1 = new TreeItem(Entry.Type.BLOB, "bar", "bar.txt", 0);
+        TreeItem item2 = new TreeItem(Entry.Type.BLOB, "baz", "bar.txt", 0);
         Tree tree = new Tree(id, Arrays.asList(item1, item2));
         manifest.put(tree);
 
@@ -86,7 +86,7 @@ public class MapDbManifestTest {
         File dbFile = createTempFile();
         DB db = MapDbUtils.createFileDb(dbFile);
         manifest = new MapDbManifest(db);
-        TreeItem item = new TreeItem(Entry.Type.BLOB, "foo", "foo.txt");
+        TreeItem item = new TreeItem(Entry.Type.BLOB, "foo", "foo.txt", 0);
         Tree root = new Tree(MapDbManifest.ROOT_KEY, Collections.singletonList(item));
         manifest.put(root);
 

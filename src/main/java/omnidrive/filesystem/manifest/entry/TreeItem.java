@@ -10,10 +10,13 @@ public class TreeItem implements Serializable {
 
     final private String name;
 
-    public TreeItem(Entry.Type type, String id, String name) {
+    final private long lastModified;
+
+    public TreeItem(Entry.Type type, String id, String name, long lastModified) {
         this.type = type;
         this.id = id;
         this.name = name;
+        this.lastModified = lastModified;
     }
 
     public Entry.Type getType() {
@@ -28,6 +31,10 @@ public class TreeItem implements Serializable {
         return name;
     }
 
+    public long getLastModified() {
+        return lastModified;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -37,7 +44,8 @@ public class TreeItem implements Serializable {
 
         return type == treeItem.type &&
                 id.equals(treeItem.id) &&
-                name.equals(treeItem.name);
+                name.equals(treeItem.name) &&
+                lastModified == treeItem.lastModified;
 
     }
 
@@ -46,6 +54,7 @@ public class TreeItem implements Serializable {
         int result = type.hashCode();
         result = 31 * result + id.hashCode();
         result = 31 * result + name.hashCode();
+        result = 31 * result + (int) (lastModified ^ (lastModified >>> 32));
         return result;
     }
 
