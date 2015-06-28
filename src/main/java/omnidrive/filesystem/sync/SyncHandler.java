@@ -71,11 +71,11 @@ public class SyncHandler implements Handler {
     }
 
     public void delete(File file) throws Exception {
-        if (!file.exists()) {
-            throw new InvalidFileException();
-        }
         Tree parent = findParent(file.toPath());
         TreeItem item = parent.getItem(file.getName());
+        if (item == null) {
+            throw new InvalidFileException();
+        }
         removeItem(item);
         parent.removeItem(item.getId());
         manifest.put(parent);
@@ -132,7 +132,7 @@ public class SyncHandler implements Handler {
 
     private Tree findParent(Path file) {
         Tree current = manifest.getRoot();
-        Path relative = root.relativize(file).getParent();
+        Path relative = getParentPath(file);
         if (relative != null) {
             for (Path part : relative) {
                 TreeItem item = current.getItem(part.toString());
@@ -140,6 +140,14 @@ public class SyncHandler implements Handler {
             }
         }
         return current;
+    }
+
+    private Path getParentPath(Path file) {
+        try {
+            return root.relativize(file).getParent();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private BaseAccount getAccount(Blob blob) {
