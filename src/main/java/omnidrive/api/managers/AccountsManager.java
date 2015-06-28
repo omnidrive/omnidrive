@@ -49,7 +49,6 @@ public class AccountsManager extends Observable {
 
     public void setAccount(DriveType type, BaseAccount account) {
         this.accounts[type.ordinal()] = account;
-
         notifyObservers(account);
     }
 

@@ -2,12 +2,28 @@ package omnidrive.filesystem;
 
 import omnidrive.api.auth.AuthTokens;
 import omnidrive.api.base.DriveType;
+import omnidrive.api.managers.AccountsManager;
+import omnidrive.filesystem.manifest.Manifest;
+import omnidrive.filesystem.manifest.ManifestSync;
+import omnidrive.filesystem.manifest.MapDbManifest;
+import omnidrive.filesystem.manifest.MapDbManifestSync;
+import omnidrive.filesystem.sync.SimpleUploadStrategy;
+import omnidrive.filesystem.sync.SyncHandler;
+import omnidrive.filesystem.sync.UploadStrategy;
+import omnidrive.filesystem.watcher.Handler;
+import omnidrive.filesystem.watcher.Watcher;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.WatchService;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.TreeMap;
 
 public class FileSystem {
@@ -21,12 +37,35 @@ public class FileSystem {
     }
 
     public boolean isReady() {
-        //return Files.isDirectory(getRootPath());
         return false;
     }
 
     public void initialize() throws IOException {
-        Files.createDirectory(getRootPath());
+        Path root = getRootPath();
+//        Files.createDirectory(root);
+
+        AccountsManager accountsManager = AccountsManager.getAccountsManager();
+        WatchService watchService = FileSystems.getDefault().newWatchService();
+        File manifestFile = new File("/Users/amitayh/manifest");
+        DB db = DBMaker.newFileDB(manifestFile).closeOnJvmShutdown().make();
+        Manifest manifest = new MapDbManifest(db);
+        ManifestSync manifestSync = new MapDbManifestSync(accountsManager, manifestFile, db);
+        UploadStrategy uploadStrategy = new SimpleUploadStrategy(accountsManager);
+        Handler handler = new SyncHandler(root, manifest, manifestSync, uploadStrategy, accountsManager);
+
+        Watcher watcher = new Watcher(watchService, handler);
+        watcher.registerRecursive(root);
+
+        Thread thread = new Thread(watcher);
+        thread.setDaemon(true);
+        thread.start();
+
+        accountsManager.addObserver(new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+
+            }
+        });
     }
 
     public void startSync() {
