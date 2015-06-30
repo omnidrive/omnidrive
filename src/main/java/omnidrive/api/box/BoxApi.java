@@ -1,7 +1,7 @@
 package omnidrive.api.box;
 
 import javafx.scene.web.WebEngine;
-import omnidrive.api.auth.AuthTokens;
+import omnidrive.api.auth.AuthToken;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.BaseApi;
 
@@ -25,7 +25,7 @@ public class BoxApi extends BaseApi {
     }
 
     @Override
-    public BaseAccount createAccount(AuthTokens tokens) throws BaseException {
+    public BaseAccount createAccount(AuthToken tokens) throws BaseException {
         final BoxAPIConnection conn = new BoxAPIConnection(CLIENT_ID, CLIENT_SECRET,
                 tokens.getAccessToken(), tokens.getRefreshToken());
         return new BoxAccount(conn);

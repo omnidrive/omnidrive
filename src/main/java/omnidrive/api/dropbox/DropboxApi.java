@@ -2,7 +2,7 @@ package omnidrive.api.dropbox;
 
 import com.dropbox.core.*;
 import javafx.scene.web.WebEngine;
-import omnidrive.api.auth.AuthTokens;
+import omnidrive.api.auth.AuthToken;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.BaseApi;
 import omnidrive.api.base.BaseException;
@@ -32,7 +32,7 @@ public class DropboxApi extends BaseApi {
     }
 
     @Override
-    public BaseAccount createAccount(AuthTokens tokens) throws BaseException {
+    public BaseAccount createAccount(AuthToken tokens) throws BaseException {
         return new DropboxAccount(this.config, tokens.getAccessToken());
     }
 

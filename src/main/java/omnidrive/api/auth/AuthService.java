@@ -8,9 +8,7 @@ public interface AuthService {
 
     void attempt(DriveType type, BaseApi api, String authUrl);
 
-
     void report(DriveType type, String message);
-
 
     void succeed(DriveType type, BaseAccount account);
 

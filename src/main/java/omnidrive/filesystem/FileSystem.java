@@ -1,6 +1,6 @@
 package omnidrive.filesystem;
 
-import omnidrive.api.auth.AuthTokens;
+import omnidrive.api.auth.AuthToken;
 import omnidrive.api.base.DriveType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.manifest.Manifest;
@@ -12,6 +12,7 @@ import omnidrive.filesystem.sync.SyncHandler;
 import omnidrive.filesystem.sync.UploadStrategy;
 import omnidrive.filesystem.watcher.Handler;
 import omnidrive.filesystem.watcher.Watcher;
+import omnidrive.util.MapDbUtils;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
@@ -30,7 +31,21 @@ public class FileSystem {
 
     private static final String USER_HOME = System.getProperty("user.home");
 
+    public static final String MANIFEST_FILENAME = ".manifest";
+
     private static final String ROOT_NAME = "OmniDrive";
+
+//    final private AccountsManager accountsManager;
+
+    private final Path root;
+
+//    public FileSystem(AccountsManager accountsManager) {
+//        this.accountsManager = accountsManager;
+//    }
+
+    public FileSystem(Path root) {
+        this.root = root;
+    }
 
     public Path getRootPath() {
         return Paths.get(USER_HOME, ROOT_NAME);
@@ -44,7 +59,7 @@ public class FileSystem {
         Path root = getRootPath();
 //        Files.createDirectory(root);
 
-        AccountsManager accountsManager = AccountsManager.getAccountsManager();
+        AccountsManager accountsManager = new AccountsManager();
         WatchService watchService = FileSystems.getDefault().newWatchService();
         File manifestFile = new File("/Users/amitayh/manifest");
         DB db = DBMaker.newFileDB(manifestFile).closeOnJvmShutdown().make();
@@ -61,7 +76,6 @@ public class FileSystem {
         thread.start();
 
         accountsManager.addObserver(new Observer() {
-            @Override
             public void update(Observable o, Object arg) {
 
             }
@@ -72,7 +86,25 @@ public class FileSystem {
 
     }
 
-    public Map<DriveType, AuthTokens> getRegisteredAccounts() {
-        return new TreeMap<DriveType, AuthTokens>();
+    public Map<DriveType, AuthToken> getRegisteredAccounts() {
+        return new TreeMap<DriveType, AuthToken>();
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    public boolean manifestExists() {
+        File manifest = getManifestFile();
+        return manifest.isFile();
+    }
+
+    public Manifest getManifest() {
+        File manifest = getManifestFile();
+        DB db = MapDbUtils.createFileDb(manifest);
+        return new MapDbManifest(db);
+    }
+
+    private File getManifestFile() {
+        return root.resolve(MANIFEST_FILENAME).toFile();
+    }
+
 }

@@ -1,5 +1,6 @@
 package omnidrive.filesystem.manifest;
 
+import omnidrive.api.auth.AuthToken;
 import omnidrive.api.base.DriveType;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
@@ -15,17 +16,85 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
 public class MapDbManifestTest {
 
-    private MapDbManifest manifest;
+    private MapDbManifest manifest = getManifest();
 
-    @Before
-    public void setUp() throws Exception {
-        DB db = MapDbUtils.createMemoryDb();
-        manifest = new MapDbManifest(db);
+    @Test
+    public void testGetAuthTokensReturnsEmptyMap() throws Exception {
+        // Given no auth tokens were registered
+
+        // When you request auth tokens
+        Map<DriveType, AuthToken> authTokens = manifest.getAuthTokens();
+
+        // Then you gen an empty list
+        assertTrue(authTokens.isEmpty());
+    }
+
+    @Test
+    public void testGetAuthTokensIfExist() throws Exception {
+        // Given an auth token was registered
+        AuthToken authToken = new AuthToken("foo", "bar");
+        DriveType driveType = DriveType.Dropbox;
+        manifest.put(driveType, authToken);
+
+        // When you request auth tokens
+        Map<DriveType, AuthToken> authTokens = manifest.getAuthTokens();
+
+        // Then you get the auth token
+        assertEquals(authToken, authTokens.get(driveType));
+    }
+
+    @Test
+    public void testUpdateTimeOnPut() throws Exception {
+        // Given two manifests exist
+        MapDbManifest manifest1 = getManifest();
+        MapDbManifest manifest2 = getManifest();
+
+        // When one is updated after the other
+        Blob blob = new Blob("foo", 5L, DriveType.Dropbox);
+        long sleepTime = 10L;
+        manifest1.put(blob);
+        Thread.sleep(sleepTime);
+        manifest2.put(blob);
+
+        // Then the update time should be greater
+        assertTrue(manifest1.getUpdatedTime() < manifest2.getUpdatedTime());
+
+        // And vice versa
+        Thread.sleep(sleepTime);
+        manifest1.put(blob);
+        assertTrue(manifest1.getUpdatedTime() > manifest2.getUpdatedTime());
+    }
+
+    @Test
+    public void testUpdateTimeOnRemove() throws Exception {
+        // Given two manifests exist entries
+        MapDbManifest manifest1 = getManifest();
+        MapDbManifest manifest2 = getManifest();
+        Blob blob1 = new Blob("foo", 5L, DriveType.Dropbox);
+        Blob blob2 = new Blob("bar", 5L, DriveType.Dropbox);
+        manifest1.put(blob1);
+        manifest1.put(blob2);
+        manifest2.put(blob1);
+
+        // When one is updated after the other
+        manifest1.remove(blob1);
+        long sleepTime = 10L;
+        Thread.sleep(sleepTime);
+        manifest2.remove(blob1);
+
+        // Then the update time should be greater
+        assertTrue(manifest1.getUpdatedTime() < manifest2.getUpdatedTime());
+
+        // And vice versa
+        Thread.sleep(sleepTime);
+        manifest1.remove(blob2);
+        assertTrue(manifest1.getUpdatedTime() > manifest2.getUpdatedTime());
     }
 
     @Test
@@ -126,6 +195,11 @@ public class MapDbManifestTest {
 
         // Then it should be removed
         assertNull(manifest.get(tree.getId(), Tree.class));
+    }
+
+    private MapDbManifest getManifest() {
+        DB db1 = MapDbUtils.createMemoryDb();
+        return new MapDbManifest(db1);
     }
 
     private File createTempFile() throws IOException {
