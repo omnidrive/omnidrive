@@ -1,21 +1,27 @@
 package omnidrive.ui.accounts;
 
 import javafx.application.Application;
-import javafx.embed.swing.JFXPanel;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import omnidrive.OmniDrive;
-import omnidrive.ui.nsmenufx.NSMenuBarAdapter;
-import omnidrive.ui.nsmenufx.convert.ToJavaFXConverter;
+import javafx.stage.WindowEvent;
+import omnidrive.filesystem.FileSystem;
+import omnidrive.ui.general.OmniDriveTrayIcon;
 
+import javax.imageio.ImageIO;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -24,10 +30,18 @@ public class AccountsFXML extends Application {
     public static FXMLLoader fxmlLoader;
     private static final String SCREEN_FXML_PATH = "/AccountsScreen.fxml";
 
+    private OmniDriveTrayIcon trayIcon;
     private AccountsController controller;
+
+    private static FileSystem fileSystem;
+
+    private static boolean shouldStartHidden = false;
 
     @Override
     public void start(Stage stage) throws Exception {
+        trayIcon = new OmniDriveTrayIcon(stage, fileSystem);
+        trayIcon.createTrayIcon(!shouldStartHidden);
+
         fxmlLoader = new FXMLLoader();
         URL url = getClass().getResource(SCREEN_FXML_PATH);
         fxmlLoader.setLocation(url);
@@ -46,10 +60,17 @@ public class AccountsFXML extends Application {
         stage.setResizable(false);
         stage.setScene(scene);
         stage.setTitle("OmniDrive");
-        stage.show();
+
+        if (shouldStartHidden) {
+            stage.hide();
+        } else {
+            stage.show();
+        }
     }
 
-    public static void show() {
+    public static void show(boolean startHidden, FileSystem fs) {
+        shouldStartHidden = startHidden;
+        fileSystem = fs;
         launch(null);
     }
 }

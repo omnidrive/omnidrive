@@ -1,41 +1,83 @@
-package omnidrive.ui.general;
+package omnidrive.install;
 
-import javafx.application.Application;
-import javafx.embed.swing.JFXPanel;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.stage.Stage;
-import omnidrive.ui.nsmenufx.NSMenuBarAdapter;
+import omnidrive.api.auth.AuthTokens;
+import omnidrive.api.base.DriveType;
+import omnidrive.filesystem.FileSystem;
+import omnidrive.ui.accounts.AccountsFXML;
+import omnidrive.ui.general.PopupView;
 
 import java.net.URL;
+import java.util.Map;
 
-public class MainFXML extends Application {
 
-    @Override
-    public void start(Stage stage) throws Exception {
-        setup();
-        stage.show();
+public class Installation {
+
+    private final FileSystem fileSystem;
+
+    public Installation(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
     }
 
-    public void setup() {
+    public void install() {
+        setup();
+
+        if (!this.fileSystem.isReady()) {
+            doFirstInstallation();
+        } else {
+            showAccountsView(true);
+        }
+        // else
+        // showAccountsViewAsTrayIcon...
+    }
+
+    private void doFirstInstallation() {
+        try {
+            //this.fileSystem.initialize(); // FIXME
+
+            restoreRegisteredAccounts(); // with filesystem => updating AccountsManager if needed
+
+            // if AccountsManager isEmpty
+            showAccountsView(false);
+            // else
+            // showAccountsViewAsTrayIcon...
+
+
+        } catch (Exception ex) {
+            PopupView.popup().error(ex.getMessage());
+        }
+    }
+
+    private void restoreRegisteredAccounts() {
+        /*try {
+            Map<DriveType, AuthTokens> registeredAccounts = this.fileSystem.getRegisteredAccounts();
+            this.accountsManager.restoreAccounts(registeredAccounts);
+        } catch (Exception ex) {
+            PopupView.popup().error("Failed to restore registered accounts.");
+        }*/
+    }
+
+    private void setup() {
         String osname = System.getProperty("os.name").toLowerCase();
         if (osname.contains("mac")) {
             setupMacApp();
         } else if (osname.contains("windows")) {
-            setupWindowsApp();
+            //setupWindowsApp();
         } else if (osname.contains("linux")) {
-            setupLinuxApp();
+            //setupLinuxApp();
         }
     }
 
     private void setupMacApp() {
         // add dock icon
-        URL iconURL = MainFXML.class.getResource("/omnidrive_icon_1024.png");
+        URL iconURL = getClass().getResource("/omnidrive_icon_1024.png");
         java.awt.Image image = new javax.swing.ImageIcon(iconURL).getImage();
         com.apple.eawt.Application.getApplication().setDockIconImage(image);
+
 //
 //        new JFXPanel();
 //        // add system menu bar
@@ -133,7 +175,8 @@ public class MainFXML extends Application {
 
     }
 
-    public static void run() {
-        launch(null);
+    public void showAccountsView(boolean startHidden) {
+        AccountsFXML.show(startHidden, this.fileSystem);
     }
+
 }

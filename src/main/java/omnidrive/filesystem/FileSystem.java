@@ -21,7 +21,8 @@ public class FileSystem {
     }
 
     public boolean isReady() {
-        return Files.isDirectory(getRootPath());
+        //return Files.isDirectory(getRootPath());
+        return false;
     }
 
     public void initialize() throws IOException {
