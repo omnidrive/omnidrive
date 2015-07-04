@@ -1,27 +1,16 @@
 package omnidrive.ui.accounts;
 
 import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.event.EventHandler;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
 import omnidrive.filesystem.FileSystem;
 import omnidrive.ui.general.OmniDriveTrayIcon;
+import omnidrive.ui.general.SyncProgress;
 
-import javax.imageio.ImageIO;
-import java.awt.SystemTray;
-import java.awt.TrayIcon;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -30,11 +19,10 @@ public class AccountsFXML extends Application {
     public static FXMLLoader fxmlLoader;
     private static final String SCREEN_FXML_PATH = "/AccountsScreen.fxml";
 
-    private OmniDriveTrayIcon trayIcon;
     private AccountsController controller;
 
-    private static FileSystem fileSystem;
-
+    private static OmniDriveTrayIcon trayIcon = null;
+    private static FileSystem fileSystem = null;
     private static boolean shouldStartHidden = false;
 
     @Override
@@ -65,6 +53,12 @@ public class AccountsFXML extends Application {
             stage.hide();
         } else {
             stage.show();
+        }
+    }
+
+    public static void setSyncProgress(SyncProgress progress) {
+        if (trayIcon != null) {
+            trayIcon.setProgress(progress);
         }
     }
 

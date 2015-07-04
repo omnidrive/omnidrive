@@ -22,6 +22,7 @@ public class OmniDriveTrayIcon {
     private TrayIcon trayIcon;
     private boolean isShown;
     private MenuItem showItem;
+    private MenuItem progressItem;
     private final FileSystem fileSystem;
 
     public OmniDriveTrayIcon(Stage stage, FileSystem fileSystem) {
@@ -98,6 +99,10 @@ public class OmniDriveTrayIcon {
             folderItem.addActionListener(folderListener);
             popup.add(folderItem);
 
+            this.progressItem = new MenuItem(SyncProgress.Ready.toString());
+            this.progressItem.setEnabled(false);
+            popup.add(this.progressItem);
+
             MenuItem closeItem = new MenuItem("Quit");
             closeItem.addActionListener(closeListener);
             popup.add(closeItem);
@@ -122,5 +127,9 @@ public class OmniDriveTrayIcon {
         this.isShown = false;
         this.showItem.setLabel("Accounts");
         stage.hide();
+    }
+
+    public void setProgress(SyncProgress progress) {
+        this.progressItem.setLabel(progress.toString());
     }
 }
