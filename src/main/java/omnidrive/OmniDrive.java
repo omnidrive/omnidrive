@@ -1,23 +1,20 @@
 package omnidrive;
 
-import omnidrive.api.auth.AuthTokens;
-import omnidrive.api.base.DriveType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.FileSystem;
 import omnidrive.install.Installation;
-import omnidrive.ui.general.PopupView;
 
-import java.util.Map;
-
+import java.nio.file.Path;
 
 public class OmniDrive {
 
     private final FileSystem fileSystem;
     private final Installation installation;
-    private final AccountsManager accountsManager = AccountsManager.getAccountsManager();
+    private final AccountsManager accountsManager = new AccountsManager();
 
     public OmniDrive() {
-        this.fileSystem = new FileSystem();
+        Path root = FileSystem.getRootPath();
+        this.fileSystem = new FileSystem(root);
         this.installation = new Installation(this.fileSystem);
     }
 

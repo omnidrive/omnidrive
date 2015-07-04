@@ -47,7 +47,7 @@ public class FileSystem {
         this.root = root;
     }
 
-    public Path getRootPath() {
+    static public Path getRootPath() {
         return Paths.get(USER_HOME, ROOT_NAME);
     }
 
