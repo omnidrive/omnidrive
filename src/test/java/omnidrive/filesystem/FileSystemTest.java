@@ -11,9 +11,7 @@ import org.mapdb.DB;
 
 import java.io.File;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class FileSystemTest extends BaseTest {
 
@@ -64,4 +62,5 @@ public class FileSystemTest extends BaseTest {
         // You get a valid manifest
         assertEquals(blob, resultManifest.get("foo", Blob.class));
     }
+
 }
