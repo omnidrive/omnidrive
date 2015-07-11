@@ -5,14 +5,11 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import omnidrive.api.auth.AuthTokens;
-import omnidrive.api.base.DriveType;
 import omnidrive.filesystem.FileSystem;
 import omnidrive.ui.accounts.AccountsFXML;
 import omnidrive.ui.general.PopupView;
 
 import java.net.URL;
-import java.util.Map;
 
 
 public class Installation {

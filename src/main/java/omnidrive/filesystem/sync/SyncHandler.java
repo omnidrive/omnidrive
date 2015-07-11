@@ -1,6 +1,5 @@
 package omnidrive.filesystem.sync;
 
-import com.google.inject.Inject;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.exception.InvalidFileException;
@@ -29,7 +28,6 @@ public class SyncHandler implements Handler {
 
     private final AccountsManager accountsManager;
 
-    @Inject
     public SyncHandler(Path root,
                        Manifest manifest,
                        ManifestSync manifestSync,

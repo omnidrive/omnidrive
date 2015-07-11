@@ -1,7 +1,5 @@
 package omnidrive.filesystem.watcher;
 
-import com.google.inject.Inject;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -18,7 +16,6 @@ public class Watcher implements Runnable {
 
     private WatchKey watchKey;
 
-    @Inject
     public Watcher(WatchService watchService, Handler handler) {
         this.watchService = watchService;
         this.handler = handler;

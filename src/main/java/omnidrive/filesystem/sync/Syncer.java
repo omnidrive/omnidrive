@@ -6,6 +6,7 @@ import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
@@ -35,8 +36,11 @@ public class Syncer {
 
     private void download(Path path, TreeItem item) throws Exception {
         Path downloadPath = path.resolve(item.getName());
-        OutputStream outputStream = new FileOutputStream(downloadPath.toFile());
-        account.downloadFile(item.getId(), outputStream);
+        File file = downloadPath.toFile();
+        if (!file.exists() || file.lastModified() < item.getLastModified()) {
+            OutputStream outputStream = new FileOutputStream(file);
+            account.downloadFile(item.getId(), outputStream);
+        }
     }
 
 }
