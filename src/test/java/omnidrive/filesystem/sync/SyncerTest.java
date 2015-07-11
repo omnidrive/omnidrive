@@ -32,7 +32,7 @@ public class SyncerTest extends BaseTest {
 
     private Account account = new Account();
 
-    private Manifest manifest = createInMemoryManifest();
+    private Manifest manifest = createMemoryManifest();
 
     @Before
     public void setUp() throws Exception {
@@ -157,7 +157,7 @@ public class SyncerTest extends BaseTest {
         assertEquals("Hello World", FileUtils.readFileToString(dirFiles[0]));
     }
 
-    private Manifest createInMemoryManifest() {
+    private Manifest createMemoryManifest() {
         DB db = MapDbUtils.createMemoryDb();
         return new MapDbManifest(db);
     }

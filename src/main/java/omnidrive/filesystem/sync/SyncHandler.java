@@ -9,6 +9,9 @@ import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
+import omnidrive.filesystem.manifest.walker.ManifestWalker;
+import omnidrive.filesystem.manifest.walker.SimpleVisitor;
+import omnidrive.filesystem.manifest.walker.Visitor;
 import omnidrive.filesystem.watcher.Handler;
 
 import java.io.File;
@@ -28,6 +31,10 @@ public class SyncHandler implements Handler {
 
     private final AccountsManager accountsManager;
 
+    private final ManifestWalker walker;
+
+    private final Visitor removeVisitor = new RemoveVisitor();
+
     public SyncHandler(Path root,
                        Manifest manifest,
                        ManifestSync manifestSync,
@@ -38,6 +45,7 @@ public class SyncHandler implements Handler {
         this.manifestSync = manifestSync;
         this.uploadStrategy = uploadStrategy;
         this.accountsManager = accountsManager;
+        walker = new ManifestWalker(manifest);
     }
 
     public String create(File file) throws Exception {
@@ -74,7 +82,7 @@ public class SyncHandler implements Handler {
         if (item == null) {
             throw new InvalidFileException();
         }
-        removeItem(item);
+        walker.walk(item, removeVisitor);
         parent.removeItem(item.getId());
         manifest.put(parent);
         manifestSync.upload();
@@ -94,22 +102,6 @@ public class SyncHandler implements Handler {
         manifest.put(new Tree(id));
         addEntryToParent(file, Entry.Type.TREE, id);
         return id;
-    }
-
-    private void removeItem(TreeItem item) throws Exception {
-        String id = item.getId();
-        if (item.getType() == Entry.Type.BLOB) {
-            Blob blob = manifest.get(id, Blob.class);
-            BaseAccount account = getAccount(blob);
-            account.removeFile(id);
-            manifest.remove(blob);
-        } else {
-            Tree tree = manifest.get(id, Tree.class);
-            for (TreeItem childItem : tree.getItems()) {
-                removeItem(childItem);
-            }
-            manifest.remove(tree);
-        }
     }
 
     private String randomId() {
@@ -152,4 +144,17 @@ public class SyncHandler implements Handler {
         return accountsManager.getAccount(blob.getAccount());
     }
 
+    private class RemoveVisitor extends SimpleVisitor {
+
+        public void visitBlob(Blob blob) throws Exception {
+            BaseAccount account = getAccount(blob);
+            account.removeFile(blob.getId());
+            manifest.remove(blob);
+        }
+
+        public void postVisitTree(Tree tree) throws Exception {
+            manifest.remove(tree);
+        }
+
+    }
 }
