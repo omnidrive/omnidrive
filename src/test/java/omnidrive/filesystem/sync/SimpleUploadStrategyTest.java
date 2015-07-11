@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 
 public class SimpleUploadStrategyTest extends BaseTest {
 
-    private BaseAccount emptyAccount = new Account(100);
+    private BaseAccount emptyAccount = new Account();
 
     private BaseAccount fullAccount = new Account(0);
 

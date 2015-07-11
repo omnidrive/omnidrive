@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
@@ -29,7 +30,9 @@ public class SyncerTest extends BaseTest {
 
     private AccountsManager accountsManager = new AccountsManager();
 
-    private Account account = new Account(100);
+    private Account account = new Account();
+
+    private Manifest manifest = createInMemoryManifest();
 
     @Before
     public void setUp() throws Exception {
@@ -37,13 +40,12 @@ public class SyncerTest extends BaseTest {
     }
 
     @Test
-    public void testFullSyncDownloadOneFileIfNotExistsInRoot() throws Exception {
+    public void testDownloadOneFileIfNotExistsInRoot() throws Exception {
         String fileId = "foo";
         String fileContents = "Hello World";
         String fileName = "foo.txt";
 
         // Given a manifest with one file at root
-        Manifest manifest = createInMemoryManifest();
         Tree rootTree = manifest.getRoot();
         manifest.put(new Blob(fileId, 10, DRIVE_TYPE));
         rootTree.addItem(new TreeItem(Entry.Type.BLOB, fileId, fileName, 0));
@@ -68,7 +70,7 @@ public class SyncerTest extends BaseTest {
     }
 
     @Test
-    public void testFullSyncDownloadFileIfManifestHasNewerVersion() throws Exception {
+    public void testDownloadFileIfManifestHasNewerVersion() throws Exception {
         String fileName = "foo.txt";
         String oldFileContents = "old content";
         String fileId = "foo";
@@ -80,7 +82,6 @@ public class SyncerTest extends BaseTest {
         FileUtils.writeStringToFile(oldFile, oldFileContents);
 
         // And a manifest with a newer version of the file
-        Manifest manifest = createInMemoryManifest();
         Tree rootTree = manifest.getRoot();
         manifest.put(new Blob(fileId, 10, DRIVE_TYPE));
         rootTree.addItem(new TreeItem(Entry.Type.BLOB, fileId, fileName, oldFile.lastModified() + 1));
@@ -99,7 +100,7 @@ public class SyncerTest extends BaseTest {
     }
 
     @Test
-    public void testFullSyncDoesNotDownloadFileIfManifestHasOlderVersion() throws Exception {
+    public void testDoesNotDownloadFileIfManifestHasOlderVersion() throws Exception {
         String fileName = "foo.txt";
         String oldFileContents = "old content";
         String fileId = "foo";
@@ -111,7 +112,6 @@ public class SyncerTest extends BaseTest {
         FileUtils.writeStringToFile(oldFile, oldFileContents);
 
         // And a manifest with an older version of the file
-        Manifest manifest = createInMemoryManifest();
         Tree rootTree = manifest.getRoot();
         manifest.put(new Blob(fileId, 10, DRIVE_TYPE));
         rootTree.addItem(new TreeItem(Entry.Type.BLOB, fileId, fileName, 0));
@@ -127,6 +127,34 @@ public class SyncerTest extends BaseTest {
         assertEquals(oldFileContents, FileUtils.readFileToString(files[0]));
 
         cleanup(rootPath);
+    }
+
+    @Test
+    public void testDownloadFileInDir() throws Exception {
+        // Given there is a dir with file in manifest
+        Blob bar = new Blob("bar", 10, DRIVE_TYPE);
+        Tree foo = new Tree("foo", Collections.singletonList(
+                new TreeItem(Entry.Type.BLOB, "bar", "bar.txt", 0)));
+        manifest.put(foo);
+        manifest.put(bar);
+        Tree rootTree = manifest.getRoot();
+        rootTree.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo", 0));
+        manifest.put(rootTree);
+
+        // And dir is not in root
+        Path rootPath = Files.createTempDirectory("temp_root");
+
+        // When performing a full sync
+        account.addFile("bar", "Hello World");
+        Syncer syncer = new Syncer(rootPath, account);
+        syncer.fullSync(manifest);
+
+        // Then dir and file should be downloaded
+        File[] rootFiles = getFilesInPath(rootPath);
+        assertEquals(1, rootFiles.length);
+        File[] dirFiles = getFilesInPath(rootPath.resolve("foo"));
+        assertEquals(1, dirFiles.length);
+        assertEquals("Hello World", FileUtils.readFileToString(dirFiles[0]));
     }
 
     private Manifest createInMemoryManifest() {

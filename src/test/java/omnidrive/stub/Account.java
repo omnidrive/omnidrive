@@ -11,18 +11,20 @@ import java.util.Map;
 
 public class Account extends BaseAccount {
 
+    public static final int DEFAULT_CAPACITY = 100;
+
     final private long totalSize;
 
     private long usedSize = 0;
 
     final private Map<String, String> files = new ArrayMap<>();
 
-    public Account(long totalSize) {
-        this.totalSize = totalSize;
+    public Account() {
+        this(DEFAULT_CAPACITY);
     }
 
-    public Account() {
-        this(0);
+    public Account(long totalSize) {
+        this.totalSize = totalSize;
     }
 
     @Override

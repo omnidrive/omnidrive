@@ -23,13 +23,16 @@ public class Syncer {
     }
 
     public void fullSync(Manifest manifest) throws Exception {
-        syncDir(manifest.getRoot(), rootPath);
+        syncDir(manifest, manifest.getRoot(), rootPath);
     }
 
-    private void syncDir(Tree tree, Path path) throws Exception {
+    private void syncDir(Manifest manifest, Tree tree, Path path) throws Exception {
         for (TreeItem item : tree.getItems()) {
             if (item.getType() == Entry.Type.BLOB) {
                 download(path, item);
+            } else if (item.getType() == Entry.Type.TREE) {
+                createDir(path, item);
+                syncDir(manifest, manifest.get(item.getId(), Tree.class), path.resolve(item.getName()));
             }
         }
     }
@@ -41,6 +44,12 @@ public class Syncer {
             OutputStream outputStream = new FileOutputStream(file);
             account.downloadFile(item.getId(), outputStream);
         }
+    }
+
+    private boolean createDir(Path path, TreeItem item) {
+        Path dirPath = path.resolve(item.getName());
+        File dir = dirPath.toFile();
+        return dir.mkdir();
     }
 
 }
