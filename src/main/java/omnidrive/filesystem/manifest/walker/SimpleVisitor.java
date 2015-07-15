@@ -1,25 +1,24 @@
 package omnidrive.filesystem.manifest.walker;
 
-import omnidrive.filesystem.manifest.entry.Blob;
-import omnidrive.filesystem.manifest.entry.Tree;
+import omnidrive.filesystem.manifest.entry.TreeItem;
 
 /**
  * Default implementation which does nothing - override only necessary methods
  */
-public class SimpleVisitor implements Visitor {
+public class SimpleVisitor implements ItemVisitor {
 
     @Override
-    public void preVisitTree(Tree tree) throws Exception {
+    public void preVisit(TreeItem item) throws Exception {
         // no-op
     }
 
     @Override
-    public void visitBlob(Blob blob) throws Exception {
+    public void visit(TreeItem item) throws Exception {
         // no-op
     }
 
     @Override
-    public void postVisitTree(Tree tree) throws Exception {
+    public void postVisit(TreeItem item) throws Exception {
         // no-op
     }
 

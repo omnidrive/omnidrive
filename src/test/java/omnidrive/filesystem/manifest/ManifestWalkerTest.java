@@ -5,8 +5,8 @@ import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
+import omnidrive.filesystem.manifest.walker.ItemVisitor;
 import omnidrive.filesystem.manifest.walker.ManifestWalker;
-import omnidrive.filesystem.manifest.walker.Visitor;
 import omnidrive.util.MapDbUtils;
 import org.junit.Test;
 import org.mapdb.DB;
@@ -25,35 +25,6 @@ public class ManifestWalkerTest {
     private LoggingVisitor visitor = new LoggingVisitor();
 
     @Test
-    public void testWalkManifestFromRoot() throws Exception {
-        // Given some files and dir exist in manifest
-        Blob bar = new Blob("bar", 10, DriveType.Dropbox);
-        Tree foo = new Tree("foo", Collections.singletonList(
-                new TreeItem(Entry.Type.BLOB, "bar", "bar.txt", 0)));
-        Blob baz = new Blob("baz", 20, DriveType.Dropbox);
-        manifest.put(foo);
-        manifest.put(bar);
-        manifest.put(baz);
-        Tree root = manifest.getRoot();
-        root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo", 0));
-        root.addItem(new TreeItem(Entry.Type.BLOB, "baz", "baz.txt", 0));
-        manifest.put(root);
-
-        // When walking the manifest using a visitor
-        walker.walk(manifest.getRoot(), visitor);
-
-        // Then all IDs under tree should be registered
-        String expected =
-                "pre visit 'root'\n" +
-                "pre visit 'foo'\n" +
-                "visit 'bar'\n" +
-                "post visit 'foo'\n" +
-                "visit 'baz'\n" +
-                "post visit 'root'\n";
-        assertEquals(expected, visitor.getResult());
-    }
-
-    @Test
     public void testWalkManifestSubtree() throws Exception {
         // Given some files and dir exist in manifest
         Blob bar = new Blob("bar", 10, DriveType.Dropbox);
@@ -67,19 +38,46 @@ public class ManifestWalkerTest {
         manifest.put(baz);
         manifest.put(qux);
         Tree root = manifest.getRoot();
-        root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo", 0));
+        TreeItem fooTreeItem = new TreeItem(Entry.Type.TREE, "foo", "foo", 0);
+        root.addItem(fooTreeItem);
         root.addItem(new TreeItem(Entry.Type.BLOB, "qux", "qux.txt", 0));
         manifest.put(root);
 
         // When walking the manifest using a visitor
-        walker.walk(foo, visitor);
+        walker.walk(fooTreeItem, visitor);
 
         // Then all IDs under tree should be registered
         String expected =
                 "pre visit 'foo'\n" +
-                "visit 'bar'\n" +
-                "visit 'baz'\n" +
+                "visit 'bar.txt'\n" +
+                "visit 'baz.txt'\n" +
                 "post visit 'foo'\n";
+        assertEquals(expected, visitor.getResult());
+    }
+
+    @Test
+    public void testWalkManifestRoot() throws Exception {
+        // Given some files and dir exist in manifest
+        Blob bar = new Blob("bar", 10, DriveType.Dropbox);
+        Blob baz = new Blob("baz", 20, DriveType.Dropbox);
+        Tree foo = new Tree("foo", Collections.singletonList(new TreeItem(Entry.Type.BLOB, "bar", "bar.txt", 0)));
+        manifest.put(foo);
+        manifest.put(bar);
+        manifest.put(baz);
+        Tree root = manifest.getRoot();
+        root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo", 0));
+        root.addItem(new TreeItem(Entry.Type.BLOB, "baz", "baz.txt", 0));
+        manifest.put(root);
+
+        // When walking the manifest using a visitor
+        walker.walk(visitor);
+
+        // Then all IDs under tree should be registered
+        String expected =
+                "pre visit 'foo'\n" +
+                "visit 'bar.txt'\n" +
+                "post visit 'foo'\n" +
+                "visit 'baz.txt'\n";
         assertEquals(expected, visitor.getResult());
     }
 
@@ -87,8 +85,8 @@ public class ManifestWalkerTest {
     public void testWalkBlob() throws Exception {
         // Given some files and dir exist in manifest
         Blob bar = new Blob("bar", 10, DriveType.Dropbox);
-        Tree foo = new Tree("foo", Collections.singletonList(
-                new TreeItem(Entry.Type.BLOB, "bar", "bar.txt", 0)));
+        TreeItem barTreeItem = new TreeItem(Entry.Type.BLOB, "bar", "bar.txt", 0);
+        Tree foo = new Tree("foo", Collections.singletonList(barTreeItem));
         Blob baz = new Blob("baz", 20, DriveType.Dropbox);
         manifest.put(foo);
         manifest.put(bar);
@@ -99,10 +97,10 @@ public class ManifestWalkerTest {
         manifest.put(root);
 
         // When walking the manifest using a visitor
-        walker.walk(bar, visitor);
+        walker.walk(barTreeItem, visitor);
 
         // Then all IDs under tree should be registered
-        String expected = "visit 'bar'\n";
+        String expected = "visit 'bar.txt'\n";
         assertEquals(expected, visitor.getResult());
     }
 
@@ -111,36 +109,35 @@ public class ManifestWalkerTest {
         return new MapDbManifest(db);
     }
 
-    private class LoggingVisitor implements Visitor {
+    private class LoggingVisitor implements ItemVisitor {
 
         final private StringBuilder stringBuilder = new StringBuilder();
 
         @Override
-        public void preVisitTree(Tree tree) throws Exception {
-            append("pre ", tree);
+        public void preVisit(TreeItem item) throws Exception {
+            append("pre ", item);
         }
 
         @Override
-        public void visitBlob(Blob blob) throws Exception {
-            append("", blob);
+        public void visit(TreeItem item) throws Exception {
+            append("", item);
         }
 
         @Override
-        public void postVisitTree(Tree tree) throws Exception {
-            append("post ", tree);
+        public void postVisit(TreeItem item) throws Exception {
+            append("post ", item);
         }
 
         public String getResult() {
             return stringBuilder.toString();
         }
 
-        private void append(String prefix, Entry entry) {
+        private void append(String prefix, TreeItem item) {
             stringBuilder
                 .append(prefix)
                 .append("visit '")
-                .append(entry.getId())
+                .append(item.getName())
                 .append("'\n");
         }
-
     }
 }
