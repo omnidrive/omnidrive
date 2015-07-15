@@ -2,9 +2,10 @@ package omnidrive.filesystem.sync;
 
 import omnidrive.api.base.BaseAccount;
 import omnidrive.filesystem.manifest.Manifest;
-import omnidrive.filesystem.manifest.entry.Entry;
-import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
+import omnidrive.filesystem.manifest.walker.ItemVisitor;
+import omnidrive.filesystem.manifest.walker.ManifestWalker;
+import omnidrive.filesystem.manifest.walker.SimpleVisitor;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,18 +24,9 @@ public class Syncer {
     }
 
     public void fullSync(Manifest manifest) throws Exception {
-        syncDir(manifest, manifest.getRoot(), rootPath);
-    }
-
-    private void syncDir(Manifest manifest, Tree tree, Path path) throws Exception {
-        for (TreeItem item : tree.getItems()) {
-            if (item.getType() == Entry.Type.BLOB) {
-                download(path, item);
-            } else if (item.getType() == Entry.Type.TREE) {
-                createDir(path, item);
-                syncDir(manifest, manifest.get(item.getId(), Tree.class), path.resolve(item.getName()));
-            }
-        }
+        ManifestWalker walker = new ManifestWalker(manifest);
+        ItemVisitor visitor = new SyncVisitor(rootPath);
+        walker.walk(visitor);
     }
 
     private void download(Path path, TreeItem item) throws Exception {
@@ -50,6 +42,29 @@ public class Syncer {
         Path dirPath = path.resolve(item.getName());
         File dir = dirPath.toFile();
         return dir.mkdir();
+    }
+
+    private class SyncVisitor extends SimpleVisitor {
+
+        private Path path;
+
+        public SyncVisitor(Path path) {
+            this.path = path;
+        }
+
+        public void preVisit(TreeItem item) throws Exception {
+            createDir(path, item);
+            path = path.resolve(item.getName());
+        }
+
+        public void visit(TreeItem item) throws Exception {
+            download(path, item);
+        }
+
+        public void postVisit(TreeItem item) throws Exception {
+            path = path.getParent();
+        }
+
     }
 
 }

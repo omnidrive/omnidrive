@@ -9,9 +9,9 @@ import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
+import omnidrive.filesystem.manifest.walker.ItemVisitor;
 import omnidrive.filesystem.manifest.walker.ManifestWalker;
 import omnidrive.filesystem.manifest.walker.SimpleVisitor;
-import omnidrive.filesystem.manifest.walker.Visitor;
 import omnidrive.filesystem.watcher.Handler;
 
 import java.io.File;
@@ -33,7 +33,7 @@ public class SyncHandler implements Handler {
 
     private final ManifestWalker walker;
 
-    private final Visitor removeVisitor = new RemoveVisitor();
+    private final ItemVisitor removeVisitor = new RemoveVisitor();
 
     public SyncHandler(Path root,
                        Manifest manifest,
@@ -146,13 +146,16 @@ public class SyncHandler implements Handler {
 
     private class RemoveVisitor extends SimpleVisitor {
 
-        public void visitBlob(Blob blob) throws Exception {
+        public void visit(TreeItem item) throws Exception {
+            String id = item.getId();
+            Blob blob = manifest.get(id, Blob.class);
             BaseAccount account = getAccount(blob);
-            account.removeFile(blob.getId());
+            account.removeFile(id);
             manifest.remove(blob);
         }
 
-        public void postVisitTree(Tree tree) throws Exception {
+        public void postVisit(TreeItem item) throws Exception {
+            Tree tree = manifest.get(item.getId(), Tree.class);
             manifest.remove(tree);
         }
 
