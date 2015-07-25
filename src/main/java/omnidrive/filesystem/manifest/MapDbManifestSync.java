@@ -28,7 +28,7 @@ public class MapDbManifestSync implements ManifestSync {
         db.compact();
         long size = file.length();
         for (BaseAccount account : accountsManager.getActiveAccounts()) {
-            account.uploadFile(UPLOAD_MANIFEST_FILENAME, new FileInputStream(file), size);
+            account.updateFile(UPLOAD_MANIFEST_FILENAME, new FileInputStream(file), size);
         }
     }
 

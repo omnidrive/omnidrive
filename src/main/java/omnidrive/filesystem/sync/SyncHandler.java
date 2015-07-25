@@ -69,8 +69,7 @@ public class SyncHandler implements Handler {
         String id = blob.getId();
         Blob updated = new Blob(id, file.length(), blob.getAccount());
         BaseAccount account = getAccount(blob);
-        account.removeFile(id);
-        account.uploadFile(id, new FileInputStream(file), updated.getSize());
+        account.updateFile(id, new FileInputStream(file), updated.getSize());
         manifest.put(updated);
         manifestSync.upload();
         return id;
@@ -82,6 +81,7 @@ public class SyncHandler implements Handler {
         if (item == null) {
             throw new InvalidFileException();
         }
+        // TODO delete from account!!
         walker.walk(item, removeVisitor);
         parent.removeItem(item.getId());
         manifest.put(parent);

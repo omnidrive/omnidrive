@@ -5,6 +5,7 @@ import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.FileSystem;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.MapDbManifest;
+import omnidrive.filesystem.sync.Syncer;
 import omnidrive.util.MapDbUtils;
 import org.mapdb.DB;
 
@@ -34,6 +35,7 @@ public class App {
 
     private void startFirstRun() {
         initFileSystem();
+        startWatcherThread();
         openAccountsSelector();
         // TODO
     }
@@ -41,6 +43,7 @@ public class App {
     private void startSubsequentRun() throws Exception {
         List<BaseAccount> registeredAccounts = getRegisteredAccounts();
         BaseAccount lruAccount = resolveLeastRecentlyUpdatedAccount(registeredAccounts);
+        // TODO rewrite this
         fullSync(lruAccount);
         for (BaseAccount account : registeredAccounts) {
             if (account != lruAccount) {
@@ -57,7 +60,7 @@ public class App {
     }
 
     private boolean isFirstRun() {
-        return fileSystem.manifestExists();
+        return !fileSystem.manifestExists();
     }
 
     private List<BaseAccount> getRegisteredAccounts() throws Exception {
@@ -82,6 +85,7 @@ public class App {
     private long getAccountUpdateTime(BaseAccount account) throws Exception {
         File tempFile = File.createTempFile("manifest", "db");
         OutputStream outputStream = new FileOutputStream(tempFile);
+        // TODO use method from account
         account.downloadFile("manifest", outputStream);
         outputStream.close();
         DB db = MapDbUtils.createFileDb(tempFile);
@@ -93,7 +97,8 @@ public class App {
     }
 
     private void fullSync(BaseAccount account) {
-
+//        Syncer syncer = new Syncer(FileSystem.getRootPath(), account);
+//        syncer.fullSync();
     }
 
     private void upstreamSync(BaseAccount account) {
