@@ -33,9 +33,6 @@ public class GoogleDriveAccount extends BaseAccount {
         body.setTitle(OMNIDRIVE_ROOT_FOLDER_NAME);
         body.setMimeType(MimeTypeFolder);
 
-        GoogleDriveFolder folder = null;
-        GoogleDriveFolder rootFolder = null;
-
         try {
             if (!isOmniDriveFolderExists()) {
                 this.service.files().insert(body).execute();
