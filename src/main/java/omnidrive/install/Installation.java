@@ -173,7 +173,7 @@ public class Installation {
     }
 
     public void showAccountsView(boolean startHidden) {
-        AccountsFXML.show(startHidden, this.fileSystem);
+        AccountsFXML.show(startHidden, FileSystem.getRootPath());
     }
 
 }

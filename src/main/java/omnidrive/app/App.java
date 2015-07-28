@@ -5,6 +5,7 @@ import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.FileSystem;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.MapDbManifest;
+import omnidrive.ui.managers.UIManager;
 import omnidrive.util.MapDbUtils;
 import org.mapdb.DB;
 
@@ -34,7 +35,7 @@ public class App {
 
     private void startFirstRun() {
         initFileSystem();
-        startWatcherThread();
+        //startWatcherThread();
         openAccountsSelector();
         // TODO
     }
@@ -56,10 +57,12 @@ public class App {
     }
 
     private void openAccountsSelector() {
+        UIManager.startGuiInFront(FileSystem.getRootPath());
     }
 
     private boolean isFirstRun() {
-        return !fileSystem.manifestExists();
+        return true;
+        //return !fileSystem.manifestExists();
     }
 
     private List<BaseAccount> getRegisteredAccounts() throws Exception {

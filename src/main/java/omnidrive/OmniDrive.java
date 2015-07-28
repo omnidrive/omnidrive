@@ -16,9 +16,6 @@ public class OmniDrive {
             AccountsManager accountsManager = new AccountsManager();
             App app = new App(fileSystem, accountsManager);
             app.start();
-
-
-            AccountsFXML.show(false, fileSystem);
         } catch (Exception e) {
             e.printStackTrace();
         }

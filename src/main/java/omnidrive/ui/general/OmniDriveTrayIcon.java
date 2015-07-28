@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 
 /**
  * Created by assafey on 6/29/15.
@@ -23,12 +24,12 @@ public class OmniDriveTrayIcon {
     private boolean isShown;
     private MenuItem showItem;
     private MenuItem progressItem;
-    private final FileSystem fileSystem;
+    private final Path omniDriveFolderPath;
 
-    public OmniDriveTrayIcon(Stage stage, FileSystem fileSystem) {
+    public OmniDriveTrayIcon(Stage stage, Path omniDriveFolderPath) {
         this.stage = stage;
         this.isShown = false;
-        this.fileSystem = fileSystem;
+        this.omniDriveFolderPath = omniDriveFolderPath;
         Platform.setImplicitExit(false);
     }
 
@@ -74,7 +75,7 @@ public class OmniDriveTrayIcon {
                     Platform.runLater(new Runnable() {
                         public void run() {
                             try {
-                                Desktop.getDesktop().open(fileSystem.getRootPath().toFile());
+                                Desktop.getDesktop().open(omniDriveFolderPath.toFile());
                             } catch (IOException ex) {
                                 PopupView.popup().error("Failed to open main folder.");
                             }

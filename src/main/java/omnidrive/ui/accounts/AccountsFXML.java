@@ -13,6 +13,7 @@ import omnidrive.ui.general.SyncProgress;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Path;
 
 public class AccountsFXML extends Application {
 
@@ -22,12 +23,16 @@ public class AccountsFXML extends Application {
     private AccountsController controller;
 
     private static OmniDriveTrayIcon trayIcon = null;
-    private static FileSystem fileSystem = null;
+    private static Path omniDriveFolderPath = null;
     private static boolean shouldStartHidden = false;
+
+    private static Stage theStage = null;
 
     @Override
     public void start(Stage stage) throws Exception {
-        trayIcon = new OmniDriveTrayIcon(stage, fileSystem);
+        theStage = stage;
+
+        trayIcon = new OmniDriveTrayIcon(stage, omniDriveFolderPath);
         trayIcon.createTrayIcon(!shouldStartHidden);
 
         fxmlLoader = new FXMLLoader();
@@ -68,9 +73,21 @@ public class AccountsFXML extends Application {
         }
     }
 
-    public static void show(boolean startHidden, FileSystem fs) {
+    public static void show() {
+        if (theStage != null) {
+            theStage.show();
+        }
+    }
+
+    public static void hide() {
+        if (theStage != null) {
+            theStage.hide();
+        }
+    }
+
+    public static void show(boolean startHidden, Path folderPath) {
         shouldStartHidden = startHidden;
-        fileSystem = fs;
+        omniDriveFolderPath = folderPath;
         launch(null);
     }
 }
