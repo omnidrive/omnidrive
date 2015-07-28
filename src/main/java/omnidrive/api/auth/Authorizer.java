@@ -12,6 +12,6 @@ public interface Authorizer {
 
     void finishAuthProcess(String code) throws BaseException;
 
-    BaseAccount createAccount(AuthToken tokens) throws BaseException;
+    BaseAccount createAccount(String accessToken) throws BaseException;
 
 }

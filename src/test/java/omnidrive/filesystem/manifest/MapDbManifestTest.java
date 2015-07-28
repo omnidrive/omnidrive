@@ -1,6 +1,6 @@
 package omnidrive.filesystem.manifest;
 
-import omnidrive.api.auth.AuthToken;
+import omnidrive.api.base.AccountMetadata;
 import omnidrive.api.base.AccountType;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
@@ -28,24 +28,24 @@ public class MapDbManifestTest {
         // Given no auth tokens were registered
 
         // When you request auth tokens
-        Map<AccountType, AuthToken> authTokens = manifest.getAuthTokens();
+        Map<AccountType, AccountMetadata> accountsMetadata = manifest.getAccountsMetadata();
 
         // Then you gen an empty list
-        assertTrue(authTokens.isEmpty());
+        assertTrue(accountsMetadata.isEmpty());
     }
 
     @Test
     public void testGetAuthTokensIfExist() throws Exception {
         // Given an auth token was registered
-        AuthToken authToken = new AuthToken("foo", "bar");
+        AccountMetadata metadata = new AccountMetadata("foo", "bar");
         AccountType accountType = AccountType.Dropbox;
-        manifest.put(accountType, authToken);
+        manifest.put(accountType, metadata);
 
         // When you request auth tokens
-        Map<AccountType, AuthToken> authTokens = manifest.getAuthTokens();
+        Map<AccountType, AccountMetadata> accountsMetada = manifest.getAccountsMetadata();
 
         // Then you get the auth token
-        assertEquals(authToken, authTokens.get(accountType));
+        assertEquals(metadata, accountsMetada.get(accountType));
     }
 
     @Test

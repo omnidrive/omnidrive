@@ -1,6 +1,6 @@
 package omnidrive.filesystem.manifest;
 
-import omnidrive.api.auth.AuthToken;
+import omnidrive.api.base.AccountMetadata;
 import omnidrive.api.base.AccountType;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
@@ -21,14 +21,14 @@ public class MapDbManifest implements Manifest {
 
     public static final String UPDATE_TIME = "update-time";
 
-    final private HTreeMap<AccountType, AuthToken> authTokens;
+    final private HTreeMap<AccountType, AccountMetadata> accountsMetadata;
 
     final private HTreeMap<String, Entry> entries;
 
     final private Atomic.Long updateTime;
 
     public MapDbManifest(DB db) {
-        authTokens = db.getHashMap(AUTH_TOKENS_MAP);
+        accountsMetadata = db.getHashMap(AUTH_TOKENS_MAP);
         entries = db.getHashMap(ENTRIES_MAP);
         updateTime = db.getAtomicLong(UPDATE_TIME);
         initRoot();
@@ -38,12 +38,12 @@ public class MapDbManifest implements Manifest {
         return get(ROOT_KEY, Tree.class);
     }
 
-    public Map<AccountType, AuthToken> getAuthTokens() {
-        return new HashMap<AccountType, AuthToken>(authTokens);
+    public Map<AccountType, AccountMetadata> getAccountsMetadata() {
+        return new HashMap<AccountType, AccountMetadata>(accountsMetadata);
     }
 
-    public void put(AccountType accountType, AuthToken authToken) {
-        authTokens.put(accountType, authToken);
+    public void put(AccountType accountType, AccountMetadata metadata) {
+        accountsMetadata.put(accountType, metadata);
     }
 
     public void put(Entry entry) {

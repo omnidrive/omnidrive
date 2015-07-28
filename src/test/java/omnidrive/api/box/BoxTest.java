@@ -3,6 +3,7 @@ package omnidrive.api.box;
 import com.box.sdk.BoxAPIConnection;
 import omnidrive.api.base.BaseAccount;
 
+import omnidrive.api.base.BaseApi;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.After;
@@ -91,6 +92,8 @@ public class BoxTest {
 
     @Test
     public void testG_RestoreAccount() throws Exception {
-        // TODO - restore box account
+        BaseApi api = new BoxApi();
+        boxAccount = api.createAccount(BOX_TOKEN);
+        assertNotNull(boxAccount);
     }
 }

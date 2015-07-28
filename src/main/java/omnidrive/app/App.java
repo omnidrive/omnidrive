@@ -5,7 +5,6 @@ import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.FileSystem;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.MapDbManifest;
-import omnidrive.filesystem.sync.Syncer;
 import omnidrive.util.MapDbUtils;
 import org.mapdb.DB;
 
@@ -65,7 +64,7 @@ public class App {
 
     private List<BaseAccount> getRegisteredAccounts() throws Exception {
         Manifest manifest = fileSystem.getManifest();
-        accountsManager.restoreAccounts(manifest.getAuthTokens());
+        accountsManager.restoreAccounts(manifest.getAccountsMetadata());
         return accountsManager.getActiveAccounts();
     }
 

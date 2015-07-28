@@ -3,6 +3,7 @@ package omnidrive.api.dropbox;
 import com.dropbox.core.DbxRequestConfig;
 import omnidrive.api.base.BaseAccount;
 
+import omnidrive.api.base.BaseApi;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.After;
@@ -91,6 +92,8 @@ public class DropboxTest {
 
     @Test
     public void testG_RestoreAccount() throws Exception {
-        // TODO - restore dropbox account
+        BaseApi api = new DropboxApi();
+        dbxAccount = api.createAccount(DbxAccessToken);
+        assertNotNull(dbxAccount);
     }
 }

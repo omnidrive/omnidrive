@@ -10,7 +10,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import javafx.scene.web.WebEngine;
-import omnidrive.api.auth.AuthToken;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.BaseApi;
 import omnidrive.api.base.BaseException;
@@ -49,11 +48,12 @@ public class GoogleDriveApi extends BaseApi {
     }
 
     @Override
-    public BaseAccount createAccount(AuthToken tokens) throws BaseException {
+    public BaseAccount createAccount(String accessToken) throws BaseException {
         GoogleCredential credential = new GoogleCredential.Builder()
                 .setClientSecrets(CLIENT_ID, CLIENT_SECRET)
-                .setJsonFactory(jsonFactory).setTransport(httpTransport).build()
-                .setRefreshToken(tokens.getRefreshToken()).setAccessToken(tokens.getAccessToken());
+                .setJsonFactory(jsonFactory)
+                .setTransport(httpTransport).build()
+                .setAccessToken(accessToken);
 
         //Create a new authorized API client
         Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("omnidrive").build();

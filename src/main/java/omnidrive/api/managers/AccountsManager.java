@@ -1,6 +1,6 @@
 package omnidrive.api.managers;
 
-import omnidrive.api.auth.AuthToken;
+import omnidrive.api.base.AccountMetadata;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.BaseException;
 import omnidrive.api.base.AccountType;
@@ -16,18 +16,18 @@ public class AccountsManager extends Observable {
 
     private final BaseAccount[] accounts = new BaseAccount[AccountType.length()];
 
-    public void restoreAccounts(Map<AccountType, AuthToken> accountsInfo) throws BaseException {
+    public void restoreAccounts(Map<AccountType, AccountMetadata> accountsInfo) throws BaseException {
         for (AccountType type : accountsInfo.keySet()) {
-            AuthToken tokens = accountsInfo.get(type);
-            BaseAccount account = createAccount(type, tokens);
+            AccountMetadata metadata = accountsInfo.get(type);
+            BaseAccount account = createAccount(type, metadata.getAccessToken());
             if (account != null) {
                 setAccount(type, account);
             }
         }
     }
 
-    public BaseAccount createAccount(AccountType type, AuthToken tokens) throws BaseException {
-        return this.apiManager.getApi(type).createAccount(tokens);
+    public BaseAccount createAccount(AccountType type, String accessToken) throws BaseException {
+        return this.apiManager.getApi(type).createAccount(accessToken);
     }
 
     public void setAccount(AccountType type, BaseAccount account) {

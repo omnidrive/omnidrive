@@ -8,9 +8,7 @@ import com.google.api.services.drive.model.ParentReference;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.BaseException;
 
-import javax.activation.MimetypesFileTypeMap;
 import java.io.*;
-import java.net.URLConnection;
 import java.util.Arrays;
 
 public class GoogleDriveAccount extends BaseAccount {

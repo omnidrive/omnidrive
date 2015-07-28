@@ -8,6 +8,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import omnidrive.api.base.BaseAccount;
 
+import omnidrive.api.base.BaseApi;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.After;
@@ -109,6 +110,8 @@ public class GoogleDriveTest {
 
     @Test
     public void testG_RestoreAccount() throws Exception {
-        // TODO - restore dropbox account
+        BaseApi api = new GoogleDriveApi();
+        googleAccount = api.createAccount(GOOGLE_TOKEN);
+        assertNotNull(googleAccount);
     }
 }

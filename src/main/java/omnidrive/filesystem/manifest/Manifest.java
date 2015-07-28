@@ -1,6 +1,6 @@
 package omnidrive.filesystem.manifest;
 
-import omnidrive.api.auth.AuthToken;
+import omnidrive.api.base.AccountMetadata;
 import omnidrive.api.base.AccountType;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
@@ -9,9 +9,9 @@ import java.util.Map;
 
 public interface Manifest {
 
-    Map<AccountType, AuthToken> getAuthTokens();
+    Map<AccountType, AccountMetadata> getAccountsMetadata();
 
-    void put(AccountType accountType, AuthToken authToken);
+    void put(AccountType accountType, AccountMetadata metadata);
 
     void put(Entry entry);
 
