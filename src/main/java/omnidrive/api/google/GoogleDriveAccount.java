@@ -1,16 +1,17 @@
 package omnidrive.api.google;
 
-import com.google.api.client.http.AbstractInputStreamContent;
-import com.google.api.client.http.FileContent;
-import com.google.api.client.http.InputStreamContent;
+import com.google.api.client.http.*;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.FileList;
+import com.google.api.services.drive.model.ParentReference;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.BaseException;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import javax.activation.MimetypesFileTypeMap;
+import java.io.*;
+import java.net.URLConnection;
+import java.util.Arrays;
 
 public class GoogleDriveAccount extends BaseAccount {
 
@@ -29,22 +30,41 @@ public class GoogleDriveAccount extends BaseAccount {
     @Override
     protected void createRootFolder() throws BaseException {
         File body = new File();
-        body.setTitle(ROOT_FOLDER_NAME);
+        body.setTitle(OMNIDRIVE_ROOT_FOLDER_NAME);
         body.setMimeType(MimeTypeFolder);
 
         GoogleDriveFolder folder = null;
         GoogleDriveFolder rootFolder = null;
 
         try {
-            String rootFolderId = this.service.about().get().execute().getRootFolderId();
-            com.google.api.services.drive.model.File googleRootFolder = this.service.files().get(rootFolderId).execute();
-
-            java.io.File fileContent = new java.io.File(googleRootFolder.getTitle());
-            FileContent mediaContent = new FileContent(MimeTypeFolder, fileContent);
-            this.service.files().insert(body, mediaContent).execute();
+            if (!isOmniDriveFolderExists()) {
+                this.service.files().insert(body).execute();
+            }
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to create root folder.");
         }
+    }
+
+    @Override
+    public String getOmniDriveFolderId() throws BaseException {
+        if (this.omniDriveFolderId != null)
+            return this.omniDriveFolderId;
+
+        try {
+            String query = "title = '" + OMNIDRIVE_ROOT_FOLDER_NAME + "' and mimeType = '" + MimeTypeFolder + "'";
+            Drive.Files.List request = this.service.files().list().setQ(query);
+
+            for (File rootFolder : request.execute().getItems()) {
+                if (rootFolder.getTitle().equals(OMNIDRIVE_ROOT_FOLDER_NAME)) {
+                    this.omniDriveFolderId = rootFolder.getId();
+                    break;
+                }
+            }
+        } catch (IOException ex) {
+            throw new GoogleDriveException("Failed to get root folder.");
+        }
+
+        return this.omniDriveFolderId;
     }
 
     @Override
@@ -79,6 +99,8 @@ public class GoogleDriveAccount extends BaseAccount {
 
         File body = new File();
         body.setTitle(name);
+        body.setMimeType("*/*");
+        body.setParents(Arrays.asList(new ParentReference().setId(getOmniDriveFolderId())));
 
         AbstractInputStreamContent mediaContent = new InputStreamContent(MimeTypeFile, inputStream);
 
@@ -97,14 +119,10 @@ public class GoogleDriveAccount extends BaseAccount {
         long size = 0;
 
         try {
-            InputStream inputStream = this.service.files().get(fileId).executeAsInputStream();
-
-            while (inputStream.available() > 0) {
-                outputStream.write(inputStream.read());
-                size++;
-            }
-
-            inputStream.close();
+            ByteArrayOutputStream streamWithSize = new ByteArrayOutputStream();
+            this.service.files().get(fileId).executeMediaAndDownloadTo(streamWithSize);
+            size = streamWithSize.size();
+            streamWithSize.writeTo(outputStream);
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to download file");
         }
@@ -143,6 +161,32 @@ public class GoogleDriveAccount extends BaseAccount {
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to get file.");
         }
+    }
+
+    @Override
+    public long downloadManifestFile(OutputStream outputStream) throws BaseException {
+        long size = 0;
+
+        if (!isOmniDriveFolderExists()) {
+            throw new GoogleDriveException("No 'OmniDrive' root folder exists");
+        }
+
+        try {
+            String manifestFilename = "manifest";
+            String query = "title = '" + manifestFilename + "' and '" + getOmniDriveFolderId() + "' in parents";
+            Drive.Files.List request = this.service.files().list().setQ(query);
+
+            FileList files = request.execute();
+            for (File manifestFile : files.getItems()) {
+                size = manifestFile.getFileSize();
+                this.service.files().get(manifestFile.getId()).executeMediaAndDownloadTo(outputStream);
+                break;
+            }
+        } catch (IOException ex) {
+            throw new GoogleDriveException("Failed to download manifest file.");
+        }
+
+        return size;
     }
 
     @Override

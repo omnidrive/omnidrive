@@ -5,11 +5,13 @@ import java.io.OutputStream;
 
 public abstract class BaseAccount {
 
-    protected static final String ROOT_FOLDER_NAME = ".omnidrive";
-    protected static final String ROOT_FOLDER_PATH = "/" + ROOT_FOLDER_NAME;
+    protected static final String OMNIDRIVE_ROOT_FOLDER_NAME = ".omnidrive";
+    protected static final String OMNIDRIVE_ROOT_FOLDER_PATH = "/" + OMNIDRIVE_ROOT_FOLDER_NAME;
+
+    protected String omniDriveFolderId = null;
 
     protected String getFullRootFolderPath() {
-        return ROOT_FOLDER_PATH + "/";
+        return OMNIDRIVE_ROOT_FOLDER_PATH + "/";
     }
 
     protected String getFullPath(String name) {
@@ -20,7 +22,13 @@ public abstract class BaseAccount {
         createRootFolder();
     }
 
+    protected boolean isOmniDriveFolderExists() throws BaseException {
+        return getOmniDriveFolderId() != null;
+    }
+
     protected abstract void createRootFolder() throws BaseException;
+
+    public abstract String getOmniDriveFolderId() throws BaseException;
 
     public abstract String getUsername() throws BaseException;
 
@@ -35,6 +43,8 @@ public abstract class BaseAccount {
     public abstract void removeFolder(String fileId) throws BaseException;
 
     public abstract void updateFile(String fileId, InputStream inputStream, long size) throws BaseException;
+
+    public abstract long downloadManifestFile(OutputStream outputStream) throws BaseException;
 
     public abstract long getQuotaUsedSize() throws BaseException;
 

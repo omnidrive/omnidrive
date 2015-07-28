@@ -1,12 +1,12 @@
 package omnidrive.api.auth;
 
 import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 
 public interface AuthListener {
 
-    void authenticated(DriveType type, BaseAccount account);
+    void authenticated(AccountType type, BaseAccount account);
 
-    void failure(DriveType type, String error);
+    void failure(AccountType type, String error);
 
 }

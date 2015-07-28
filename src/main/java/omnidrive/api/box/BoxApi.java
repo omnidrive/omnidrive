@@ -7,7 +7,7 @@ import omnidrive.api.base.BaseApi;
 
 import com.box.sdk.BoxAPIConnection;
 import omnidrive.api.base.BaseException;
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 
 public class BoxApi extends BaseApi {
 
@@ -26,8 +26,7 @@ public class BoxApi extends BaseApi {
 
     @Override
     public BaseAccount createAccount(AuthToken tokens) throws BaseException {
-        final BoxAPIConnection conn = new BoxAPIConnection(CLIENT_ID, CLIENT_SECRET,
-                tokens.getAccessToken(), tokens.getRefreshToken());
+        final BoxAPIConnection conn = new BoxAPIConnection(tokens.getAccessToken());
         return new BoxAccount(conn);
     }
 
@@ -55,7 +54,9 @@ public class BoxApi extends BaseApi {
     public final void finishAuthProcess(String code) throws BaseException {
         this.connection.authenticate(code);
         this.connection.setAutoRefresh(true);
-        notifyAll(DriveType.Box, new BoxAccount(this.connection));
+        BoxAccount boxAccount = new BoxAccount(this.connection);
+        boxAccount.initialize();
+        notifyAll(AccountType.Box, boxAccount);
     }
 
 }

@@ -17,7 +17,7 @@ public class LoginManager implements AuthListener {
 
     }
 
-    public void login(DriveType type, AuthService service) {
+    public void login(AccountType type, AuthService service) {
 
         this.authService = service;
 
@@ -35,24 +35,24 @@ public class LoginManager implements AuthListener {
     }
 
     @Override
-    public void authenticated(DriveType type, BaseAccount account) {
+    public void authenticated(AccountType type, BaseAccount account) {
         if (this.authService != null) {
             this.authService.succeed(type, account);
         }
     }
 
     @Override
-    public void failure(DriveType type, String error) {
+    public void failure(AccountType type, String error) {
         if (this.authService != null) {
             this.authService.report(type, error);
         }
     }
 
-    public void remove(DriveType type) {
+    public void remove(AccountType type) {
         // TODO - remove drive account from user
     }
 
-    private void requestLogin(DriveType type, BaseApi api, String authUrl) {
+    private void requestLogin(AccountType type, BaseApi api, String authUrl) {
         if (this.authService != null) {
             this.authService.attempt(type, api, authUrl);
         }

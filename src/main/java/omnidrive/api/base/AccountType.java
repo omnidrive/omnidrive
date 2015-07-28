@@ -1,22 +1,22 @@
 package omnidrive.api.base;
 
-public enum DriveType {
+public enum AccountType {
     Dropbox("Dropbox"),
     GoogleDrive("Google Drive"),
     Box("Box");
 
     private final String text;
 
-    private DriveType(String text) {
+    AccountType(String text) {
         this.text = text;
     }
 
-    public static DriveType getType(int index) {
-        return DriveType.values()[index];
+    public static AccountType getType(int index) {
+        return AccountType.values()[index];
     }
 
     public static int length() {
-        return DriveType.values().length;
+        return AccountType.values().length;
     }
 
     @Override

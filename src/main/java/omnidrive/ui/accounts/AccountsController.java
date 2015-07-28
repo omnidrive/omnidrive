@@ -8,7 +8,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import omnidrive.api.base.BaseApi;
 import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.api.managers.LoginManager;
 import omnidrive.api.auth.AuthService;
@@ -21,7 +21,7 @@ import java.util.ResourceBundle;
 
 public class AccountsController implements Initializable, AuthService {
 
-    private static final int NUM_OF_ACCOUNTS = DriveType.length();
+    private static final int NUM_OF_ACCOUNTS = AccountType.length();
 
     private static final String BigIconImagePaths[] =
             {"/dropbox_icon.png", "/google_drive_icon.png", "/box_icon.png"};
@@ -63,18 +63,18 @@ public class AccountsController implements Initializable, AuthService {
     }
 
     @Override
-    public void attempt(DriveType type, BaseApi api, String authUrl) {
+    public void attempt(AccountType type, BaseApi api, String authUrl) {
         this.loginView.show(this.loginManager, api, type, authUrl);
     }
 
     @Override
-    public void report(DriveType type, String message) {
+    public void report(AccountType type, String message) {
         // TODO - popup message
         PopupView.popup().info(message);
     }
 
     @Override
-    public void succeed(DriveType type, BaseAccount account) {
+    public void succeed(AccountType type, BaseAccount account) {
         this.accountsManager.setAccount(type, account);
         addAccountToListView(type);
         this.loginView.close();
@@ -88,7 +88,7 @@ public class AccountsController implements Initializable, AuthService {
 
         if (selectedIndex >= 0) {
             LogoListCell selectedCell = (LogoListCell)this.unregisteredAccountsListView.getItems().get(selectedIndex);
-            DriveType type = selectedCell.getType();
+            AccountType type = selectedCell.getType();
             if (!this.accountsManager.isRegistered(type)) {
                 this.loginManager.login(type, this);
             }
@@ -103,7 +103,7 @@ public class AccountsController implements Initializable, AuthService {
 
         if (selectedIndex >= 0) {
             LogoListCell selectedCell = (LogoListCell)this.registeredAccountsListView.getItems().get(selectedIndex);
-            DriveType type = selectedCell.getType();
+            AccountType type = selectedCell.getType();
             this.loginManager.remove(type);
             this.accountsManager.removeAccount(type);
             removeAccountFromListView(selectedIndex);
@@ -123,7 +123,7 @@ public class AccountsController implements Initializable, AuthService {
         LogoListCell cells[] = new LogoListCell[NUM_OF_ACCOUNTS];
 
         for (int cellIdx = 0; cellIdx < NUM_OF_ACCOUNTS; cellIdx++) {
-            DriveType type = DriveType.getType(cellIdx);
+            AccountType type = AccountType.getType(cellIdx);
             Image iconImage = new Image(BigIconImagePaths[cellIdx]);
             cells[cellIdx] = new LogoListCell(type, iconImage);
             cells[cellIdx].setSize(this.unregisteredAccountsListView.getPrefWidth() - 10, HeightOfUnregisteredCell);
@@ -132,7 +132,7 @@ public class AccountsController implements Initializable, AuthService {
         return cells;
     }
 
-    private LogoListCell createRegisteredCloudCell(DriveType type) {
+    private LogoListCell createRegisteredCloudCell(AccountType type) {
         final int SmallGap = 5;
 
         Image iconImage = new Image(SmallIconImagePaths[type.ordinal()]);
@@ -149,7 +149,7 @@ public class AccountsController implements Initializable, AuthService {
         this.unregisteredAccountsListView.layout();
     }
 
-    private void addAccountToListView(DriveType type) {
+    private void addAccountToListView(AccountType type) {
         LogoListCell logoListCell = createRegisteredCloudCell(type);
         this.registeredAccountsListView.getItems().add(logoListCell);
         this.registeredAccountsListView.layout();

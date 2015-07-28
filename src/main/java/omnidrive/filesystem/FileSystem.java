@@ -1,7 +1,7 @@
 package omnidrive.filesystem;
 
 import omnidrive.api.auth.AuthToken;
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.ManifestSync;
@@ -86,8 +86,8 @@ public class FileSystem {
 
     }
 
-    public Map<DriveType, AuthToken> getRegisteredAccounts() {
-        return new TreeMap<DriveType, AuthToken>();
+    public Map<AccountType, AuthToken> getRegisteredAccounts() {
+        return new TreeMap<AccountType, AuthToken>();
     }
 
     ///////////////////////////////////////////////////////////////////////////

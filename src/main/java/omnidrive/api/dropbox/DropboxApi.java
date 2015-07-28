@@ -6,7 +6,7 @@ import omnidrive.api.auth.AuthToken;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.BaseApi;
 import omnidrive.api.base.BaseException;
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -60,7 +60,9 @@ public class DropboxApi extends BaseApi {
     public final void finishAuthProcess(String code) throws BaseException {
         try {
             DbxAuthFinish authFinish = this.auth.finish(code);
-            notifyAll(DriveType.Dropbox, new DropboxAccount(this.config, authFinish.accessToken));
+            DropboxAccount dbxAccount = new DropboxAccount(this.config, authFinish.accessToken);
+            dbxAccount.initialize();
+            notifyAll(AccountType.Dropbox, dbxAccount);
         } catch (DbxException ex) {
             throw new DropboxException("Failed to finish auth process.");
         }

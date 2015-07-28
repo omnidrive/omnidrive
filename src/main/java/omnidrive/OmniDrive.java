@@ -3,6 +3,7 @@ package omnidrive;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.app.App;
 import omnidrive.filesystem.FileSystem;
+import omnidrive.ui.accounts.AccountsFXML;
 
 import java.nio.file.Path;
 
@@ -15,6 +16,9 @@ public class OmniDrive {
             AccountsManager accountsManager = new AccountsManager();
             App app = new App(fileSystem, accountsManager);
             app.start();
+
+
+            AccountsFXML.show(false, fileSystem);
         } catch (Exception e) {
             e.printStackTrace();
         }

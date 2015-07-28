@@ -14,7 +14,7 @@ import omnidrive.api.auth.AuthToken;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.BaseApi;
 import omnidrive.api.base.BaseException;
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 import omnidrive.api.managers.LoginManager;
 
 import java.beans.PropertyChangeListener;
@@ -94,8 +94,9 @@ public class GoogleDriveApi extends BaseApi {
 
             //Create a new authorized API client
             Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("omnidrive").build();
-
-            notifyAll(DriveType.GoogleDrive, new GoogleDriveAccount(service));
+            GoogleDriveAccount googleAccount = new GoogleDriveAccount(service);
+            googleAccount.initialize();
+            notifyAll(AccountType.GoogleDrive, googleAccount);
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to finish auth process.");
         }

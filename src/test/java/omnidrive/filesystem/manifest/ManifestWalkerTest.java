@@ -1,6 +1,6 @@
 package omnidrive.filesystem.manifest;
 
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
@@ -27,9 +27,9 @@ public class ManifestWalkerTest {
     @Test
     public void testWalkManifestSubtree() throws Exception {
         // Given some files and dir exist in manifest
-        Blob bar = new Blob("bar", 10, DriveType.Dropbox);
-        Blob baz = new Blob("baz", 20, DriveType.Dropbox);
-        Blob qux = new Blob("qux", 30, DriveType.Dropbox);
+        Blob bar = new Blob("bar", 10, AccountType.Dropbox);
+        Blob baz = new Blob("baz", 20, AccountType.Dropbox);
+        Blob qux = new Blob("qux", 30, AccountType.Dropbox);
         Tree foo = new Tree("foo", Arrays.asList(
                 new TreeItem(Entry.Type.BLOB, "bar", "bar.txt", 0),
                 new TreeItem(Entry.Type.BLOB, "baz", "baz.txt", 0)));
@@ -58,8 +58,8 @@ public class ManifestWalkerTest {
     @Test
     public void testWalkManifestRoot() throws Exception {
         // Given some files and dir exist in manifest
-        Blob bar = new Blob("bar", 10, DriveType.Dropbox);
-        Blob baz = new Blob("baz", 20, DriveType.Dropbox);
+        Blob bar = new Blob("bar", 10, AccountType.Dropbox);
+        Blob baz = new Blob("baz", 20, AccountType.Dropbox);
         Tree foo = new Tree("foo", Collections.singletonList(new TreeItem(Entry.Type.BLOB, "bar", "bar.txt", 0)));
         manifest.put(foo);
         manifest.put(bar);
@@ -84,10 +84,10 @@ public class ManifestWalkerTest {
     @Test
     public void testWalkBlob() throws Exception {
         // Given some files and dir exist in manifest
-        Blob bar = new Blob("bar", 10, DriveType.Dropbox);
+        Blob bar = new Blob("bar", 10, AccountType.Dropbox);
         TreeItem barTreeItem = new TreeItem(Entry.Type.BLOB, "bar", "bar.txt", 0);
         Tree foo = new Tree("foo", Collections.singletonList(barTreeItem));
-        Blob baz = new Blob("baz", 20, DriveType.Dropbox);
+        Blob baz = new Blob("baz", 20, AccountType.Dropbox);
         manifest.put(foo);
         manifest.put(bar);
         manifest.put(baz);

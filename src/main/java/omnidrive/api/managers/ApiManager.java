@@ -2,19 +2,19 @@ package omnidrive.api.managers;
 
 import omnidrive.api.auth.AuthListener;
 import omnidrive.api.base.BaseApi;
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 import omnidrive.api.box.BoxApi;
 import omnidrive.api.dropbox.DropboxApi;
 import omnidrive.api.google.GoogleDriveApi;
 
 public class ApiManager {
 
-    private final BaseApi[] apis = new BaseApi[DriveType.length()];
+    private final BaseApi[] apis = new BaseApi[AccountType.length()];
 
     private static ApiManager apiManager = null;
 
     private ApiManager() {
-        for (DriveType type : DriveType.values()) {
+        for (AccountType type : AccountType.values()) {
             apis[type.ordinal()] = createApi(type);
         }
     }
@@ -27,7 +27,7 @@ public class ApiManager {
         return apiManager;
     }
 
-    private BaseApi createApi(DriveType type) {
+    private BaseApi createApi(AccountType type) {
         BaseApi api = null;
 
         switch (type) {
@@ -45,7 +45,7 @@ public class ApiManager {
         return api;
     }
 
-    public String login(DriveType type, AuthListener listener) throws Exception {
+    public String login(AccountType type, AuthListener listener) throws Exception {
         String authUrl = null;
 
         if (this.apis[type.ordinal()] != null) {
@@ -55,19 +55,19 @@ public class ApiManager {
         return authUrl;
     }
 
-    public BaseApi getApi(DriveType type) {
+    public BaseApi getApi(AccountType type) {
         return this.apis[type.ordinal()];
     }
 
-    public static DriveType toType(BaseApi api) {
-        DriveType type = null;
+    public static AccountType toType(BaseApi api) {
+        AccountType type = null;
 
         if (api instanceof DropboxApi) {
-            type = DriveType.Dropbox;
+            type = AccountType.Dropbox;
         } else if (api instanceof GoogleDriveApi) {
-            type = DriveType.GoogleDrive;
+            type = AccountType.GoogleDrive;
         } else if (api instanceof BoxApi) {
-            type = DriveType.Box;
+            type = AccountType.Box;
         }
 
         return type;

@@ -2,7 +2,7 @@ package omnidrive.filesystem.sync;
 
 import com.google.common.io.CharStreams;
 import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
 import omnidrive.filesystem.exception.InvalidFileException;
@@ -16,7 +16,6 @@ import omnidrive.filesystem.manifest.entry.TreeItem;
 import omnidrive.util.MapDbUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.mapdb.DB;
 import org.mockito.ArgumentCaptor;
 
 import java.io.*;
@@ -31,7 +30,7 @@ import static org.mockito.Mockito.*;
 
 public class SyncHandlerTest extends BaseTest {
 
-    public static final DriveType DRIVE_TYPE = DriveType.Dropbox;
+    public static final AccountType DRIVE_TYPE = AccountType.Dropbox;
 
     public static final String UPLOAD_ID = "new-id";
 
@@ -352,7 +351,7 @@ public class SyncHandlerTest extends BaseTest {
         root.addItem(new TreeItem(Entry.Type.TREE, "foo", "foo", 0));
         root.addItem(new TreeItem(Entry.Type.BLOB, "hello", "hello.txt", 0));
         Tree foo = new Tree("foo");
-        Blob hello = new Blob("hello", 10L, DriveType.Dropbox);
+        Blob hello = new Blob("hello", 10L, AccountType.Dropbox);
         manifest.put(root);
         manifest.put(foo);
         manifest.put(hello);

@@ -1,7 +1,7 @@
 package omnidrive.filesystem.manifest;
 
 import omnidrive.api.auth.AuthToken;
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import org.mapdb.Atomic;
@@ -21,7 +21,7 @@ public class MapDbManifest implements Manifest {
 
     public static final String UPDATE_TIME = "update-time";
 
-    final private HTreeMap<DriveType, AuthToken> authTokens;
+    final private HTreeMap<AccountType, AuthToken> authTokens;
 
     final private HTreeMap<String, Entry> entries;
 
@@ -38,12 +38,12 @@ public class MapDbManifest implements Manifest {
         return get(ROOT_KEY, Tree.class);
     }
 
-    public Map<DriveType, AuthToken> getAuthTokens() {
-        return new HashMap<>(authTokens);
+    public Map<AccountType, AuthToken> getAuthTokens() {
+        return new HashMap<AccountType, AuthToken>(authTokens);
     }
 
-    public void put(DriveType driveType, AuthToken authToken) {
-        authTokens.put(driveType, authToken);
+    public void put(AccountType accountType, AuthToken authToken) {
+        authTokens.put(accountType, authToken);
     }
 
     public void put(Entry entry) {

@@ -1,6 +1,6 @@
 package omnidrive.filesystem.sync;
 
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
 import omnidrive.filesystem.manifest.Manifest;
@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 
 public class SyncerTest extends BaseTest {
 
-    public static final DriveType DRIVE_TYPE = DriveType.Dropbox;
+    public static final AccountType DRIVE_TYPE = AccountType.Dropbox;
 
     private AccountsManager accountsManager = new AccountsManager();
 

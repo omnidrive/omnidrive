@@ -1,7 +1,7 @@
 package omnidrive.api.managers;
 
 import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 import omnidrive.stub.Account;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class AccountsManagerTest {
         // Given no accounts have been registered
 
         // When you try to get an account
-        DriveType result = accountsManager.toType(account1);
+        AccountType result = accountsManager.toType(account1);
 
         // Then null is returned
         assertNull(result);
@@ -29,14 +29,14 @@ public class AccountsManagerTest {
     @Test
     public void testGetAccountForRegisteredAccount() throws Exception {
         // Given an two accounts are registered
-        accountsManager.setAccount(DriveType.GoogleDrive, account1);
-        accountsManager.setAccount(DriveType.Dropbox, account2);
+        accountsManager.setAccount(AccountType.GoogleDrive, account1);
+        accountsManager.setAccount(AccountType.Dropbox, account2);
 
         // When you try to get an account
-        DriveType result = accountsManager.toType(account2);
+        AccountType result = accountsManager.toType(account2);
 
         // Then you get the
-        assertEquals(DriveType.Dropbox, result);
+        assertEquals(AccountType.Dropbox, result);
     }
 
 }

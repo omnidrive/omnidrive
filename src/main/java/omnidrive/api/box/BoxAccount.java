@@ -19,8 +19,46 @@ public class BoxAccount extends BaseAccount {
 
     @Override
     protected void createRootFolder() throws BaseException {
-        com.box.sdk.BoxFolder parentFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), "/");
-        parentFolder.createFolder(ROOT_FOLDER_NAME);
+        if (!isOmniDriveFolderExists()) {
+            try {
+                com.box.sdk.BoxFolder boxRootFolder = com.box.sdk.BoxFolder.getRootFolder(this.user.getAPI());
+                if (boxRootFolder != null) {
+                    com.box.sdk.BoxFolder.Info folderInfo = boxRootFolder.createFolder(OMNIDRIVE_ROOT_FOLDER_NAME);
+                    if (folderInfo == null) {
+                        throw new BoxException("Failed to create root folder");
+                    }
+                } else {
+                    throw new BoxException("Failed to find root folder.");
+                }
+            } catch (Exception ex) {
+                throw new BoxException(ex.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public String getOmniDriveFolderId() throws BaseException {
+        if (this.omniDriveFolderId != null)
+            return this.omniDriveFolderId;
+
+        com.box.sdk.BoxFolder rootFolder = com.box.sdk.BoxFolder.getRootFolder(this.user.getAPI());
+
+        try {
+            if (rootFolder != null) {
+                for (com.box.sdk.BoxItem.Info itemInfo : rootFolder.getChildren()) {
+                    if (itemInfo.getName().equals(OMNIDRIVE_ROOT_FOLDER_NAME)) {
+                        this.omniDriveFolderId = itemInfo.getID();
+                        break;
+                    }
+                }
+            } else {
+                throw new BoxException("Failed to find root folder");
+            }
+        } catch (Exception ex) {
+            throw new BoxException(ex.getMessage());
+        }
+
+        return this.omniDriveFolderId;
     }
 
     @Override
@@ -36,13 +74,13 @@ public class BoxAccount extends BaseAccount {
     @Override
     public String uploadFile(String name, InputStream inputStream, long size) throws BaseException {
         String fileId = null;
-        com.box.sdk.BoxFolder rootFolder = com.box.sdk.BoxFolder.getRootFolder(this.user.getAPI());
+        com.box.sdk.BoxFolder rootFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), getOmniDriveFolderId());
 
         try {
-            Info info = rootFolder.uploadFile(inputStream, getFullPath(name));
+            Info info = rootFolder.uploadFile(inputStream, name);
             fileId = info.getID();
         } catch (BoxAPIException ex) {
-            throw new BoxException(ex.getResponseCode());
+            throw new BoxException(ex.getResponse());
         }
 
         return fileId;
@@ -83,6 +121,36 @@ public class BoxAccount extends BaseAccount {
     public void updateFile(String fileId, InputStream inputStream, long size) throws BaseException {
         com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
         file.uploadVersion(inputStream);
+    }
+
+    @Override
+    public long downloadManifestFile(OutputStream outputStream) throws BaseException {
+        long size = 0;
+
+        if (!isOmniDriveFolderExists()) {
+            throw new BoxException("No 'OmniDrive' root folder exists");
+        }
+
+        com.box.sdk.BoxFolder rootFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), getOmniDriveFolderId());
+        if (rootFolder != null) {
+            for (com.box.sdk.BoxItem.Info itemInfo : rootFolder.getChildren()) {
+                if (itemInfo.getName().equals("manifest")) {
+                    String manifestId = itemInfo.getID();
+                    com.box.sdk.BoxFile manifestFile = new com.box.sdk.BoxFile(this.user.getAPI(), manifestId);
+                    if (manifestFile != null) {
+                        size = manifestFile.getInfo().getSize();
+                        manifestFile.download(outputStream);
+                        break;
+                    } else {
+                        throw new BoxException("Failed to download 'manifest' file");
+                    }
+                }
+            }
+        } else {
+            throw new BoxException("Failed to find root folder");
+        }
+
+        return size;
     }
 
     @Override

@@ -17,7 +17,7 @@ public class Account extends BaseAccount {
 
     private long usedSize = 0;
 
-    final private Map<String, String> files = new ArrayMap<>();
+    final private Map<String, String> files = new ArrayMap<String, String>();
 
     public Account() {
         this(DEFAULT_CAPACITY);
@@ -30,6 +30,11 @@ public class Account extends BaseAccount {
     @Override
     protected void createRootFolder() throws BaseException {
 
+    }
+
+    @Override
+    public String getOmniDriveFolderId() throws BaseException {
+        return null;
     }
 
     @Override
@@ -74,6 +79,11 @@ public class Account extends BaseAccount {
     @Override
     public void updateFile(String fileId, InputStream inputStream, long size) throws BaseException {
 
+    }
+
+    @Override
+    public long downloadManifestFile(OutputStream outputStream) throws BaseException {
+        return 0;
     }
 
     @Override

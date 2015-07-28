@@ -1,7 +1,7 @@
 package omnidrive.filesystem.manifest;
 
 import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.util.MapDbUtils;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class MapDbManifestSyncTest {
         // Given an account
         BaseAccount account = mock(BaseAccount.class);
         AccountsManager accountsManager = new AccountsManager();
-        accountsManager.setAccount(DriveType.Dropbox, account);
+        accountsManager.setAccount(AccountType.Dropbox, account);
 
         // And a manifest syncer
         File dbFile = File.createTempFile("manifest", "db");

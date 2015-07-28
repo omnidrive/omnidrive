@@ -1,7 +1,7 @@
 package omnidrive.filesystem;
 
 import com.google.common.io.Files;
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.MapDbManifest;
 import omnidrive.filesystem.manifest.entry.Blob;
@@ -52,7 +52,7 @@ public class FileSystemTest extends BaseTest {
         assertTrue(manifestFile.createNewFile());
         DB db = MapDbUtils.createFileDb(manifestFile);
         Manifest manifest = new MapDbManifest(db);
-        Blob blob = new Blob("foo", 10L, DriveType.Dropbox);
+        Blob blob = new Blob("foo", 10L, AccountType.Dropbox);
         manifest.put(blob);
         db.commit();
 

@@ -11,7 +11,7 @@ import javafx.stage.Stage;
 import omnidrive.api.auth.AuthListener;
 import omnidrive.api.auth.Authorizer;
 import omnidrive.api.base.BaseException;
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 
 public class LoginView {
 
@@ -21,7 +21,7 @@ public class LoginView {
         this.loginStage = new Stage();
     }
 
-    public void show(final AuthListener authListener, final Authorizer authorizer, final DriveType type, final String authUrl) {
+    public void show(final AuthListener authListener, final Authorizer authorizer, final AccountType type, final String authUrl) {
         final WebView browser = new WebView();
         final WebEngine engine = browser.getEngine();
 

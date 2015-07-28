@@ -5,7 +5,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 
 public class LogoListCell extends Pane {
 
@@ -15,19 +15,19 @@ public class LogoListCell extends Pane {
 
     private final ImageView iconImageView;
     private final Label logoTextLabel;
-    private final DriveType type;
+    private final AccountType type;
 
-    public LogoListCell(DriveType type, Image iconImage, int textSize, int margin, int gap) {
+    public LogoListCell(AccountType type, Image iconImage, int textSize, int margin, int gap) {
         this(type, iconImage, textSize);
         MARGIN_GAP = margin;
         UI_ELEMENTS_GAP = gap;
     }
 
-    public LogoListCell(DriveType type, Image iconImage) {
+    public LogoListCell(AccountType type, Image iconImage) {
         this(type, iconImage, DEFAULT_TEXT_SIZE);
     }
 
-    public LogoListCell(DriveType type, Image iconImage, int textSize) {
+    public LogoListCell(AccountType type, Image iconImage, int textSize) {
         this.type = type;
         this.iconImageView = new ImageView(iconImage);
         this.logoTextLabel = new Label(type.toString());
@@ -35,7 +35,7 @@ public class LogoListCell extends Pane {
         this.getChildren().addAll(this.iconImageView, this.logoTextLabel);
     }
 
-    public DriveType getType() {
+    public AccountType getType() {
         return this.type;
     }
 

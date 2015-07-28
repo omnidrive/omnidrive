@@ -1,6 +1,6 @@
 package omnidrive.filesystem.manifest.entry;
 
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 
 public class Blob implements Entry {
 
@@ -8,9 +8,9 @@ public class Blob implements Entry {
 
     private final long size;
 
-    private final DriveType account;
+    private final AccountType account;
 
-    public Blob(String id, long size, DriveType account) {
+    public Blob(String id, long size, AccountType account) {
         this.id = id;
         this.size = size;
         this.account = account;
@@ -28,7 +28,7 @@ public class Blob implements Entry {
         return size;
     }
 
-    public DriveType getAccount() {
+    public AccountType getAccount() {
         return account;
     }
 

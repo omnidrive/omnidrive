@@ -1,13 +1,12 @@
 package omnidrive.filesystem.manifest;
 
 import omnidrive.api.auth.AuthToken;
-import omnidrive.api.base.DriveType;
+import omnidrive.api.base.AccountType;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
 import omnidrive.util.MapDbUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.mapdb.DB;
 
@@ -29,7 +28,7 @@ public class MapDbManifestTest {
         // Given no auth tokens were registered
 
         // When you request auth tokens
-        Map<DriveType, AuthToken> authTokens = manifest.getAuthTokens();
+        Map<AccountType, AuthToken> authTokens = manifest.getAuthTokens();
 
         // Then you gen an empty list
         assertTrue(authTokens.isEmpty());
@@ -39,14 +38,14 @@ public class MapDbManifestTest {
     public void testGetAuthTokensIfExist() throws Exception {
         // Given an auth token was registered
         AuthToken authToken = new AuthToken("foo", "bar");
-        DriveType driveType = DriveType.Dropbox;
-        manifest.put(driveType, authToken);
+        AccountType accountType = AccountType.Dropbox;
+        manifest.put(accountType, authToken);
 
         // When you request auth tokens
-        Map<DriveType, AuthToken> authTokens = manifest.getAuthTokens();
+        Map<AccountType, AuthToken> authTokens = manifest.getAuthTokens();
 
         // Then you get the auth token
-        assertEquals(authToken, authTokens.get(driveType));
+        assertEquals(authToken, authTokens.get(accountType));
     }
 
     @Test
@@ -56,7 +55,7 @@ public class MapDbManifestTest {
         MapDbManifest manifest2 = getManifest();
 
         // When one is updated after the other
-        Blob blob = new Blob("foo", 5L, DriveType.Dropbox);
+        Blob blob = new Blob("foo", 5L, AccountType.Dropbox);
         long sleepTime = 10L;
         manifest1.put(blob);
         Thread.sleep(sleepTime);
@@ -76,8 +75,8 @@ public class MapDbManifestTest {
         // Given two manifests exist entries
         MapDbManifest manifest1 = getManifest();
         MapDbManifest manifest2 = getManifest();
-        Blob blob1 = new Blob("foo", 5L, DriveType.Dropbox);
-        Blob blob2 = new Blob("bar", 5L, DriveType.Dropbox);
+        Blob blob1 = new Blob("foo", 5L, AccountType.Dropbox);
+        Blob blob2 = new Blob("bar", 5L, AccountType.Dropbox);
         manifest1.put(blob1);
         manifest1.put(blob2);
         manifest2.put(blob1);
@@ -130,7 +129,7 @@ public class MapDbManifestTest {
         // When you put a blob in the manifest
         String id = "foo";
         long size = 10L;
-        DriveType account = DriveType.Dropbox;
+        AccountType account = AccountType.Dropbox;
         Blob blob = new Blob(id, size, account);
         manifest.put(blob);
 
@@ -174,7 +173,7 @@ public class MapDbManifestTest {
     @Test
     public void testRemoveBlob() throws Exception {
         // Given a blob is in the manifest
-        Blob blob = new Blob("foo", 10L, DriveType.Dropbox);
+        Blob blob = new Blob("foo", 10L, AccountType.Dropbox);
         manifest.put(blob);
 
         // When you call remove
