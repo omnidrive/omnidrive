@@ -10,9 +10,7 @@ import javafx.stage.StageStyle;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.ui.general.OmniDriveTrayIcon;
 import omnidrive.ui.general.SyncProgress;
-import omnidrive.ui.managers.UIManager;
 
-import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 
@@ -22,18 +20,19 @@ public class AccountsFXML extends Application {
 
     public FXMLLoader fxmlLoader;
 
-    private AccountsController controller;
-
     private static OmniDriveTrayIcon trayIcon;
+
     private static Stage theStage;
-    private static UIManager uiManager;
+
     private static Path omniDriveFolderPath;
+
     private static boolean shouldStartHidden = false;
+
     private static AccountsManager accountsManager;
 
     @Override
     public void start(Stage stage) throws Exception {
-        this.theStage = stage;
+        theStage = stage;
 
         URL url = getClass().getResource(SCREEN_FXML_PATH);
         this.fxmlLoader = new FXMLLoader(url);
@@ -41,12 +40,12 @@ public class AccountsFXML extends Application {
         // must be first - before get controller
         VBox rootPane = this.fxmlLoader.load();
 
-        this.trayIcon = new OmniDriveTrayIcon(stage, omniDriveFolderPath);
-        this.trayIcon.createTrayIcon(!shouldStartHidden);
+        trayIcon = new OmniDriveTrayIcon(stage, omniDriveFolderPath);
+        trayIcon.createTrayIcon(!shouldStartHidden);
 
-        this.controller = this.fxmlLoader.getController();
-        this.controller.setAccountsManager(accountsManager);
-        this.controller.startSizeUpdater();
+        AccountsController controller = this.fxmlLoader.getController();
+        controller.setAccountsManager(accountsManager);
+        controller.startSizeUpdater();
 
         Scene scene = new Scene(rootPane, 600, 450);
         stage.initStyle(StageStyle.DECORATED);
@@ -95,4 +94,5 @@ public class AccountsFXML extends Application {
         omniDriveFolderPath = folderPath;
         launch();
     }
+
 }

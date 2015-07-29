@@ -4,7 +4,14 @@ import omnidrive.api.base.CloudAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.FileSystem;
 import omnidrive.filesystem.manifest.Manifest;
+import omnidrive.filesystem.manifest.ManifestSync;
 import omnidrive.filesystem.manifest.MapDbManifest;
+import omnidrive.filesystem.manifest.MapDbManifestSync;
+import omnidrive.filesystem.sync.StupidStrategyForDemo;
+import omnidrive.filesystem.sync.SyncHandler;
+import omnidrive.filesystem.sync.UploadStrategy;
+import omnidrive.filesystem.watcher.Handler;
+import omnidrive.filesystem.watcher.Watcher;
 import omnidrive.ui.managers.UIManager;
 import omnidrive.util.MapDbUtils;
 import org.mapdb.DB;
@@ -12,6 +19,9 @@ import org.mapdb.DB;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.WatchService;
 import java.util.List;
 
 public class App {
@@ -20,9 +30,15 @@ public class App {
 
     final private AccountsManager accountsManager;
 
-    public App(FileSystem fileSystem, AccountsManager accountsManager) {
+    final private UIManager uiManager;
+
+    final private ManifestContext manifestContext;
+
+    public App(FileSystem fileSystem, AccountsManager accountsManager, UIManager uiManager) {
         this.fileSystem = fileSystem;
         this.accountsManager = accountsManager;
+        this.uiManager = uiManager;
+        manifestContext = new ManifestContext();
     }
 
     public void start() throws Exception {
@@ -33,9 +49,9 @@ public class App {
         }
     }
 
-    private void startFirstRun() {
+    private void startFirstRun() throws Exception {
         initFileSystem();
-        //startWatcherThread();
+        startWatcherThread();
         openAccountsSelector();
         // TODO
     }
@@ -57,16 +73,15 @@ public class App {
     }
 
     private void openAccountsSelector() {
-        UIManager.startGuiInFront(accountsManager, FileSystem.getRootPath());
+        uiManager.startGuiInFront();
     }
 
     private boolean isFirstRun() {
-        return true;
-        //return !fileSystem.manifestExists();
+        return !manifestContext.exists;
     }
 
     private List<CloudAccount> getRegisteredAccounts() throws Exception {
-        Manifest manifest = fileSystem.getManifest();
+        Manifest manifest = manifestContext.manifest;
         accountsManager.restoreAccounts(manifest.getAccountsMetadata());
         return accountsManager.getActiveAccounts();
     }
@@ -87,8 +102,7 @@ public class App {
     private long getAccountUpdateTime(CloudAccount account) throws Exception {
         File tempFile = File.createTempFile("manifest", "db");
         OutputStream outputStream = new FileOutputStream(tempFile);
-        // TODO use method from account
-        account.downloadFile("manifest", outputStream);
+        account.downloadManifest(outputStream);
         outputStream.close();
         DB db = MapDbUtils.createFileDb(tempFile);
         Manifest manifest = new MapDbManifest(db);
@@ -107,7 +121,44 @@ public class App {
 
     }
 
-    private void startWatcherThread() {
+    private void startWatcherThread() throws Exception {
+        Path root = fileSystem.getRootPath();
+        UploadStrategy uploadStrategy = new StupidStrategyForDemo(accountsManager);
+        ManifestSync manifestSync = manifestContext.sync;
+        Manifest manifest = manifestContext.manifest;
+        Handler handler = new SyncHandler(root, manifest, manifestSync, uploadStrategy, accountsManager);
+        WatchService watchService = FileSystems.getDefault().newWatchService();
+        ManifestFilter filter = new ManifestFilter(manifestContext.file.getName());
+        Watcher watcher = new Watcher(watchService, handler, filter);
+        watcher.registerRecursive(root);
+
+        accountsManager.addObserver(new NewAccountObserver(manifest, manifestSync, accountsManager));
+
+        Thread thread = new Thread(watcher);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private class ManifestContext {
+
+        final private boolean exists;
+
+        final private File file;
+
+        final private DB db;
+
+        final private Manifest manifest;
+
+        final private ManifestSync sync;
+
+        public ManifestContext() {
+            exists = fileSystem.manifestExists();
+            file = fileSystem.getManifestFile();
+            db = MapDbUtils.createFileDb(file);
+            manifest = new MapDbManifest(db);
+            sync = new MapDbManifestSync(file, db);
+        }
+
     }
 
 }

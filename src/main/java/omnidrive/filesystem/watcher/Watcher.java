@@ -12,13 +12,16 @@ public class Watcher implements Runnable {
 
     final private Handler handler;
 
+    private Filter filter;
+
     private boolean running = false;
 
     private WatchKey watchKey;
 
-    public Watcher(WatchService watchService, Handler handler) {
+    public Watcher(WatchService watchService, Handler handler, Filter filter) {
         this.watchService = watchService;
         this.handler = handler;
+        this.filter = filter;
     }
 
     public void registerRecursive(Path root) throws IOException {
@@ -54,17 +57,25 @@ public class Watcher implements Runnable {
 
     private void handleEvent(WatchEvent event) throws Exception {
         File file = getFile(event);
+
+        if (filter != null && filter.shouldIgnore(file)) {
+            return;
+        }
+
         WatchEvent.Kind kind = event.kind();
         if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
             if (file.isDirectory()) {
                 registerRecursive(file.toPath());
             }
+            System.out.println("Create " + file);
             handler.create(file);
         }
         if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
+            System.out.println("Modify " + file);
             handler.modify(file);
         }
         if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
+            System.out.println("Delete " + file);
             handler.delete(file);
         }
     }

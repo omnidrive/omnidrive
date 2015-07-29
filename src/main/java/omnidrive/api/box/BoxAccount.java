@@ -203,15 +203,6 @@ public class BoxAccount extends CloudAccount {
     }
 
     @Override
-    public void updateManifest(InputStream inputStream, long size) throws AccountException {
-        if (!hasManifestId()) {
-            throw new BoxException("Manifest file id does not exist");
-        }
-
-        updateFile(getManifestId(), inputStream, size);
-    }
-
-    @Override
     public void removeManifest() throws AccountException {
         removeManifest(AccountType.Box);
     }

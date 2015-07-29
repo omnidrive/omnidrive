@@ -213,15 +213,6 @@ public class GoogleDriveAccount extends CloudAccount {
         setManifestId(manifestFileId);
     }
 
-    public void updateManifest(InputStream inputStream, long size) throws AccountException {
-        if (!hasManifestId()) {
-            throw new GoogleDriveException("Manifest file id does not exist");
-        }
-
-        updateFile(getManifestId(), inputStream, size);
-    }
-
-    @Override
     public void removeManifest() throws AccountException {
         removeManifest(AccountType.GoogleDrive);
     }

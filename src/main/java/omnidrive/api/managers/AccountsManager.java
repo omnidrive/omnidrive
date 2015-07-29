@@ -32,6 +32,7 @@ public class AccountsManager extends Observable {
 
     public void setAccount(AccountType type, CloudAccount account) {
         this.accounts[type.ordinal()] = account;
+        setChanged();
         notifyObservers(account);
     }
 
@@ -46,7 +47,7 @@ public class AccountsManager extends Observable {
     }
 
     public List<CloudAccount> getActiveAccounts() {
-        List<CloudAccount> activeAccounts = new LinkedList<CloudAccount>();
+        List<CloudAccount> activeAccounts = new LinkedList<>();
 
         for (CloudAccount account : this.accounts) {
             if (account != null) {

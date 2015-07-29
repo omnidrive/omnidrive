@@ -63,9 +63,15 @@ public abstract class CloudAccount {
 
     public abstract void uploadManifest(InputStream inputStream, long size) throws AccountException;
 
-    public abstract void updateManifest(InputStream inputStream, long size) throws AccountException;
-
     public abstract void removeManifest() throws AccountException;
+
+    public void updateManifest(InputStream inputStream, long size) throws AccountException {
+        if (!hasManifestId()) {
+            uploadManifest(inputStream, size);
+        } else {
+            updateFile(getManifestId(), inputStream, size);
+        }
+    }
 
     protected void removeManifest(AccountType accountType) throws AccountException {
         if (!hasManifestId()) {

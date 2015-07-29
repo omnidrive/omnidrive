@@ -1,7 +1,11 @@
 package omnidrive.api.base;
 
-public class AccountMetadata {
+import java.io.Serializable;
+
+public class AccountMetadata implements Serializable {
+
     private String accessToken;
+
     private String manifestId;
 
     public AccountMetadata() {

@@ -1,7 +1,5 @@
 package omnidrive.filesystem.watcher;
 
-import omnidrive.filesystem.manifest.entry.Blob;
-
 import java.io.File;
 
 public interface Handler {

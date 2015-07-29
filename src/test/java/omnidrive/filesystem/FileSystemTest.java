@@ -43,24 +43,4 @@ public class FileSystemTest extends BaseTest {
         assertTrue(result);
     }
 
-    @Test
-    public void testGetValidManifest() throws Exception {
-        // Given a manifest file exists
-        File root = Files.createTempDir();
-        FileSystem fileSystem = new FileSystem(root.toPath());
-        File manifestFile = new File(root, ".manifest");
-        assertTrue(manifestFile.createNewFile());
-        DB db = MapDbUtils.createFileDb(manifestFile);
-        Manifest manifest = new MapDbManifest(db);
-        Blob blob = new Blob("foo", 10L, AccountType.Dropbox);
-        manifest.put(blob);
-        db.commit();
-
-        // When you ask for the manifest
-        Manifest resultManifest = fileSystem.getManifest();
-
-        // You get a valid manifest
-        assertEquals(blob, resultManifest.get("foo", Blob.class));
-    }
-
 }

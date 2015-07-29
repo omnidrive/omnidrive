@@ -9,45 +9,54 @@ import java.nio.file.Path;
 
 public class UIManager {
 
-    private static boolean guiStarted = false;
+    private boolean guiStarted = false;
 
-    public static void startGuiInBackground(AccountsManager accountsManager, Path omniDriveFolderPath) {
+    private final AccountsManager accountsManager;
+
+    private final Path root;
+
+    public UIManager(AccountsManager accountsManager, Path root) {
+        this.accountsManager = accountsManager;
+        this.root = root;
+    }
+
+    public void startGuiInBackground() {
         if (!guiStarted) {
             setup();
-            loadHidden(accountsManager, omniDriveFolderPath);
+            loadHidden();
             guiStarted = true;
         }
     }
 
-    public static void startGuiInFront(AccountsManager accountsManager, Path omniDriveFolderPath) {
+    public void startGuiInFront() {
         if (!guiStarted) {
             setup();
-            loadShown(accountsManager, omniDriveFolderPath);
+            loadShown();
             guiStarted = true;
         }
     }
 
-    public static void showGui() {
+    public void showGui() {
         AccountsFXML.show();
     }
 
-    public static void hideGui() {
+    public void hideGui() {
         AccountsFXML.hide();
     }
 
-    public static void setSyncProgress(SyncProgress progress) {
+    public void setSyncProgress(SyncProgress progress) {
         AccountsFXML.setSyncProgress(progress);
     }
 
-    private static void loadHidden(AccountsManager accountsManager, Path omniDriveFolderPath) {
-        AccountsFXML.load(accountsManager, true, omniDriveFolderPath);
+    private void loadHidden() {
+        AccountsFXML.load(accountsManager, true, root);
     }
 
-    private static void loadShown(AccountsManager accountsManager, Path omniDriveFolderPath) {
-        AccountsFXML.load(accountsManager, false, omniDriveFolderPath);
+    private void loadShown() {
+        AccountsFXML.load(accountsManager, false, root);
     }
 
-    private static void setup() {
+    private void setup() {
         String osname = System.getProperty("os.name").toLowerCase();
         if (osname.contains("mac")) {
             setupMacApp();
@@ -58,10 +67,11 @@ public class UIManager {
         }
     }
 
-    private static void setupMacApp() {
+    private void setupMacApp() {
         // add dock icon
         URL iconURL = UIManager.class.getResource("/omnidrive_icon_1024.png");
         java.awt.Image image = new javax.swing.ImageIcon(iconURL).getImage();
         com.apple.eawt.Application.getApplication().setDockIconImage(image);
     }
+
 }

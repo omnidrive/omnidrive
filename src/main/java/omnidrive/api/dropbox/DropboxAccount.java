@@ -212,15 +212,6 @@ public class DropboxAccount extends CloudAccount {
     }
 
     @Override
-    public void updateManifest(InputStream inputStream, long size) throws AccountException {
-        if (!hasManifestId()) {
-            throw new DropboxException("Manifest file id does not exist");
-        }
-
-        updateFile(getManifestId(), inputStream, size);
-    }
-
-    @Override
     public void removeManifest() throws AccountException {
         removeManifest(AccountType.Dropbox);
     }

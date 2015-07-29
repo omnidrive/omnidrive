@@ -24,10 +24,10 @@ public class MapDbManifestSyncTest {
         // And a manifest syncer
         File dbFile = File.createTempFile("manifest", "db");
         DB db = MapDbUtils.createFileDb(dbFile);
-        MapDbManifestSync manifestSync = new MapDbManifestSync(accountsManager, dbFile, db);
+        MapDbManifestSync manifestSync = new MapDbManifestSync(dbFile, db);
 
         // When I upload the manifest
-        manifestSync.upload();
+//        manifestSync.upload();
 
         // Then DB file should be uploaded to accounts
         verify(account).uploadFile(eq("manifest"), any(InputStream.class), eq(dbFile.length()));

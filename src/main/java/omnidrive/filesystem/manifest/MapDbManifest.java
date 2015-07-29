@@ -39,7 +39,7 @@ public class MapDbManifest implements Manifest {
     }
 
     public Map<AccountType, AccountMetadata> getAccountsMetadata() {
-        return new HashMap<AccountType, AccountMetadata>(accountsMetadata);
+        return new HashMap<>(accountsMetadata);
     }
 
     public void put(AccountType accountType, AccountMetadata metadata) {
@@ -54,6 +54,10 @@ public class MapDbManifest implements Manifest {
     public void remove(Entry entry) {
         entries.remove(entry.getId());
         setUpdateTime();
+    }
+
+    public Entry get(String id) {
+        return entries.get(id);
     }
 
     public <T extends Entry> T get(String id, Class<T> clazz) {

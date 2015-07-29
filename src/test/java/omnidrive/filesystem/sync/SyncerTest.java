@@ -13,6 +13,7 @@ import omnidrive.stub.Account;
 import omnidrive.util.MapDbUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mapdb.DB;
 
@@ -23,6 +24,9 @@ import java.nio.file.Path;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class SyncerTest extends BaseTest {
 
@@ -40,7 +44,7 @@ public class SyncerTest extends BaseTest {
     }
 
     @Test
-    public void testDownloadOneFileIfNotExistsInRoot() throws Exception {
+    public void testFileExistsInManifestAndNotInFileSystem() throws Exception {
         String fileId = "foo";
         String fileContents = "Hello World";
         String fileName = "foo.txt";
@@ -56,7 +60,7 @@ public class SyncerTest extends BaseTest {
 
         // When performing a full sync
         account.addFile(fileId, fileContents);
-        Syncer syncer = new Syncer(rootPath, account);
+        Syncer syncer = new Syncer(rootPath, accountsManager);
         syncer.fullSync(manifest);
 
         // Then file should be downloaded
@@ -70,7 +74,7 @@ public class SyncerTest extends BaseTest {
     }
 
     @Test
-    public void testDownloadFileIfManifestHasNewerVersion() throws Exception {
+    public void testFileExistsInBothManifestAndFileSystemAndManifestIsMoreRecent() throws Exception {
         String fileName = "foo.txt";
         String oldFileContents = "old content";
         String fileId = "foo";
@@ -89,7 +93,7 @@ public class SyncerTest extends BaseTest {
 
         // When performing a full sync
         account.addFile(fileId, fileContents);
-        Syncer syncer = new Syncer(rootPath, account);
+        Syncer syncer = new Syncer(rootPath, accountsManager);
         syncer.fullSync(manifest);
 
         // Then newer version should be downloaded
@@ -100,7 +104,7 @@ public class SyncerTest extends BaseTest {
     }
 
     @Test
-    public void testDoesNotDownloadFileIfManifestHasOlderVersion() throws Exception {
+    public void testFileExistsInBothManifestAndFileSystemAndFileSystemIsMoreRecent() throws Exception {
         String fileName = "foo.txt";
         String oldFileContents = "old content";
         String fileId = "foo";
@@ -119,10 +123,10 @@ public class SyncerTest extends BaseTest {
 
         // When performing a full sync
         account.addFile(fileId, fileContents);
-        Syncer syncer = new Syncer(rootPath, account);
+        Syncer syncer = new Syncer(rootPath, accountsManager);
         syncer.fullSync(manifest);
 
-        // Then newer version should not be downloaded
+        // Then file should not be downloaded
         File[] files = getFilesInPath(rootPath);
         assertEquals(oldFileContents, FileUtils.readFileToString(files[0]));
 
@@ -146,7 +150,7 @@ public class SyncerTest extends BaseTest {
 
         // When performing a full sync
         account.addFile("bar", "Hello World");
-        Syncer syncer = new Syncer(rootPath, account);
+        Syncer syncer = new Syncer(rootPath, accountsManager);
         syncer.fullSync(manifest);
 
         // Then dir and file should be downloaded
@@ -155,6 +159,28 @@ public class SyncerTest extends BaseTest {
         File[] dirFiles = getFilesInPath(rootPath.resolve("foo"));
         assertEquals(1, dirFiles.length);
         assertEquals("Hello World", FileUtils.readFileToString(dirFiles[0]));
+    }
+
+    @Test
+    @Ignore
+    public void testDeleteFileInRootIfNotFoundInManifestAndManifestHasNewerVersion() throws Exception {
+        // Given there is a a file in root
+        Path rootPath = Files.createTempDirectory("temp_root");
+        Path filePath = rootPath.resolve("foo.txt");
+        Files.write(filePath, "Hello World".getBytes());
+
+        // And a manifest which is newer than the file, but does not contain it
+        Manifest manifestSpy = spy(manifest);
+        when(manifestSpy.getUpdatedTime()).thenReturn(System.currentTimeMillis() + 10);
+
+        // When performing a full sync
+        Syncer syncer = new Syncer(rootPath, accountsManager);
+        syncer.fullSync(manifestSpy);
+
+        // Delete file from filesystem
+        assertFalse(filePath.toFile().isFile());
+
+        cleanup(rootPath);
     }
 
     private Manifest createMemoryManifest() {

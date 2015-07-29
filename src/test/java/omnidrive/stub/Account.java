@@ -97,11 +97,6 @@ public class Account extends CloudAccount {
     }
 
     @Override
-    public void updateManifest(InputStream inputStream, long size) throws AccountException {
-
-    }
-
-    @Override
     public void removeManifest() throws AccountException {
 
     }

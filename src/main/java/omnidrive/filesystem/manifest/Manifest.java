@@ -17,6 +17,8 @@ public interface Manifest {
 
     void remove(Entry entry);
 
+    Entry get(String id);
+
     <T extends Entry> T get(String id, Class<T> clazz);
 
     Tree getRoot();

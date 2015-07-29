@@ -36,6 +36,8 @@ public class SyncHandlerTest extends BaseTest {
 
     private Manifest manifest = new MapDbManifest(MapDbUtils.createMemoryDb());
 
+    private AccountsManager accountsManager = new AccountsManager();
+
     private ManifestSync manifestSync = mock(ManifestSync.class);
 
     private CloudAccount account = mock(CloudAccount.class);
@@ -44,7 +46,6 @@ public class SyncHandlerTest extends BaseTest {
 
     @Before
     public void setUp() throws Exception {
-        AccountsManager accountsManager = new AccountsManager();
         accountsManager.setAccount(DRIVE_TYPE, account);
         UploadStrategy uploadStrategy = new SimpleUploadStrategy(accountsManager);
         handler = new SyncHandler(getRoot(), manifest, manifestSync, uploadStrategy, accountsManager);
@@ -159,7 +160,7 @@ public class SyncHandlerTest extends BaseTest {
         handler.create(file);
 
         // Then the manifest is synced to all accounts
-        verify(manifestSync).upload();
+        verify(manifestSync).uploadToAll(accountsManager.getActiveAccounts());
     }
 
     @Test
@@ -169,7 +170,7 @@ public class SyncHandlerTest extends BaseTest {
         handler.create(dir);
 
         // Then the manifest is synced to all accounts
-        verify(manifestSync).upload();
+        verify(manifestSync).uploadToAll(accountsManager.getActiveAccounts());
     }
 
     @Test
@@ -188,7 +189,7 @@ public class SyncHandlerTest extends BaseTest {
         handler.modify(file);
 
         // Then the manifest is synced to all accounts
-        verify(manifestSync).upload();
+        verify(manifestSync).uploadToAll(accountsManager.getActiveAccounts());
     }
 
     @Test
@@ -206,7 +207,7 @@ public class SyncHandlerTest extends BaseTest {
         handler.delete(file);
 
         // Then the manifest is synced to all accounts
-        verify(manifestSync).upload();
+        verify(manifestSync).uploadToAll(accountsManager.getActiveAccounts());
     }
 
     @Test
@@ -224,7 +225,7 @@ public class SyncHandlerTest extends BaseTest {
         handler.delete(file);
 
         // Then the manifest is synced to all accounts
-        verify(manifestSync).upload();
+        verify(manifestSync).uploadToAll(accountsManager.getActiveAccounts());
     }
 
     @Test(expected = InvalidFileException.class)
