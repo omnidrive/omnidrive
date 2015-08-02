@@ -3,12 +3,14 @@ package omnidrive.ui.accounts;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import omnidrive.api.base.BaseApi;
 import omnidrive.api.base.BaseAccount;
 import omnidrive.api.base.AccountType;
+import omnidrive.api.base.BaseException;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.api.managers.LoginManager;
 import omnidrive.api.auth.AuthService;
@@ -19,7 +21,9 @@ import omnidrive.ui.general.PopupView;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class AccountsController implements Initializable, AuthService {
+public class AccountsController implements Initializable, AuthService, Runnable {
+
+    private static final int SIZE_UPDATER_SLEEP_TIME = 30000; //msec
 
     private static final int NUM_OF_ACCOUNTS = AccountType.length();
 
@@ -33,9 +37,11 @@ public class AccountsController implements Initializable, AuthService {
 
     private final LoginManager loginManager;
 
-    private final AccountsManager accountsManager;
+    private AccountsManager accountsManager;
 
     private final LoginView loginView;
+
+    private final Thread sizeUpdater;
 
     @FXML
     private Button addAccountButton;
@@ -49,11 +55,27 @@ public class AccountsController implements Initializable, AuthService {
     @FXML
     private ListView<Pane> unregisteredAccountsListView;
 
+    @FXML
+    private Label totalSizeLabel;
+
+    @FXML
+    private Label freeSizeLabel;
+
 
     public AccountsController() {
         this.loginManager = LoginManager.getLoginManager();
-        this.accountsManager = new AccountsManager();
         this.loginView = new LoginView();
+        this.sizeUpdater = new Thread(this, "tSizeUpdater");
+    }
+
+    public void setAccountsManager(AccountsManager accountsManager) {
+        this.accountsManager = accountsManager;
+    }
+
+    public void startSizeUpdater() {
+        if (this.accountsManager != null) {
+            this.sizeUpdater.start();
+        }
     }
 
     @Override
@@ -69,7 +91,6 @@ public class AccountsController implements Initializable, AuthService {
 
     @Override
     public void report(AccountType type, String message) {
-        // TODO - popup message
         PopupView.popup().info(message);
     }
 
@@ -78,8 +99,32 @@ public class AccountsController implements Initializable, AuthService {
         this.accountsManager.setAccount(type, account);
         addAccountToListView(type);
         this.loginView.close();
+        fetchCloudSize();
+    }
 
-        // TODO - save token to manifest
+    @Override
+    public void run() {
+        while (true) {
+            fetchCloudSize();
+
+            try {
+                Thread.sleep(SIZE_UPDATER_SLEEP_TIME);
+            } catch (InterruptedException ex) {
+                System.out.println("Failed to sleep between fetch cloud size");
+            }
+        }
+    }
+
+    private void fetchCloudSize() {
+        try {
+            Float totalSize = new Float((double)this.accountsManager.getUsedSpaceSize() / (1024.0 * 1024.0 * 1024.0));
+            Float freeSpace = new Float((double)this.accountsManager.getFreeSpaceSize() / (1024.0 * 1024.0 * 1024.0));
+
+            this.totalSizeLabel.setText("Cloud Total Size: " + String.format("%.03f GB", totalSize));
+            this.freeSizeLabel.setText("Cloud Free Space: " + String.format("%.03f GB", freeSpace));
+        } catch (BaseException ex) {
+            System.out.println("Failed to fetch cloud size");
+        }
     }
 
     @FXML
@@ -126,7 +171,7 @@ public class AccountsController implements Initializable, AuthService {
             AccountType type = AccountType.getType(cellIdx);
             Image iconImage = new Image(BigIconImagePaths[cellIdx]);
             cells[cellIdx] = new LogoListCell(type, iconImage);
-            cells[cellIdx].setSize(this.unregisteredAccountsListView.getPrefWidth() - 10, HeightOfUnregisteredCell);
+            cells[cellIdx].setSize(this.unregisteredAccountsListView.getPrefWidth() - 20, HeightOfUnregisteredCell);
         }
 
         return cells;
@@ -138,7 +183,7 @@ public class AccountsController implements Initializable, AuthService {
         Image iconImage = new Image(SmallIconImagePaths[type.ordinal()]);
 
         LogoListCell cell = new LogoListCell(type, iconImage, 16, SmallGap, SmallGap);
-        cell.setSize(this.registeredAccountsListView.getPrefWidth() - 10, HeightOfRegisteredCell);
+        cell.setSize(this.registeredAccountsListView.getPrefWidth() - 20, HeightOfRegisteredCell);
 
         return cell;
     }

@@ -1,5 +1,6 @@
 package omnidrive.ui.managers;
 
+import omnidrive.api.managers.AccountsManager;
 import omnidrive.ui.accounts.AccountsFXML;
 
 import java.net.URL;
@@ -7,16 +8,22 @@ import java.nio.file.Path;
 
 public class UIManager {
 
-    private static final boolean StartHidden = true;
+    private static boolean guiStarted = false;
 
-    public static void startGuiInBackground(Path omniDriveFolderPath) {
-        setup();
-        AccountsFXML.show(StartHidden, omniDriveFolderPath);
+    public static void startGuiInBackground(AccountsManager accountsManager, Path omniDriveFolderPath) {
+        if (!guiStarted) {
+            setup();
+            loadHidden(accountsManager, omniDriveFolderPath);
+            guiStarted = true;
+        }
     }
 
-    public static void startGuiInFront(Path omniDriveFolderPath) {
-        setup();
-        AccountsFXML.show(!StartHidden, omniDriveFolderPath);
+    public static void startGuiInFront(AccountsManager accountsManager, Path omniDriveFolderPath) {
+        if (!guiStarted) {
+            setup();
+            loadShown(accountsManager, omniDriveFolderPath);
+            guiStarted = true;
+        }
     }
 
     public static void showGui() {
@@ -25,6 +32,14 @@ public class UIManager {
 
     public static void hideGui() {
         AccountsFXML.hide();
+    }
+
+    private static void loadHidden(AccountsManager accountsManager, Path omniDriveFolderPath) {
+        AccountsFXML.load(accountsManager, true, omniDriveFolderPath);
+    }
+
+    private static void loadShown(AccountsManager accountsManager, Path omniDriveFolderPath) {
+        AccountsFXML.load(accountsManager, false, omniDriveFolderPath);
     }
 
     private static void setup() {

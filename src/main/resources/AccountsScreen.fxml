@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #ECECEC;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="omnidrive.ui.accounts.AccountsController">
+<VBox maxHeight="450.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="450.0" prefWidth="600.0" style="-fx-background-color: #ECECEC;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="omnidrive.ui.accounts.AccountsController">
    <children>
       <HBox prefHeight="100.0" prefWidth="200.0">
          <children>
@@ -21,7 +21,7 @@
             </ImageView>
             <Label prefHeight="50.0" prefWidth="480.0" text="Set up your cloud accounts to use with OmniDrive">
                <font>
-                  <Font size="14.0" />
+                  <Font size="16.0" />
                </font>
                <HBox.margin>
                   <Insets left="20.0" top="50.0" />
@@ -36,23 +36,26 @@
          <children>
             <Pane prefHeight="200.0" prefWidth="200.0">
                <children>
-                  <HBox layoutX="20.0" layoutY="240.0" prefHeight="25.0" prefWidth="180.0">
-                     <children>
-                        <Button fx:id="addAccountButton" mnemonicParsing="false" onAction="#onAddAccountButtonClicked" prefHeight="25.0" prefWidth="25.0" style="-fx-background-radius: 0;" text="+" />
-                        <Button fx:id="removeAccountButton" mnemonicParsing="false" onAction="#onRemoveAccountButtonClicked" prefHeight="25.0" prefWidth="25.0" style="-fx-background-radius: 0;" text="-" />
-                        <Pane prefHeight="25.0" prefWidth="129.0" style="-fx-border-color: #CCCCCC; -fx-background-color: #E0E0E0;" />
-                     </children>
-                  </HBox>
-                  <ListView fx:id="registeredAccountsListView" layoutX="20.0" layoutY="-1.0" prefHeight="242.0" prefWidth="180.0" />
+                  <HBox layoutX="20.0" layoutY="240.0" prefHeight="25.0" prefWidth="180.0" />
+                  <ListView fx:id="registeredAccountsListView" layoutX="20.0" prefHeight="254.0" prefWidth="180.0" />
+                  <Pane layoutX="71.0" layoutY="254.0" prefHeight="25.0" prefWidth="129.0" style="-fx-border-color: #CCCCCC; -fx-background-color: #E0E0E0;" />
+                  <Button fx:id="removeAccountButton" layoutX="46.0" layoutY="253.0" mnemonicParsing="false" onAction="#onRemoveAccountButtonClicked" prefHeight="25.0" prefWidth="26.0" style="-fx-background-radius: 0;" text="-" />
+                  <Button fx:id="addAccountButton" layoutX="20.0" layoutY="253.0" mnemonicParsing="false" onAction="#onAddAccountButtonClicked" prefHeight="25.0" prefWidth="25.0" style="-fx-background-radius: 0;" text="+" />
                </children>
             </Pane>
             <Pane prefHeight="280.0" prefWidth="60.0" />
             <Pane prefHeight="280.0" prefWidth="339.0">
                <children>
-                  <ListView fx:id="unregisteredAccountsListView" prefHeight="265.0" prefWidth="320.0" />
+                  <ListView fx:id="unregisteredAccountsListView" prefHeight="280.0" prefWidth="320.0" />
                </children>
             </Pane>
          </children>
       </HBox>
+      <Pane prefHeight="23.0" prefWidth="600.0">
+         <children>
+            <Label fx:id="totalSizeLabel" layoutX="19.0" layoutY="4.0" prefHeight="16.0" prefWidth="180.0" text="Cloud Size:" textFill="#6f6f6f" />
+            <Label fx:id="freeSizeLabel" layoutX="262.0" layoutY="4.0" prefHeight="16.0" prefWidth="180.0" text="Cloud Free Space:" textFill="#6f6f6f" />
+         </children>
+      </Pane>
    </children>
 </VBox>

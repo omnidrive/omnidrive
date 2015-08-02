@@ -7,9 +7,10 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import omnidrive.filesystem.FileSystem;
+import omnidrive.api.managers.AccountsManager;
 import omnidrive.ui.general.OmniDriveTrayIcon;
 import omnidrive.ui.general.SyncProgress;
+import omnidrive.ui.managers.UIManager;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -17,34 +18,37 @@ import java.nio.file.Path;
 
 public class AccountsFXML extends Application {
 
-    public static FXMLLoader fxmlLoader;
     private static final String SCREEN_FXML_PATH = "/AccountsScreen.fxml";
+
+    public FXMLLoader fxmlLoader;
 
     private AccountsController controller;
 
-    private static OmniDriveTrayIcon trayIcon = null;
-    private static Path omniDriveFolderPath = null;
+    private static OmniDriveTrayIcon trayIcon;
+    private static Stage theStage;
+    private static UIManager uiManager;
+    private static Path omniDriveFolderPath;
     private static boolean shouldStartHidden = false;
-
-    private static Stage theStage = null;
+    private static AccountsManager accountsManager;
 
     @Override
     public void start(Stage stage) throws Exception {
-        theStage = stage;
+        this.theStage = stage;
 
-        trayIcon = new OmniDriveTrayIcon(stage, omniDriveFolderPath);
-        trayIcon.createTrayIcon(!shouldStartHidden);
-
-        fxmlLoader = new FXMLLoader();
         URL url = getClass().getResource(SCREEN_FXML_PATH);
-        fxmlLoader.setLocation(url);
+        this.fxmlLoader = new FXMLLoader(url);
 
-        this.controller = fxmlLoader.getController();
+        // must be first - before get controller
+        VBox rootPane = this.fxmlLoader.load();
 
-        InputStream stream = fxmlLoader.getLocation().openStream();
-        VBox rootPane = fxmlLoader.load(stream);
+        this.trayIcon = new OmniDriveTrayIcon(stage, omniDriveFolderPath);
+        this.trayIcon.createTrayIcon(!shouldStartHidden);
 
-        Scene scene = new Scene(rootPane, 600, 400);
+        this.controller = this.fxmlLoader.getController();
+        this.controller.setAccountsManager(accountsManager);
+        this.controller.startSizeUpdater();
+
+        Scene scene = new Scene(rootPane, 600, 450);
         stage.initStyle(StageStyle.DECORATED);
 
         stage.getIcons().add(new Image("/omnidrive_icon_1024.png"));
@@ -85,9 +89,10 @@ public class AccountsFXML extends Application {
         }
     }
 
-    public static void show(boolean startHidden, Path folderPath) {
+    public static void load(AccountsManager manager, boolean startHidden, Path folderPath) {
+        accountsManager = manager;
         shouldStartHidden = startHidden;
         omniDriveFolderPath = folderPath;
-        launch(null);
+        launch();
     }
 }

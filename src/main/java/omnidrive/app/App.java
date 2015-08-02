@@ -57,7 +57,7 @@ public class App {
     }
 
     private void openAccountsSelector() {
-        UIManager.startGuiInFront(FileSystem.getRootPath());
+        UIManager.startGuiInFront(accountsManager, FileSystem.getRootPath());
     }
 
     private boolean isFirstRun() {

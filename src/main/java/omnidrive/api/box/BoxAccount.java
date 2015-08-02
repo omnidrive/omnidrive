@@ -160,6 +160,6 @@ public class BoxAccount extends BaseAccount {
 
     @Override
     public long getQuotaTotalSize() throws BaseException {
-        return this.user.getInfo().getSpaceUsed();
+        return this.user.getInfo().getSpaceAmount();
     }
 }

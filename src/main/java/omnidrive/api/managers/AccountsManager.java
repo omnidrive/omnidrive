@@ -57,6 +57,28 @@ public class AccountsManager extends Observable {
         return activeAccounts;
     }
 
+    public long getFreeSpaceSize() throws BaseException {
+        long size = 0;
+
+        List<BaseAccount> accounts = getActiveAccounts();
+        for (BaseAccount account : accounts) {
+            size += account.getQuotaRemainingSize();
+        }
+
+        return size;
+    }
+
+    public long getUsedSpaceSize() throws BaseException {
+        long size = 0;
+
+        List<BaseAccount> accounts = getActiveAccounts();
+        for (BaseAccount account : accounts) {
+            size += account.getQuotaTotalSize();
+        }
+
+        return size;
+    }
+
     public boolean isRegistered(AccountType type) {
         return this.accounts[type.ordinal()] != null;
     }

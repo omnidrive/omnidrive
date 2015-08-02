@@ -194,7 +194,7 @@ public class DropboxAccount extends BaseAccount {
         long usedQuota;
 
         try {
-            usedQuota = this.client.getAccountInfo().quota.normal;
+            usedQuota = this.client.getAccountInfo().quota.normal + this.client.getAccountInfo().quota.shared;
         } catch (DbxException ex) {
             throw new DropboxException("Failed to get quota used size.");
         }
