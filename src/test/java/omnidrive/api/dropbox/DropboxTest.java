@@ -1,7 +1,7 @@
 package omnidrive.api.dropbox;
 
 import com.dropbox.core.DbxRequestConfig;
-import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudAccount;
 
 import omnidrive.api.base.AccountException;
 import org.junit.FixMethodOrder;
@@ -27,7 +27,7 @@ public class DropboxTest {
     private static final String DbxAccessToken = "-rySTYC5rUYAAAAAAAASsL7CbWbE1TIXg1rPGkLn7lAShpns-51ylA78jwy4DY7W";
     private static final DbxRequestConfig DbxConfig = new DbxRequestConfig("omnidrive", Locale.getDefault().toString());
 
-    private static Account account = null;
+    private static CloudAccount account = null;
 
     public DropboxTest() {
 

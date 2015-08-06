@@ -1,6 +1,6 @@
 package omnidrive.app;
 
-import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.FileSystem;
 import omnidrive.filesystem.manifest.Manifest;
@@ -41,11 +41,11 @@ public class App {
     }
 
     private void startSubsequentRun() throws Exception {
-        List<Account> registeredAccounts = getRegisteredAccounts();
-        Account lruAccount = resolveLeastRecentlyUpdatedAccount(registeredAccounts);
+        List<CloudAccount> registeredAccounts = getRegisteredAccounts();
+        CloudAccount lruAccount = resolveLeastRecentlyUpdatedAccount(registeredAccounts);
         // TODO rewrite this
         fullSync(lruAccount);
-        for (Account account : registeredAccounts) {
+        for (CloudAccount account : registeredAccounts) {
             if (account != lruAccount) {
                 upstreamSync(account);
             }
@@ -65,16 +65,16 @@ public class App {
         //return !fileSystem.manifestExists();
     }
 
-    private List<Account> getRegisteredAccounts() throws Exception {
+    private List<CloudAccount> getRegisteredAccounts() throws Exception {
         Manifest manifest = fileSystem.getManifest();
         accountsManager.restoreAccounts(manifest.getAccountsMetadata());
         return accountsManager.getActiveAccounts();
     }
 
-    private Account resolveLeastRecentlyUpdatedAccount(List<Account> accounts) throws Exception {
+    private CloudAccount resolveLeastRecentlyUpdatedAccount(List<CloudAccount> accounts) throws Exception {
         long lruTime = 0;
-        Account lruAccount = null;
-        for (Account account : accounts) {
+        CloudAccount lruAccount = null;
+        for (CloudAccount account : accounts) {
             long accountUpdateTime = getAccountUpdateTime(account);
             if (accountUpdateTime > lruTime) {
                 lruTime = accountUpdateTime;
@@ -84,7 +84,7 @@ public class App {
         return lruAccount;
     }
 
-    private long getAccountUpdateTime(Account account) throws Exception {
+    private long getAccountUpdateTime(CloudAccount account) throws Exception {
         File tempFile = File.createTempFile("manifest", "db");
         OutputStream outputStream = new FileOutputStream(tempFile);
         // TODO use method from account
@@ -98,12 +98,12 @@ public class App {
         return updateTime;
     }
 
-    private void fullSync(Account account) {
+    private void fullSync(CloudAccount account) {
 //        Syncer syncer = new Syncer(FileSystem.getRootPath(), account);
 //        syncer.fullSync();
     }
 
-    private void upstreamSync(Account account) {
+    private void upstreamSync(CloudAccount account) {
 
     }
 

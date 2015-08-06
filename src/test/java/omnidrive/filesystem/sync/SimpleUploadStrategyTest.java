@@ -1,6 +1,6 @@
 package omnidrive.filesystem.sync;
 
-import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
 import omnidrive.filesystem.exception.NoAccountFoundException;
@@ -16,9 +16,9 @@ import static org.mockito.Mockito.when;
 
 public class SimpleUploadStrategyTest extends BaseTest {
 
-    private Account emptyAccount = new omnidrive.stub.Account();
+    private CloudAccount emptyAccount = new omnidrive.stub.Account();
 
-    private Account fullAccount = new omnidrive.stub.Account(0);
+    private CloudAccount fullAccount = new omnidrive.stub.Account(0);
 
     private File file;
 
@@ -33,7 +33,7 @@ public class SimpleUploadStrategyTest extends BaseTest {
         SimpleUploadStrategy uploadStrategy = getUploadStrategy(emptyAccount);
 
         // When you select an account to upload a file to
-        Account result = uploadStrategy.selectAccount(file);
+        CloudAccount result = uploadStrategy.selectAccount(file);
 
         // Then you get that account
         assertEquals(emptyAccount, result);
@@ -45,7 +45,7 @@ public class SimpleUploadStrategyTest extends BaseTest {
         SimpleUploadStrategy uploadStrategy = getUploadStrategy(fullAccount, emptyAccount);
 
         // When you select an account to upload a file to
-        Account result = uploadStrategy.selectAccount(file);
+        CloudAccount result = uploadStrategy.selectAccount(file);
 
         // Then you get the empty account
         assertEquals(emptyAccount, result);
@@ -62,7 +62,7 @@ public class SimpleUploadStrategyTest extends BaseTest {
         // Then a NoAccountFoundException exception is thrown
     }
 
-    private SimpleUploadStrategy getUploadStrategy(Account... accounts) {
+    private SimpleUploadStrategy getUploadStrategy(CloudAccount... accounts) {
         AccountsManager accountsManager = mock(AccountsManager.class);
         when(accountsManager.getActiveAccounts()).thenReturn(Arrays.asList(accounts));
         return new SimpleUploadStrategy(accountsManager);

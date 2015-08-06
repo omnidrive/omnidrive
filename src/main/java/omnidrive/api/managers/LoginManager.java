@@ -35,7 +35,7 @@ public class LoginManager implements AuthListener {
     }
 
     @Override
-    public void authenticated(AccountType type, Account account) {
+    public void authenticated(AccountType type, CloudAccount account) {
         if (this.authService != null) {
             this.authService.succeed(type, account);
         }

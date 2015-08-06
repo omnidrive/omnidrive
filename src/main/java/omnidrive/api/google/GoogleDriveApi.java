@@ -10,7 +10,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import javafx.scene.web.WebEngine;
-import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.CloudApi;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
@@ -48,7 +48,7 @@ public class GoogleDriveApi extends CloudApi {
     }
 
     @Override
-    public Account createAccount(String accessToken) throws AccountException {
+    public CloudAccount createAccount(String accessToken) throws AccountException {
         GoogleCredential credential = new GoogleCredential.Builder()
                 .setClientSecrets(CLIENT_ID, CLIENT_SECRET)
                 .setJsonFactory(jsonFactory)

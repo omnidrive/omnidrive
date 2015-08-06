@@ -1,7 +1,7 @@
 package omnidrive.filesystem.sync;
 
 import com.google.common.io.CharStreams;
-import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
@@ -38,7 +38,7 @@ public class SyncHandlerTest extends BaseTest {
 
     private ManifestSync manifestSync = mock(ManifestSync.class);
 
-    private Account account = mock(Account.class);
+    private CloudAccount account = mock(CloudAccount.class);
 
     private SyncHandler handler;
 

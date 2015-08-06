@@ -2,7 +2,7 @@ package omnidrive.api.dropbox;
 
 import com.dropbox.core.*;
 import javafx.scene.web.WebEngine;
-import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.CloudApi;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
@@ -31,7 +31,7 @@ public class DropboxApi extends CloudApi {
     }
 
     @Override
-    public Account createAccount(String accessToken) throws AccountException {
+    public CloudAccount createAccount(String accessToken) throws AccountException {
         return new DropboxAccount(this.config, accessToken);
     }
 

@@ -5,14 +5,14 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.ParentReference;
-import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
 
 import java.io.*;
 import java.util.Arrays;
 
-public class GoogleDriveAccount extends Account {
+public class GoogleDriveAccount extends CloudAccount {
 
     private static final String MimeTypeFile = "application/vnd.google-apps.file";
     private static final String MimeTypeFolder = "application/vnd.google-apps.folder";

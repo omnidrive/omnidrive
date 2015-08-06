@@ -1,6 +1,6 @@
 package omnidrive.api.managers;
 
-import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountType;
 import org.junit.Test;
 
@@ -10,9 +10,9 @@ public class AccountsManagerTest {
 
     private AccountsManager accountsManager = new AccountsManager();
 
-    private Account account1 = new omnidrive.stub.Account();
+    private CloudAccount account1 = new omnidrive.stub.Account();
 
-    private Account account2 = new omnidrive.stub.Account();
+    private CloudAccount account2 = new omnidrive.stub.Account();
 
     @Test
     public void testGetAccountTypeForUnregisteredAccountReturnsNull() throws Exception {

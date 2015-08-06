@@ -3,14 +3,14 @@ package omnidrive.api.box;
 import com.box.sdk.BoxAPIConnection;
 import com.box.sdk.BoxAPIException;
 import com.box.sdk.BoxFile.Info;
-import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class BoxAccount extends Account {
+public class BoxAccount extends CloudAccount {
 
     com.box.sdk.BoxUser user;
 

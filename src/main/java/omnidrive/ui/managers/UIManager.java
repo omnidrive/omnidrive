@@ -2,6 +2,7 @@ package omnidrive.ui.managers;
 
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.ui.accounts.AccountsFXML;
+import omnidrive.ui.general.SyncProgress;
 
 import java.net.URL;
 import java.nio.file.Path;
@@ -32,6 +33,10 @@ public class UIManager {
 
     public static void hideGui() {
         AccountsFXML.hide();
+    }
+
+    public static void setSyncProgress(SyncProgress progress) {
+        AccountsFXML.setSyncProgress(progress);
     }
 
     private static void loadHidden(AccountsManager accountsManager, Path omniDriveFolderPath) {

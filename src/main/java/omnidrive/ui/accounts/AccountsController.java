@@ -1,14 +1,16 @@
 package omnidrive.ui.accounts;
 
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import omnidrive.api.base.CloudApi;
-import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountType;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.managers.AccountsManager;
@@ -70,6 +72,8 @@ public class AccountsController implements Initializable, AuthService, Runnable 
 
     public void setAccountsManager(AccountsManager accountsManager) {
         this.accountsManager = accountsManager;
+        fetchCloudTotalSize();
+        fetchCloudFreeSpace();
     }
 
     public void startSizeUpdater() {
@@ -95,7 +99,7 @@ public class AccountsController implements Initializable, AuthService, Runnable 
     }
 
     @Override
-    public void succeed(AccountType type, Account account) {
+    public void succeed(AccountType type, CloudAccount account) {
         this.accountsManager.setAccount(type, account);
         addAccountToListView(type);
         this.loginView.close();
@@ -135,17 +139,7 @@ public class AccountsController implements Initializable, AuthService, Runnable 
 
     @FXML
     protected void onAddAccountButtonClicked() {
-        int selectedIndex = this.unregisteredAccountsListView.getFocusModel().getFocusedIndex();
-
-        if (selectedIndex >= 0) {
-            LogoListCell selectedCell = (LogoListCell)this.unregisteredAccountsListView.getItems().get(selectedIndex);
-            AccountType type = selectedCell.getType();
-            if (!this.accountsManager.isRegistered(type)) {
-                this.loginManager.login(type, this);
-            }
-        } else {
-            PopupView.popup().info("Please select an unregistered cloud.");
-        }
+        accountClick();
     }
 
     @FXML
@@ -160,6 +154,20 @@ public class AccountsController implements Initializable, AuthService, Runnable 
             removeAccountFromListView(selectedIndex);
         } else {
             PopupView.popup().info("Please select a registered cloud.");
+        }
+    }
+
+    private void accountClick() {
+        int selectedIndex = this.unregisteredAccountsListView.getFocusModel().getFocusedIndex();
+
+        if (selectedIndex >= 0) {
+            LogoListCell selectedCell = (LogoListCell)this.unregisteredAccountsListView.getItems().get(selectedIndex);
+            AccountType type = selectedCell.getType();
+            if (!this.accountsManager.isRegistered(type)) {
+                this.loginManager.login(type, this);
+            }
+        } else {
+            PopupView.popup().info("Please select an unregistered cloud.");
         }
     }
 
@@ -178,6 +186,13 @@ public class AccountsController implements Initializable, AuthService, Runnable 
             Image iconImage = new Image(BigIconImagePaths[cellIdx]);
             cells[cellIdx] = new LogoListCell(type, iconImage);
             cells[cellIdx].setSize(this.unregisteredAccountsListView.getPrefWidth() - 20, HeightOfUnregisteredCell);
+            cells[cellIdx].setOnMouseClicked(new EventHandler<MouseEvent>() {
+                public void handle(MouseEvent event) {
+                    if (event.getClickCount() == 2) {
+                        accountClick();
+                    }
+                }
+            });
         }
 
         return cells;

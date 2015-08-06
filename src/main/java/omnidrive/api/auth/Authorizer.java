@@ -1,7 +1,7 @@
 package omnidrive.api.auth;
 
 import javafx.scene.web.WebEngine;
-import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountException;
 
 public interface Authorizer {
@@ -12,6 +12,6 @@ public interface Authorizer {
 
     void finishAuthProcess(String code) throws AccountException;
 
-    Account createAccount(String accessToken) throws AccountException;
+    CloudAccount createAccount(String accessToken) throws AccountException;
 
 }

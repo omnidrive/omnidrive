@@ -37,7 +37,7 @@ public abstract class CloudApi implements Authorizer {
         return this.appSecret;
     }
 
-    protected void notifyAll(AccountType type, Account account) {
+    protected void notifyAll(AccountType type, CloudAccount account) {
         for (AuthListener listener : this.listeners) {
             listener.authenticated(type, account);
         }

@@ -6,7 +6,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
-import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudAccount;
 
 import omnidrive.api.base.AccountException;
 import org.junit.FixMethodOrder;
@@ -34,7 +34,7 @@ public class GoogleDriveTest {
 
     private static final String GOOGLE_TOKEN = "ya29.xwEWEXjowVIh8CorAW88ImYEaCvah7YrePtW3gKat5bDg0SX3XXtX8PRcyvNpMtyyqeV";
 
-    private static Account account = null;
+    private static CloudAccount account = null;
 
     @Before
     public void setUp() throws Exception {

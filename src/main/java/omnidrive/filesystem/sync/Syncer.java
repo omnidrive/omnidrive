@@ -1,6 +1,6 @@
 package omnidrive.filesystem.sync;
 
-import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudAccount;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.entry.TreeItem;
 import omnidrive.filesystem.manifest.walker.ItemVisitor;
@@ -16,9 +16,9 @@ public class Syncer {
 
     final private Path rootPath;
 
-    final private Account account;
+    final private CloudAccount account;
 
-    public Syncer(Path rootPath, Account account) {
+    public Syncer(Path rootPath, CloudAccount account) {
         this.rootPath = rootPath;
         this.account = account;
     }

@@ -1,7 +1,7 @@
 package omnidrive.api.box;
 
 import javafx.scene.web.WebEngine;
-import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.CloudApi;
 
 import com.box.sdk.BoxAPIConnection;
@@ -24,7 +24,7 @@ public class BoxApi extends CloudApi {
     }
 
     @Override
-    public Account createAccount(String accessToken) throws AccountException {
+    public CloudAccount createAccount(String accessToken) throws AccountException {
         final BoxAPIConnection conn = new BoxAPIConnection(accessToken);
         return new BoxAccount(conn);
     }
