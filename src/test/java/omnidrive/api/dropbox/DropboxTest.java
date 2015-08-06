@@ -1,9 +1,9 @@
 package omnidrive.api.dropbox;
 
 import com.dropbox.core.DbxRequestConfig;
-import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.Account;
 
-import omnidrive.api.base.BaseApi;
+import omnidrive.api.base.AccountException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.After;
@@ -27,103 +27,92 @@ public class DropboxTest {
     private static final String DbxAccessToken = "-rySTYC5rUYAAAAAAAASsL7CbWbE1TIXg1rPGkLn7lAShpns-51ylA78jwy4DY7W";
     private static final DbxRequestConfig DbxConfig = new DbxRequestConfig("omnidrive", Locale.getDefault().toString());
 
-    private static String uploadedFileId = "";
+    private static Account account = null;
 
-    private static BaseAccount dbxAccount = null;
+    public DropboxTest() {
+
+    }
 
     @Before
-    public void setUp() {
-        if (dbxAccount == null) {
-            dbxAccount = new DropboxAccount(DbxConfig, DbxAccessToken);
+    public void setUp() throws Exception {
+        if (account == null) {
+            account = new DropboxAccount(DbxConfig, DbxAccessToken);
+            try {
+                account.initialize();
+            } catch (AccountException ex) {
+                account = null;
+                throw new Exception("Failed to initialize account");
+            }
         }
     }
 
     @After
     public void tearDown() {
-        //this.dbxAccount = null;
+
     }
 
     @Test
-    public void testA_Init() throws Exception {
-        dbxAccount.initialize();
-    }
-
-    @Test
-    public void testB_UploadFile() throws Exception {
+    public void testFileActions() throws Exception {
+        // upload file
         URL url = this.getClass().getResource("/api/upload_test.txt");
         File file = new File(url.getPath());
         FileInputStream fileInputStream = new FileInputStream(file);
 
-        uploadedFileId = dbxAccount.uploadFile("upload_test.txt", fileInputStream, file.length());
+        String uploadedFileId = account.uploadFile("upload_test.txt", fileInputStream, file.length());
 
         assertNotNull(uploadedFileId);
         assertNotEquals(uploadedFileId, "");
-    }
 
-    @Test
-    public void testC_DownloadFile() throws Exception {
+        // download file
         OutputStream outputStream = new FileOutputStream(LOCAL_DOWNLOAD_PATH + "/download_test.txt");
-        long size = dbxAccount.downloadFile(uploadedFileId, outputStream);
+        long size = account.downloadFile(uploadedFileId, outputStream);
 
         assertNotEquals(size, 0);
+
+        // update file
+        url = this.getClass().getResource("/api/upload_test.txt");
+        file = new File(url.getPath());
+        fileInputStream = new FileInputStream(file);
+
+        account.updateFile(uploadedFileId, fileInputStream, file.length());
+
+        // remove file
+        account.removeFile(uploadedFileId);
     }
 
     @Test
-    public void testD_UpdateFile() throws Exception {
-        URL url = this.getClass().getResource("/api/upload_test.txt");
-        File file = new File(url.getPath());
-        FileInputStream fileInputStream = new FileInputStream(file);
-
-        dbxAccount.updateFile(uploadedFileId, fileInputStream, file.length());
-    }
-
-    @Test
-    public void textE_RemoveFile() throws Exception {
-        dbxAccount.removeFile(uploadedFileId);
-    }
-
-    @Test
-    public void testF_ManifestExists() throws Exception {
-        boolean exists = dbxAccount.manifestExists();
+    public void testManifestActions() throws Exception {
+        // manifest exists
+        boolean exists = account.manifestExists();
         assertFalse(exists);
-    }
 
-    @Test
-    public void testG_uploadManifest() throws Exception {
+        // upload manifest
         URL url = this.getClass().getResource("/api/manifest");
         File file = new File(url.getPath());
         FileInputStream fileInputStream = new FileInputStream(file);
 
-        dbxAccount.uploadManifest(fileInputStream, file.length());
-    }
+        account.uploadManifest(fileInputStream, file.length());
 
-    @Test
-    public void testH_DownloadManifest() throws Exception {
-        boolean exists = dbxAccount.manifestExists();
+        // download manifest
+        exists = account.manifestExists();
         assertTrue(exists);
 
         OutputStream outputStream = new FileOutputStream(LOCAL_DOWNLOAD_PATH + "/manifest");
-        long size = dbxAccount.downloadManifestFile(outputStream);
+        long size = account.downloadManifest(outputStream);
 
         assertNotEquals(size, 0);
-    }
 
-    @Test
-    public void testI_UpdateManifest() throws Exception {
-        boolean exists = dbxAccount.manifestExists();
+        // update manifest
+        exists = account.manifestExists();
         assertTrue(exists);
 
-        URL url = this.getClass().getResource("/api/manifest");
-        File file = new File(url.getPath());
-        FileInputStream fileInputStream = new FileInputStream(file);
+        url = this.getClass().getResource("/api/manifest");
+        file = new File(url.getPath());
+        fileInputStream = new FileInputStream(file);
 
-        dbxAccount.updateManifest(fileInputStream, file.length());
+        account.updateManifest(fileInputStream, file.length());
+
+        // remove manifest
+        account.removeManifest();
     }
-
-    /*@Test
-    public void testJ_RestoreAccount() throws Exception {
-        BaseApi api = new DropboxApi();
-        dbxAccount = api.createAccount(DbxAccessToken);
-        assertNotNull(dbxAccount);
-    }*/
 }

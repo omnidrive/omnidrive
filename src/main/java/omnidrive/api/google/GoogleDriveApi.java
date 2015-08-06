@@ -10,9 +10,9 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import javafx.scene.web.WebEngine;
-import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.BaseApi;
-import omnidrive.api.base.BaseException;
+import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudApi;
+import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
 import omnidrive.api.managers.LoginManager;
 
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class GoogleDriveApi extends BaseApi {
+public class GoogleDriveApi extends CloudApi {
 
     private static final String APP_NAME = "GoogleDrive";
     private static final String CLIENT_ID = "438388195219-sf38d0f4bbj4t9at3e9n72uup3cfsb8m.apps.googleusercontent.com";
@@ -48,7 +48,7 @@ public class GoogleDriveApi extends BaseApi {
     }
 
     @Override
-    public BaseAccount createAccount(String accessToken) throws BaseException {
+    public Account createAccount(String accessToken) throws AccountException {
         GoogleCredential credential = new GoogleCredential.Builder()
                 .setClientSecrets(CLIENT_ID, CLIENT_SECRET)
                 .setJsonFactory(jsonFactory)
@@ -67,7 +67,7 @@ public class GoogleDriveApi extends BaseApi {
     }
 
     @Override
-    public final void fetchAuthCode(WebEngine engine) throws BaseException {
+    public final void fetchAuthCode(WebEngine engine) throws AccountException {
         String code = null;
 
         String title = engine.getTitle();
@@ -87,7 +87,7 @@ public class GoogleDriveApi extends BaseApi {
     }
 
     @Override
-    public final void finishAuthProcess(String code) throws BaseException {
+    public final void finishAuthProcess(String code) throws AccountException {
         try {
             GoogleTokenResponse response = this.auth.newTokenRequest(code).setRedirectUri(REDIRECT_URI).execute();
             GoogleCredential credential = new GoogleCredential().setFromTokenResponse(response);

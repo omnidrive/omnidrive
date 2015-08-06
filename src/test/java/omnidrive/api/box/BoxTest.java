@@ -1,9 +1,9 @@
 package omnidrive.api.box;
 
 import com.box.sdk.BoxAPIConnection;
-import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.Account;
 
-import omnidrive.api.base.BaseApi;
+import omnidrive.api.base.AccountException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.After;
@@ -23,77 +23,98 @@ public class BoxTest {
 
     private static final String LOCAL_DOWNLOAD_PATH = "/Users/assafey/Downloads";
 
-    private static final String BOX_TOKEN = "URPWMR8cpPrN4gyaXk8cgLKGrnq6koi7";
+    private static final String BOX_TOKEN = "BqNOxBoXauStdFGcmQWcGFWE2z83tbun";
 
     private static final BoxAPIConnection conn = new BoxAPIConnection(BOX_TOKEN);
 
-    private static String uploadedFileId = "";
+    private static Account account = null;
 
-    private static BaseAccount boxAccount = null;
+    public BoxTest() {
+
+    }
 
     @Before
-    public void setUp() {
-        if (boxAccount == null) {
-            boxAccount = new BoxAccount(conn);
+    public void setUp() throws Exception {
+        if (account == null) {
+
+            account = new BoxAccount(conn);
+
+            try {
+                account.initialize();
+            } catch (AccountException ex) {
+                account = null;
+                throw new Exception("Failed to initialize account");
+            }
         }
     }
 
     @After
     public void tearDown() {
-        //this.boxAccount = null;
+
     }
 
     @Test
-    public void testA_Init() throws Exception {
-        boxAccount.initialize();
-    }
-
-    @Test
-    public void testB_UploadFile() throws Exception {
+    public void testFileActions() throws Exception {
+        // upload file
         URL url = this.getClass().getResource("/api/upload_test.txt");
         File file = new File(url.getPath());
         FileInputStream fileInputStream = new FileInputStream(file);
 
-        uploadedFileId = boxAccount.uploadFile("upload_test.txt", fileInputStream, file.length());
+        String uploadedFileId = account.uploadFile("upload_test.txt", fileInputStream, file.length());
 
         assertNotNull(uploadedFileId);
         assertNotEquals(uploadedFileId, "");
-    }
 
-    @Test
-    public void testC_DownloadFile() throws Exception {
+        // download file
         OutputStream outputStream = new FileOutputStream(LOCAL_DOWNLOAD_PATH + "/download_test.txt");
-        long size = boxAccount.downloadFile(uploadedFileId, outputStream);
+        long size = account.downloadFile(uploadedFileId, outputStream);
 
         assertNotEquals(size, 0);
+
+        // update file
+        url = this.getClass().getResource("/api/upload_test.txt");
+        file = new File(url.getPath());
+        fileInputStream = new FileInputStream(file);
+
+        account.updateFile(uploadedFileId, fileInputStream, file.length());
+
+        // remove file
+        account.removeFile(uploadedFileId);
     }
 
     @Test
-    public void testD_UpdateFile() throws Exception {
-        URL url = this.getClass().getResource("/api/upload_test.txt");
+    public void testManifestActions() throws Exception {
+        // manifest exists
+        boolean exists = account.manifestExists();
+        assertFalse(exists);
+
+        // upload manifest
+        URL url = this.getClass().getResource("/api/manifest");
         File file = new File(url.getPath());
         FileInputStream fileInputStream = new FileInputStream(file);
 
-        boxAccount.updateFile(uploadedFileId, fileInputStream, file.length());
-    }
+        account.uploadManifest(fileInputStream, file.length());
 
-    @Test
-    public void textE_RemoveFile() throws Exception {
-        boxAccount.removeFile(uploadedFileId);
-    }
+        // download manifest
+        exists = account.manifestExists();
+        assertTrue(exists);
 
-    @Test
-    public void testF_DownloadManifest() throws Exception {
         OutputStream outputStream = new FileOutputStream(LOCAL_DOWNLOAD_PATH + "/manifest");
-        long size = boxAccount.downloadManifestFile(outputStream);
+        long size = account.downloadManifest(outputStream);
 
         assertNotEquals(size, 0);
-    }
 
-    @Test
-    public void testG_RestoreAccount() throws Exception {
-        BaseApi api = new BoxApi();
-        boxAccount = api.createAccount(BOX_TOKEN);
-        assertNotNull(boxAccount);
+        // update manifest
+        exists = account.manifestExists();
+        assertTrue(exists);
+
+        url = this.getClass().getResource("/api/manifest");
+        file = new File(url.getPath());
+        fileInputStream = new FileInputStream(file);
+
+        account.updateManifest(fileInputStream, file.length());
+
+        // remove manifest
+        account.removeManifest();
     }
 }

@@ -10,7 +10,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import omnidrive.api.auth.AuthListener;
 import omnidrive.api.auth.Authorizer;
-import omnidrive.api.base.BaseException;
+import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
 
 public class LoginView {
@@ -37,7 +37,7 @@ public class LoginView {
                 if (newState == Worker.State.READY || newState == Worker.State.SUCCEEDED) {
                     try {
                         authorizer.fetchAuthCode(engine);
-                    } catch (BaseException ex) {
+                    } catch (AccountException ex) {
                         authListener.failure(type, ex.getMessage());
                     }
                 } else if (newState == Worker.State.FAILED) {

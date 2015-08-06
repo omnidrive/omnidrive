@@ -1,7 +1,7 @@
 package omnidrive.api.managers;
 
 import omnidrive.api.auth.AuthListener;
-import omnidrive.api.base.BaseApi;
+import omnidrive.api.base.CloudApi;
 import omnidrive.api.base.AccountType;
 import omnidrive.api.box.BoxApi;
 import omnidrive.api.dropbox.DropboxApi;
@@ -9,7 +9,7 @@ import omnidrive.api.google.GoogleDriveApi;
 
 public class ApiManager {
 
-    private final BaseApi[] apis = new BaseApi[AccountType.length()];
+    private final CloudApi[] apis = new CloudApi[AccountType.length()];
 
     private static ApiManager apiManager = null;
 
@@ -27,8 +27,8 @@ public class ApiManager {
         return apiManager;
     }
 
-    private BaseApi createApi(AccountType type) {
-        BaseApi api = null;
+    private CloudApi createApi(AccountType type) {
+        CloudApi api = null;
 
         switch (type) {
             case Dropbox:
@@ -55,11 +55,11 @@ public class ApiManager {
         return authUrl;
     }
 
-    public BaseApi getApi(AccountType type) {
+    public CloudApi getApi(AccountType type) {
         return this.apis[type.ordinal()];
     }
 
-    public static AccountType toType(BaseApi api) {
+    public static AccountType toType(CloudApi api) {
         AccountType type = null;
 
         if (api instanceof DropboxApi) {

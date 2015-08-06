@@ -1,6 +1,6 @@
 package omnidrive.app;
 
-import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.Account;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.FileSystem;
 import omnidrive.filesystem.manifest.Manifest;
@@ -41,11 +41,11 @@ public class App {
     }
 
     private void startSubsequentRun() throws Exception {
-        List<BaseAccount> registeredAccounts = getRegisteredAccounts();
-        BaseAccount lruAccount = resolveLeastRecentlyUpdatedAccount(registeredAccounts);
+        List<Account> registeredAccounts = getRegisteredAccounts();
+        Account lruAccount = resolveLeastRecentlyUpdatedAccount(registeredAccounts);
         // TODO rewrite this
         fullSync(lruAccount);
-        for (BaseAccount account : registeredAccounts) {
+        for (Account account : registeredAccounts) {
             if (account != lruAccount) {
                 upstreamSync(account);
             }
@@ -65,16 +65,16 @@ public class App {
         //return !fileSystem.manifestExists();
     }
 
-    private List<BaseAccount> getRegisteredAccounts() throws Exception {
+    private List<Account> getRegisteredAccounts() throws Exception {
         Manifest manifest = fileSystem.getManifest();
         accountsManager.restoreAccounts(manifest.getAccountsMetadata());
         return accountsManager.getActiveAccounts();
     }
 
-    private BaseAccount resolveLeastRecentlyUpdatedAccount(List<BaseAccount> accounts) throws Exception {
+    private Account resolveLeastRecentlyUpdatedAccount(List<Account> accounts) throws Exception {
         long lruTime = 0;
-        BaseAccount lruAccount = null;
-        for (BaseAccount account : accounts) {
+        Account lruAccount = null;
+        for (Account account : accounts) {
             long accountUpdateTime = getAccountUpdateTime(account);
             if (accountUpdateTime > lruTime) {
                 lruTime = accountUpdateTime;
@@ -84,7 +84,7 @@ public class App {
         return lruAccount;
     }
 
-    private long getAccountUpdateTime(BaseAccount account) throws Exception {
+    private long getAccountUpdateTime(Account account) throws Exception {
         File tempFile = File.createTempFile("manifest", "db");
         OutputStream outputStream = new FileOutputStream(tempFile);
         // TODO use method from account
@@ -98,12 +98,12 @@ public class App {
         return updateTime;
     }
 
-    private void fullSync(BaseAccount account) {
+    private void fullSync(Account account) {
 //        Syncer syncer = new Syncer(FileSystem.getRootPath(), account);
 //        syncer.fullSync();
     }
 
-    private void upstreamSync(BaseAccount account) {
+    private void upstreamSync(Account account) {
 
     }
 

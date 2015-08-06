@@ -1,6 +1,6 @@
 package omnidrive.filesystem.sync;
 
-import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.Account;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.exception.InvalidFileException;
 import omnidrive.filesystem.manifest.Manifest;
@@ -68,7 +68,7 @@ public class SyncHandler implements Handler {
         Blob blob = getBlob(file);
         String id = blob.getId();
         Blob updated = new Blob(id, file.length(), blob.getAccount());
-        BaseAccount account = getAccount(blob);
+        Account account = getAccount(blob);
         account.updateFile(id, new FileInputStream(file), updated.getSize());
         manifest.put(updated);
         manifestSync.upload();
@@ -90,7 +90,7 @@ public class SyncHandler implements Handler {
 
     private String createFile(File file) throws Exception {
         long size = file.length();
-        BaseAccount account = uploadStrategy.selectAccount(file);
+        Account account = uploadStrategy.selectAccount(file);
         String id = account.uploadFile(randomId(), new FileInputStream(file), size);
         manifest.put(new Blob(id, size, accountsManager.toType(account)));
         addEntryToParent(file, Entry.Type.BLOB, id);
@@ -140,7 +140,7 @@ public class SyncHandler implements Handler {
         }
     }
 
-    private BaseAccount getAccount(Blob blob) {
+    private Account getAccount(Blob blob) {
         return accountsManager.getAccount(blob.getAccount());
     }
 
@@ -149,7 +149,7 @@ public class SyncHandler implements Handler {
         public void visit(TreeItem item) throws Exception {
             String id = item.getId();
             Blob blob = manifest.get(id, Blob.class);
-            BaseAccount account = getAccount(blob);
+            Account account = getAccount(blob);
             account.removeFile(id);
             manifest.remove(blob);
         }

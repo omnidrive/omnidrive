@@ -1,9 +1,9 @@
 package omnidrive.api.base;
 
-public class BaseException extends Exception {
+public class AccountException extends Exception {
     private int code = 0; //todo - error code?
 
-    public BaseException(AccountType accountType, String message) {
+    public AccountException(AccountType accountType, String message) {
         super(accountType.toString() + ": " + message);
     }
 }

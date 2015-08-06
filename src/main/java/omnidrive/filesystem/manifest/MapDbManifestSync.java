@@ -1,6 +1,6 @@
 package omnidrive.filesystem.manifest;
 
-import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.Account;
 import omnidrive.api.managers.AccountsManager;
 import org.mapdb.DB;
 
@@ -27,7 +27,7 @@ public class MapDbManifestSync implements ManifestSync {
         db.commit();
         db.compact();
         long size = file.length();
-        for (BaseAccount account : accountsManager.getActiveAccounts()) {
+        for (Account account : accountsManager.getActiveAccounts()) {
             account.updateFile(UPLOAD_MANIFEST_FILENAME, new FileInputStream(file), size);
         }
     }

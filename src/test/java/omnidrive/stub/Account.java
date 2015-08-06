@@ -1,15 +1,14 @@
 package omnidrive.stub;
 
 import com.google.api.client.util.ArrayMap;
-import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.BaseException;
+import omnidrive.api.base.AccountException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
-public class Account extends BaseAccount {
+public class Account extends omnidrive.api.base.Account {
 
     public static final int DEFAULT_CAPACITY = 100;
 
@@ -28,32 +27,32 @@ public class Account extends BaseAccount {
     }
 
     @Override
-    protected void createRootFolder() throws BaseException {
+    protected void createRootFolder() throws AccountException {
 
     }
 
     @Override
-    public String getOmniDriveFolderId() throws BaseException {
+    public String getOmniDriveFolderId() throws AccountException {
         return null;
     }
 
     @Override
-    public String getUsername() throws BaseException {
+    public String getUsername() throws AccountException {
         return null;
     }
 
     @Override
-    public String getUserId() throws BaseException {
+    public String getUserId() throws AccountException {
         return null;
     }
 
     @Override
-    public String uploadFile(String name, InputStream inputStream, long size) throws BaseException {
+    public String uploadFile(String name, InputStream inputStream, long size) throws AccountException {
         return null;
     }
 
     @Override
-    public long downloadFile(String fileId, OutputStream outputStream) throws BaseException {
+    public long downloadFile(String fileId, OutputStream outputStream) throws AccountException {
         if (files.containsKey(fileId)) {
             try {
                 String content = files.get(fileId);
@@ -67,47 +66,52 @@ public class Account extends BaseAccount {
     }
 
     @Override
-    public void removeFile(String fileId) throws BaseException {
+    public void removeFile(String fileId) throws AccountException {
 
     }
 
     @Override
-    public void removeFolder(String fileId) throws BaseException {
+    public void removeFolder(String fileId) throws AccountException {
 
     }
 
     @Override
-    public void updateFile(String fileId, InputStream inputStream, long size) throws BaseException {
+    public void updateFile(String fileId, InputStream inputStream, long size) throws AccountException {
 
     }
 
     @Override
-    public long downloadManifestFile(OutputStream outputStream) throws BaseException {
+    public long downloadManifest(OutputStream outputStream) throws AccountException {
         return 0;
     }
 
     @Override
-    public void uploadManifest(InputStream inputStream, long size) throws BaseException {
+    public void uploadManifest(InputStream inputStream, long size) throws AccountException {
 
     }
 
     @Override
-    public void updateManifest(InputStream inputStream, long size) throws BaseException {
+    public void updateManifest(InputStream inputStream, long size) throws AccountException {
 
     }
 
     @Override
-    public boolean manifestExists() throws BaseException {
+    public void removeManifest() throws AccountException {
+
+    }
+
+    @Override
+    public boolean manifestExists() throws AccountException {
         return false;
     }
 
     @Override
-    public long getQuotaUsedSize() throws BaseException {
+    public long getQuotaUsedSize() throws AccountException {
         return usedSize;
     }
 
     @Override
-    public long getQuotaTotalSize() throws BaseException {
+    public long getQuotaTotalSize() throws AccountException {
         return totalSize;
     }
 

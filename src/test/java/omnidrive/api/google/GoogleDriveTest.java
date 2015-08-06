@@ -6,9 +6,9 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
-import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.Account;
 
-import omnidrive.api.base.BaseApi;
+import omnidrive.api.base.AccountException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.After;
@@ -32,15 +32,13 @@ public class GoogleDriveTest {
     private static final String CLIENT_SECRET = "57T8iW2bKRFZJSiX69Dr4cQV";
     private static final String REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
 
-    private static final String GOOGLE_TOKEN = "ya29.vgGUd9Oz40XkUdwkaXzlZyUX2nU40g-9jdAkdamLIZ1fHgIH6_FDYWCTlSkXeW1Osk7O";
+    private static final String GOOGLE_TOKEN = "ya29.xwEWEXjowVIh8CorAW88ImYEaCvah7YrePtW3gKat5bDg0SX3XXtX8PRcyvNpMtyyqeV";
 
-    private static String uploadedFileId = "";
-
-    private static BaseAccount googleAccount = null;
+    private static Account account = null;
 
     @Before
-    public void setUp() {
-        if (googleAccount == null) {
+    public void setUp() throws Exception {
+        if (account == null) {
             final HttpTransport httpTransport = new NetHttpTransport();
             final JsonFactory jsonFactory = new JacksonFactory();
 
@@ -52,66 +50,84 @@ public class GoogleDriveTest {
             //Create a new authorized API client
             Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("omnidrive").build();
 
-            googleAccount = new GoogleDriveAccount(service);
+            account = new GoogleDriveAccount(service);
+
+            try {
+                account.initialize();
+            } catch (AccountException ex) {
+                account = null;
+                throw new Exception("Failed to initialize account");
+            }
         }
     }
 
     @After
     public void tearDown() {
-        //this.dbxAccount = null;
+
     }
 
     @Test
-    public void testA_Init() throws Exception {
-        googleAccount.initialize();
-    }
-
-    @Test
-    public void testB_UploadFile() throws Exception {
+    public void testFileActions() throws Exception {
+        // upload file
         URL url = this.getClass().getResource("/api/upload_test.txt");
         File file = new File(url.getPath());
         FileInputStream fileInputStream = new FileInputStream(file);
 
-        uploadedFileId = googleAccount.uploadFile("upload_test.txt", fileInputStream, file.length());
+        String uploadedFileId = account.uploadFile("upload_test.txt", fileInputStream, file.length());
 
         assertNotNull(uploadedFileId);
         assertNotEquals(uploadedFileId, "");
-    }
 
-    @Test
-    public void testC_DownloadFile() throws Exception {
+        // download file
         OutputStream outputStream = new FileOutputStream(LOCAL_DOWNLOAD_PATH + "/download_test.txt");
-        long size = googleAccount.downloadFile(uploadedFileId, outputStream);
+        long size = account.downloadFile(uploadedFileId, outputStream);
 
         assertNotEquals(size, 0);
+
+        // update file
+        url = this.getClass().getResource("/api/upload_test.txt");
+        file = new File(url.getPath());
+        fileInputStream = new FileInputStream(file);
+
+        account.updateFile(uploadedFileId, fileInputStream, file.length());
+
+        // remove file
+        account.removeFile(uploadedFileId);
     }
 
     @Test
-    public void testD_UpdateFile() throws Exception {
-        URL url = this.getClass().getResource("/api/upload_test.txt");
+    public void testManifestActions() throws Exception {
+        // manifest exists
+        boolean exists = account.manifestExists();
+        assertFalse(exists);
+
+        // upload manifest
+        URL url = this.getClass().getResource("/api/manifest");
         File file = new File(url.getPath());
         FileInputStream fileInputStream = new FileInputStream(file);
 
-        googleAccount.updateFile(uploadedFileId, fileInputStream, file.length());
-    }
+        account.uploadManifest(fileInputStream, file.length());
 
-    @Test
-    public void textE_RemoveFile() throws Exception {
-        googleAccount.removeFile(uploadedFileId);
-    }
+        // download manifest
+        exists = account.manifestExists();
+        assertTrue(exists);
 
-    @Test
-    public void testF_DownloadManifest() throws Exception {
         OutputStream outputStream = new FileOutputStream(LOCAL_DOWNLOAD_PATH + "/manifest");
-        long size = googleAccount.downloadManifestFile(outputStream);
+        long size = account.downloadManifest(outputStream);
 
         assertNotEquals(size, 0);
-    }
 
-    @Test
-    public void testG_RestoreAccount() throws Exception {
-        BaseApi api = new GoogleDriveApi();
-        googleAccount = api.createAccount(GOOGLE_TOKEN);
-        assertNotNull(googleAccount);
+        // update manifest
+        exists = account.manifestExists();
+        assertTrue(exists);
+
+        url = this.getClass().getResource("/api/manifest");
+        file = new File(url.getPath());
+        fileInputStream = new FileInputStream(file);
+
+        account.updateManifest(fileInputStream, file.length());
+
+        // remove manifest
+        account.removeManifest();
     }
 }

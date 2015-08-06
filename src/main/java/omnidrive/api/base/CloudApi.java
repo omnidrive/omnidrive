@@ -6,7 +6,7 @@ import omnidrive.api.auth.Authorizer;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class BaseApi implements Authorizer {
+public abstract class CloudApi implements Authorizer {
 
     protected final List<AuthListener> listeners = new LinkedList<AuthListener>();
 
@@ -14,13 +14,13 @@ public abstract class BaseApi implements Authorizer {
     private final String appId;
     private final String appSecret;
 
-    public BaseApi(String appName, String appId, String appSecret) {
+    public CloudApi(String appName, String appId, String appSecret) {
         this.appName = appName;
         this.appId = appId;
         this.appSecret = appSecret;
     }
 
-    public String login(AuthListener listener) throws BaseException {
+    public String login(AuthListener listener) throws AccountException {
         addListener(listener);
         return authorize();
     }
@@ -37,7 +37,7 @@ public abstract class BaseApi implements Authorizer {
         return this.appSecret;
     }
 
-    protected void notifyAll(AccountType type, BaseAccount account) {
+    protected void notifyAll(AccountType type, Account account) {
         for (AuthListener listener : this.listeners) {
             listener.authenticated(type, account);
         }

@@ -1,7 +1,7 @@
 package omnidrive.filesystem.sync;
 
-import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.BaseException;
+import omnidrive.api.base.Account;
+import omnidrive.api.base.AccountException;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.exception.NoAccountFoundException;
 
@@ -15,9 +15,9 @@ public class SimpleUploadStrategy implements UploadStrategy {
         this.accountsManager = accountsManager;
     }
 
-    public BaseAccount selectAccount(File file) throws BaseException, NoAccountFoundException {
-        BaseAccount account = null;
-        for (BaseAccount candidate : accountsManager.getActiveAccounts()) {
+    public Account selectAccount(File file) throws AccountException, NoAccountFoundException {
+        Account account = null;
+        for (Account candidate : accountsManager.getActiveAccounts()) {
             if (candidate.getQuotaRemainingSize() > file.length()) {
                 account = candidate;
                 break;

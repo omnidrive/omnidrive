@@ -3,13 +3,14 @@ package omnidrive.api.box;
 import com.box.sdk.BoxAPIConnection;
 import com.box.sdk.BoxAPIException;
 import com.box.sdk.BoxFile.Info;
-import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.BaseException;
+import omnidrive.api.base.Account;
+import omnidrive.api.base.AccountException;
+import omnidrive.api.base.AccountType;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class BoxAccount extends BaseAccount {
+public class BoxAccount extends Account {
 
     com.box.sdk.BoxUser user;
 
@@ -18,7 +19,7 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
-    protected void createRootFolder() throws BaseException {
+    protected void createRootFolder() throws AccountException {
         if (!isOmniDriveFolderExists()) {
             try {
                 com.box.sdk.BoxFolder boxRootFolder = com.box.sdk.BoxFolder.getRootFolder(this.user.getAPI());
@@ -37,7 +38,7 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
-    protected String getOmniDriveFolderId() throws BaseException {
+    protected String getOmniDriveFolderId() throws AccountException {
         if (this.omniDriveFolderId != null) {
             return this.omniDriveFolderId;
         }
@@ -63,17 +64,17 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
-    public String getUsername() throws BaseException {
+    public String getUsername() throws AccountException {
         return this.user.getInfo("name").getName();
     }
 
     @Override
-    public String getUserId() throws BaseException {
+    public String getUserId() throws AccountException {
         return this.user.getID();
     }
 
     @Override
-    public String uploadFile(String name, InputStream inputStream, long size) throws BaseException {
+    public String uploadFile(String name, InputStream inputStream, long size) throws AccountException {
         String fileId = null;
         com.box.sdk.BoxFolder rootFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), getOmniDriveFolderId());
 
@@ -89,7 +90,7 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
-    public long downloadFile(String fileId, OutputStream outputStream) throws BaseException {
+    public long downloadFile(String fileId, OutputStream outputStream) throws AccountException {
         long size = 0;
 
         try {
@@ -107,7 +108,7 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
-    public void removeFile(String fileId) throws BaseException {
+    public void removeFile(String fileId) throws AccountException {
         com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
 
         try {
@@ -120,7 +121,7 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
-    public void removeFolder(String fileId) throws BaseException {
+    public void removeFolder(String fileId) throws AccountException {
         com.box.sdk.BoxFolder folder = new com.box.sdk.BoxFolder(this.user.getAPI(), fileId);
 
         try {
@@ -133,7 +134,7 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
-    public void updateFile(String fileId, InputStream inputStream, long size) throws BaseException {
+    public void updateFile(String fileId, InputStream inputStream, long size) throws AccountException {
         try {
             com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
             this.usedSize -= file.getInfo().getSize();
@@ -145,43 +146,54 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
-    public long downloadManifestFile(OutputStream outputStream) throws BaseException {
+    public long downloadManifest(OutputStream outputStream) throws AccountException {
         long size = 0;
 
         if (!isOmniDriveFolderExists()) {
             throw new BoxException("No 'OmniDrive' root folder exists");
         }
 
-        com.box.sdk.BoxFolder rootFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), getOmniDriveFolderId());
-        if (rootFolder != null) {
-            for (com.box.sdk.BoxItem.Info itemInfo : rootFolder.getChildren()) {
-                if (itemInfo.getName().equals(MANIFEST_FILE_NAME)) {
-                    String manifestId = itemInfo.getID();
-                    com.box.sdk.BoxFile manifestFile = new com.box.sdk.BoxFile(this.user.getAPI(), manifestId);
-                    if (manifestFile != null) {
-                        size = manifestFile.getInfo().getSize();
-                        manifestFile.download(outputStream);
-                        this.manifestFileId = manifestId;
-                        break;
-                    } else {
-                        throw new BoxException("Failed to download 'manifest' file");
-                    }
-                }
+        if (hasManifestId()) {
+            com.box.sdk.BoxFile manifestFile = new com.box.sdk.BoxFile(this.user.getAPI(), this.manifestFileId);
+            if (manifestFile != null) {
+                size = manifestFile.getInfo().getSize();
+                manifestFile.download(outputStream);
+            } else {
+                throw new BoxException("Failed to download 'manifest' file");
             }
         } else {
-            throw new BoxException("Failed to find root folder");
+            com.box.sdk.BoxFolder rootFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), getOmniDriveFolderId());
+            if (rootFolder != null) {
+                for (com.box.sdk.BoxItem.Info itemInfo : rootFolder.getChildren()) {
+                    if (itemInfo.getName().equals(MANIFEST_FILE_NAME)) {
+                        String manifestId = itemInfo.getID();
+                        com.box.sdk.BoxFile manifestFile = new com.box.sdk.BoxFile(this.user.getAPI(), manifestId);
+                        if (manifestFile != null) {
+                            size = manifestFile.getInfo().getSize();
+                            manifestFile.download(outputStream);
+                            this.manifestFileId = manifestId;
+                            break;
+                        } else {
+                            throw new BoxException("Failed to download 'manifest' file");
+                        }
+                    }
+                }
+            } else {
+                throw new BoxException("Failed to find root folder");
+            }
         }
 
         return size;
     }
 
     @Override
-    public void uploadManifest(InputStream inputStream, long size) throws BaseException {
-        uploadFile(MANIFEST_FILE_NAME, inputStream, size);
+    public void uploadManifest(InputStream inputStream, long size) throws AccountException {
+        this.manifestFileId = uploadFile(MANIFEST_FILE_NAME, inputStream, size);
     }
 
-    public void updateManifest(InputStream inputStream, long size) throws BaseException {
-        if (this.manifestFileId == null) {
+    @Override
+    public void updateManifest(InputStream inputStream, long size) throws AccountException {
+        if (!hasManifestId()) {
             throw new BoxException("Manifest file id does not exist");
         }
 
@@ -189,10 +201,15 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
-    public boolean manifestExists() throws BaseException {
+    public void removeManifest() throws AccountException {
+        removeManifest(AccountType.Box);
+    }
+
+    @Override
+    public boolean manifestExists() throws AccountException {
         boolean exists = false;
 
-        if (this.manifestFileId != null) {
+        if (hasManifestId()) {
             return true;
         }
 
@@ -205,6 +222,7 @@ public class BoxAccount extends BaseAccount {
             for (com.box.sdk.BoxItem.Info itemInfo : omniDriveFolder.getChildren()) {
                 if (itemInfo.getName().equals(MANIFEST_FILE_NAME)) {
                     exists = true;
+                    this.manifestFileId = itemInfo.getID();
                     break;
                 }
             }
@@ -216,7 +234,7 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
-    public long getQuotaUsedSize() throws BaseException {
+    public long getQuotaUsedSize() throws AccountException {
         long usedQuota = 0;
 
         try {
@@ -230,7 +248,7 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
-    public long getQuotaTotalSize() throws BaseException {
+    public long getQuotaTotalSize() throws AccountException {
         long totalQuota = 0;
 
         try {

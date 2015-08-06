@@ -24,7 +24,7 @@ public class LoginManager implements AuthListener {
         try {
             String authUrl = this.apiManager.login(type, this);
             if (authUrl != null) {
-                BaseApi api = this.apiManager.getApi(type);
+                CloudApi api = this.apiManager.getApi(type);
                 requestLogin(type, api, authUrl);
             } else {
                 failure(type, "Failed to get auth url.");
@@ -35,7 +35,7 @@ public class LoginManager implements AuthListener {
     }
 
     @Override
-    public void authenticated(AccountType type, BaseAccount account) {
+    public void authenticated(AccountType type, Account account) {
         if (this.authService != null) {
             this.authService.succeed(type, account);
         }
@@ -52,7 +52,7 @@ public class LoginManager implements AuthListener {
         // TODO - remove drive account from user
     }
 
-    private void requestLogin(AccountType type, BaseApi api, String authUrl) {
+    private void requestLogin(AccountType type, CloudApi api, String authUrl) {
         if (this.authService != null) {
             this.authService.attempt(type, api, authUrl);
         }

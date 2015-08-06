@@ -1,8 +1,7 @@
 package omnidrive.api.managers;
 
-import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.Account;
 import omnidrive.api.base.AccountType;
-import omnidrive.stub.Account;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -11,9 +10,9 @@ public class AccountsManagerTest {
 
     private AccountsManager accountsManager = new AccountsManager();
 
-    private BaseAccount account1 = new Account();
+    private Account account1 = new omnidrive.stub.Account();
 
-    private BaseAccount account2 = new Account();
+    private Account account2 = new omnidrive.stub.Account();
 
     @Test
     public void testGetAccountTypeForUnregisteredAccountReturnsNull() throws Exception {

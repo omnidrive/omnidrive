@@ -2,9 +2,9 @@ package omnidrive.api.dropbox;
 
 import com.dropbox.core.*;
 import javafx.scene.web.WebEngine;
-import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.BaseApi;
-import omnidrive.api.base.BaseException;
+import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudApi;
+import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -12,7 +12,7 @@ import org.w3c.dom.Element;
 import java.util.Locale;
 
 
-public class DropboxApi extends BaseApi {
+public class DropboxApi extends CloudApi {
 
     // Dropbox App Keys
     private static final String APP_NAME = "Dropbox";
@@ -31,7 +31,7 @@ public class DropboxApi extends BaseApi {
     }
 
     @Override
-    public BaseAccount createAccount(String accessToken) throws BaseException {
+    public Account createAccount(String accessToken) throws AccountException {
         return new DropboxAccount(this.config, accessToken);
     }
 
@@ -41,7 +41,7 @@ public class DropboxApi extends BaseApi {
     }
 
     @Override
-    public final void fetchAuthCode(WebEngine engine) throws BaseException {
+    public final void fetchAuthCode(WebEngine engine) throws AccountException {
         Document doc = engine.getDocument();
 
         if (doc != null) {
@@ -56,7 +56,7 @@ public class DropboxApi extends BaseApi {
     }
 
     @Override
-    public final void finishAuthProcess(String code) throws BaseException {
+    public final void finishAuthProcess(String code) throws AccountException {
         try {
             DbxAuthFinish authFinish = this.auth.finish(code);
             DropboxAccount dbxAccount = new DropboxAccount(this.config, authFinish.accessToken);

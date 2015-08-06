@@ -7,10 +7,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
-import omnidrive.api.base.BaseApi;
-import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.CloudApi;
+import omnidrive.api.base.Account;
 import omnidrive.api.base.AccountType;
-import omnidrive.api.base.BaseException;
+import omnidrive.api.base.AccountException;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.api.managers.LoginManager;
 import omnidrive.api.auth.AuthService;
@@ -85,7 +85,7 @@ public class AccountsController implements Initializable, AuthService, Runnable 
     }
 
     @Override
-    public void attempt(AccountType type, BaseApi api, String authUrl) {
+    public void attempt(AccountType type, CloudApi api, String authUrl) {
         this.loginView.show(this.loginManager, api, type, authUrl);
     }
 
@@ -95,7 +95,7 @@ public class AccountsController implements Initializable, AuthService, Runnable 
     }
 
     @Override
-    public void succeed(AccountType type, BaseAccount account) {
+    public void succeed(AccountType type, Account account) {
         this.accountsManager.setAccount(type, account);
         addAccountToListView(type);
         this.loginView.close();
@@ -119,7 +119,7 @@ public class AccountsController implements Initializable, AuthService, Runnable 
         try {
             Float freeSpace = new Float((double)this.accountsManager.getCloudFreeSize() / (1024.0 * 1024.0 * 1024.0));
             this.freeSizeLabel.setText("Cloud Free Space: " + String.format("%.03f GB", freeSpace));
-        } catch (BaseException ex) {
+        } catch (AccountException ex) {
             System.out.println("Failed to fetch cloud free space");
         }
     }
@@ -128,7 +128,7 @@ public class AccountsController implements Initializable, AuthService, Runnable 
         try {
             Float totalSize = new Float((double)this.accountsManager.getCloudTotalSize() / (1024.0 * 1024.0 * 1024.0));
             this.totalSizeLabel.setText("Cloud Total Size: " + String.format("%.03f GB", totalSize));
-        } catch (BaseException ex) {
+        } catch (AccountException ex) {
             System.out.println("Failed to fetch cloud total size");
         }
     }

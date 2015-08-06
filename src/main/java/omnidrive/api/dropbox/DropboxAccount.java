@@ -1,8 +1,9 @@
 package omnidrive.api.dropbox;
 
 import com.dropbox.core.*;
-import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.BaseException;
+import omnidrive.api.base.Account;
+import omnidrive.api.base.AccountException;
+import omnidrive.api.base.AccountType;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,7 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 
-public class DropboxAccount extends BaseAccount {
+public class DropboxAccount extends Account {
 
     private final DbxClient client;
 
@@ -19,7 +20,7 @@ public class DropboxAccount extends BaseAccount {
     }
 
     @Override
-    protected void createRootFolder() throws BaseException {
+    protected void createRootFolder() throws AccountException {
         if (!isOmniDriveFolderExists()) {
             try {
                 DbxEntry.Folder rootFolder = this.client.createFolder(OMNIDRIVE_ROOT_FOLDER_PATH);
@@ -35,7 +36,7 @@ public class DropboxAccount extends BaseAccount {
     }
 
     @Override
-    protected String getOmniDriveFolderId() throws BaseException {
+    protected String getOmniDriveFolderId() throws AccountException {
         if (this.omniDriveFolderId != null) {
             return this.omniDriveFolderId;
         }
@@ -81,7 +82,7 @@ public class DropboxAccount extends BaseAccount {
     }
 
     @Override
-    public String uploadFile(String name, InputStream inputStream, long size) throws BaseException {
+    public String uploadFile(String name, InputStream inputStream, long size) throws AccountException {
         String fileName = null;
 
         try {
@@ -102,7 +103,7 @@ public class DropboxAccount extends BaseAccount {
     }
 
     @Override
-    public long downloadFile(String name, OutputStream outputStream) throws BaseException {
+    public long downloadFile(String name, OutputStream outputStream) throws AccountException {
         long size = 0;
 
         try {
@@ -120,7 +121,7 @@ public class DropboxAccount extends BaseAccount {
     }
 
     @Override
-    public void removeFile(String name) throws BaseException {
+    public void removeFile(String name) throws AccountException {
         try {
             DbxEntry entry = this.client.getMetadata(getFullPath(name));
             if (entry.isFile()) {
@@ -136,14 +137,18 @@ public class DropboxAccount extends BaseAccount {
     }
 
     @Override
-    public void updateFile(String name, InputStream inputStream, long size) throws BaseException {
+    public void updateFile(String name, InputStream inputStream, long size) throws AccountException {
         try {
             DbxEntry entry = this.client.getMetadata(getFullPath(name));
             if (entry != null) {
                 if (entry.isFile()) {
                     this.usedSize -= entry.asFile().numBytes;
-                    this.client.uploadFile(entry.asFile().path, DbxWriteMode.update(entry.asFile().rev), size, inputStream);
-                    this.usedSize += size;
+                    DbxEntry.File updatedFile = this.client.uploadFile(entry.asFile().path, DbxWriteMode.update(entry.asFile().rev), size, inputStream);
+                    if (updatedFile != null) {
+                        this.usedSize += updatedFile.numBytes;
+                    } else {
+                        throw new DropboxException("Failed to update file");
+                    }
                 } else {
                     throw new DropboxException("Not a file.");
                 }
@@ -158,7 +163,7 @@ public class DropboxAccount extends BaseAccount {
     }
 
     @Override
-    public void removeFolder(String name) throws BaseException {
+    public void removeFolder(String name) throws AccountException {
         try {
             DbxEntry entry = this.client.getMetadata(getFullPath(name));
             if (entry != null) {
@@ -177,36 +182,27 @@ public class DropboxAccount extends BaseAccount {
     }
 
     @Override
-    public long downloadManifestFile(OutputStream outputStream) throws BaseException {
+    public long downloadManifest(OutputStream outputStream) throws AccountException {
         long size = 0;
 
         if (!isOmniDriveFolderExists()) {
             throw new DropboxException("No 'OmniDrive' root folder exists");
         }
 
-        try {
-            DbxEntry.File dbxFile = this.client.getFile(getFullPath(MANIFEST_FILE_NAME), null, outputStream);
-            if (dbxFile != null) {
-                size = dbxFile.numBytes;
-                this.manifestFileId = dbxFile.name;
-            }
-        } catch (DbxException ex) {
-            throw new DropboxException("Failed to download manifest file.");
-        } catch (IOException ex) {
-            throw new DropboxException("Failed to find manifest file.");
-        }
+        this.manifestFileId = MANIFEST_FILE_NAME;
+        size = downloadFile(this.manifestFileId, outputStream);
 
         return size;
     }
 
     @Override
-    public void uploadManifest(InputStream inputStream, long size) throws BaseException {
-        uploadFile(MANIFEST_FILE_NAME, inputStream, size);
+    public void uploadManifest(InputStream inputStream, long size) throws AccountException {
+        this.manifestFileId = uploadFile(MANIFEST_FILE_NAME, inputStream, size);
     }
 
     @Override
-    public void updateManifest(InputStream inputStream, long size) throws BaseException {
-        if (this.manifestFileId == null) {
+    public void updateManifest(InputStream inputStream, long size) throws AccountException {
+        if (!hasManifestId()) {
             throw new DropboxException("Manifest file id does not exist");
         }
 
@@ -214,19 +210,28 @@ public class DropboxAccount extends BaseAccount {
     }
 
     @Override
-    public boolean manifestExists() throws BaseException {
+    public void removeManifest() throws AccountException {
+        removeManifest(AccountType.Dropbox);
+    }
+
+    @Override
+    public boolean manifestExists() throws AccountException {
         boolean exists = false;
 
-        if (this.manifestFileId != null) {
+        if (hasManifestId()) {
             return true;
         }
 
         try {
-            DbxEntry.WithChildren entryWithChildren = this.client.getMetadataWithChildren(getFullPath(getOmniDriveFolderId()));
+            DbxEntry.WithChildren entryWithChildren = this.client.getMetadataWithChildren(OMNIDRIVE_ROOT_FOLDER_PATH);
+            if (entryWithChildren == null) {
+                throw new DropboxException("Failed to get 'OmniDrive' folder");
+            }
             for (DbxEntry child : entryWithChildren.children) {
                 if (child.isFile()) {
                     if (child.name.equals(MANIFEST_FILE_NAME)) {
                         exists = true;
+                        this.manifestFileId = child.name;
                         break;
                     }
                 }
@@ -239,7 +244,7 @@ public class DropboxAccount extends BaseAccount {
     }
 
     @Override
-    public long getQuotaUsedSize() throws BaseException {
+    public long getQuotaUsedSize() throws AccountException {
         long usedQuota;
 
         try {
@@ -253,7 +258,7 @@ public class DropboxAccount extends BaseAccount {
     }
 
     @Override
-    public long getQuotaTotalSize() throws BaseException {
+    public long getQuotaTotalSize() throws AccountException {
         long totalQuota;
 
         try {

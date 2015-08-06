@@ -1,15 +1,15 @@
 package omnidrive.api.auth;
 
-import omnidrive.api.base.BaseApi;
-import omnidrive.api.base.BaseAccount;
+import omnidrive.api.base.CloudApi;
+import omnidrive.api.base.Account;
 import omnidrive.api.base.AccountType;
 
 public interface AuthService {
 
-    void attempt(AccountType type, BaseApi api, String authUrl);
+    void attempt(AccountType type, CloudApi api, String authUrl);
 
     void report(AccountType type, String message);
 
-    void succeed(AccountType type, BaseAccount account);
+    void succeed(AccountType type, Account account);
 
 }

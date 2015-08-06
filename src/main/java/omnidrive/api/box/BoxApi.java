@@ -1,14 +1,14 @@
 package omnidrive.api.box;
 
 import javafx.scene.web.WebEngine;
-import omnidrive.api.base.BaseAccount;
-import omnidrive.api.base.BaseApi;
+import omnidrive.api.base.Account;
+import omnidrive.api.base.CloudApi;
 
 import com.box.sdk.BoxAPIConnection;
-import omnidrive.api.base.BaseException;
+import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
 
-public class BoxApi extends BaseApi {
+public class BoxApi extends CloudApi {
 
     // BOX App Keys
     private static final String APP_NAME = "Box";
@@ -24,7 +24,7 @@ public class BoxApi extends BaseApi {
     }
 
     @Override
-    public BaseAccount createAccount(String accessToken) throws BaseException {
+    public Account createAccount(String accessToken) throws AccountException {
         final BoxAPIConnection conn = new BoxAPIConnection(accessToken);
         return new BoxAccount(conn);
     }
@@ -40,7 +40,7 @@ public class BoxApi extends BaseApi {
     }
 
     @Override
-    public final void fetchAuthCode(WebEngine engine) throws BaseException {
+    public final void fetchAuthCode(WebEngine engine) throws AccountException {
         String url = engine.getLocation();
         if (url.contains(REDIRECT_URI) && url.contains("code=")) {
             int codeStringIdx = url.indexOf("code=");
@@ -50,7 +50,7 @@ public class BoxApi extends BaseApi {
     }
 
     @Override
-    public final void finishAuthProcess(String code) throws BaseException {
+    public final void finishAuthProcess(String code) throws AccountException {
         this.connection.authenticate(code);
         this.connection.setAutoRefresh(true);
         BoxAccount boxAccount = new BoxAccount(this.connection);
