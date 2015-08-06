@@ -5,6 +5,7 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.ParentReference;
+import omnidrive.api.base.AccountMetadata;
 import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
@@ -24,6 +25,24 @@ public class GoogleDriveAccount extends CloudAccount {
 
     public GoogleDriveAccount(Drive service) {
         this.service = service;
+        try {
+            this.metadata = new AccountMetadata(this.service.about().get().getOauthToken(), null);
+        } catch (IOException ex) {
+            System.out.println("Failed to fetch user's access token");
+        }
+    }
+
+    @Override
+    protected void fetchMetadata() throws AccountException {
+        try {
+            if (manifestExists()) {
+                this.metadata = new AccountMetadata(this.service.about().get().getOauthToken(), this.manifestFileId);
+            } else {
+                this.metadata = new AccountMetadata(this.service.about().get().getOauthToken(), null);
+            }
+        } catch (IOException ex) {
+            System.out.println("Failed to fetch user's access token");
+        }
     }
 
     @Override

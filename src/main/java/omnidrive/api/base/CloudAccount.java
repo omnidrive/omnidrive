@@ -9,6 +9,8 @@ public abstract class CloudAccount {
     protected static final String OMNIDRIVE_ROOT_FOLDER_NAME = ".omnidrive";
     protected static final String OMNIDRIVE_ROOT_FOLDER_PATH = "/" + OMNIDRIVE_ROOT_FOLDER_NAME;
 
+    protected AccountMetadata metadata;
+
     protected String omniDriveFolderId = null;
     protected String manifestFileId = null;
 
@@ -25,6 +27,7 @@ public abstract class CloudAccount {
 
     public void initialize() throws AccountException {
         createRootFolder();
+        fetchMetadata();
         this.usedSize = getQuotaUsedSize();
         this.totalSize = getQuotaTotalSize();
     }
@@ -32,6 +35,8 @@ public abstract class CloudAccount {
     protected boolean isOmniDriveFolderExists() throws AccountException {
         return getOmniDriveFolderId() != null;
     }
+
+    protected abstract void fetchMetadata() throws AccountException;
 
     protected abstract void createRootFolder() throws AccountException;
 
@@ -91,5 +96,9 @@ public abstract class CloudAccount {
 
     public long getCachedQuotaRemainingSize() {
         return this.totalSize - this.usedSize;
+    }
+
+    public AccountMetadata getMetadata() {
+        return this.metadata;
     }
 }

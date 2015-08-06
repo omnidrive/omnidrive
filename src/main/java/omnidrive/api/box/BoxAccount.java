@@ -3,6 +3,7 @@ package omnidrive.api.box;
 import com.box.sdk.BoxAPIConnection;
 import com.box.sdk.BoxAPIException;
 import com.box.sdk.BoxFile.Info;
+import omnidrive.api.base.AccountMetadata;
 import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
@@ -16,6 +17,15 @@ public class BoxAccount extends CloudAccount {
 
     public BoxAccount(BoxAPIConnection connection) {
         this.user = new com.box.sdk.BoxUser(connection, com.box.sdk.BoxUser.getCurrentUser(connection).getID());
+    }
+
+    @Override
+    protected void fetchMetadata() throws AccountException {
+        if (manifestExists()) {
+            this.metadata = new AccountMetadata(this.user.getAPI().getAccessToken(), this.manifestFileId);
+        } else {
+            this.metadata = new AccountMetadata(this.user.getAPI().getAccessToken(), null);
+        }
     }
 
     @Override

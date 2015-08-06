@@ -28,6 +28,11 @@ public class Account extends CloudAccount {
     }
 
     @Override
+    protected void fetchMetadata() throws AccountException {
+
+    }
+
+    @Override
     protected void createRootFolder() throws AccountException {
 
     }

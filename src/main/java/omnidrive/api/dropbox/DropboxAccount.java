@@ -1,6 +1,7 @@
 package omnidrive.api.dropbox;
 
 import com.dropbox.core.*;
+import omnidrive.api.base.AccountMetadata;
 import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
@@ -17,6 +18,15 @@ public class DropboxAccount extends CloudAccount {
 
     public DropboxAccount(DbxRequestConfig config, String accessToken) {
         this.client = new DbxClient(config, accessToken);
+    }
+
+    @Override
+    protected void fetchMetadata() throws AccountException {
+        if (manifestExists()) {
+            this.metadata = new AccountMetadata(this.client.getAccessToken(), this.manifestFileId);
+        } else {
+            this.metadata = new AccountMetadata(this.client.getAccessToken(), null);
+        }
     }
 
     @Override
