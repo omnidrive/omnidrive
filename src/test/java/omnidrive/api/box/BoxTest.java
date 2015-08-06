@@ -23,7 +23,7 @@ public class BoxTest {
 
     private static final String LOCAL_DOWNLOAD_PATH = "/Users/assafey/Downloads";
 
-    private static final String BOX_TOKEN = "BqNOxBoXauStdFGcmQWcGFWE2z83tbun";
+    private static final String BOX_TOKEN = "GifgIzRYVqjgQR1RG2oZEnbCDIbzXYrJ";
 
     private static final BoxAPIConnection conn = new BoxAPIConnection(BOX_TOKEN);
 

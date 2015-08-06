@@ -1,6 +1,7 @@
 package omnidrive.api.dropbox;
 
 import com.dropbox.core.DbxRequestConfig;
+import omnidrive.api.base.AccountMetadata;
 import omnidrive.api.base.CloudAccount;
 
 import omnidrive.api.base.AccountException;
@@ -111,6 +112,10 @@ public class DropboxTest {
         fileInputStream = new FileInputStream(file);
 
         account.updateManifest(fileInputStream, file.length());
+
+        AccountMetadata metadata = account.getMetadata();
+        assertNotNull(metadata.getManifestId());
+        assertNotNull(metadata.getAccessToken());
 
         // remove manifest
         account.removeManifest();

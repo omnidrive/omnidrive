@@ -58,7 +58,7 @@ public class GoogleDriveApi extends CloudApi {
         //Create a new authorized API client
         Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("omnidrive").build();
 
-        return new GoogleDriveAccount(service);
+        return new GoogleDriveAccount(service, accessToken);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class GoogleDriveApi extends CloudApi {
 
             //Create a new authorized API client
             Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("omnidrive").build();
-            GoogleDriveAccount googleAccount = new GoogleDriveAccount(service);
+            GoogleDriveAccount googleAccount = new GoogleDriveAccount(service, credential.getAccessToken());
             googleAccount.initialize();
             notifyAll(AccountType.GoogleDrive, googleAccount);
         } catch (IOException ex) {

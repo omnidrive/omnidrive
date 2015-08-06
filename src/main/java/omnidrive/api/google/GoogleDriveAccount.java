@@ -22,26 +22,19 @@ public class GoogleDriveAccount extends CloudAccount {
     private static final String GoogleFolderKind = "drive#parentReference";
 
     private Drive service;
+    private String accessToken;
 
-    public GoogleDriveAccount(Drive service) {
+    public GoogleDriveAccount(Drive service, String accessToken) {
         this.service = service;
-        try {
-            this.metadata = new AccountMetadata(this.service.about().get().getOauthToken(), null);
-        } catch (IOException ex) {
-            System.out.println("Failed to fetch user's access token");
-        }
+        this.accessToken = accessToken;
     }
 
     @Override
     protected void fetchMetadata() throws AccountException {
-        try {
-            if (manifestExists()) {
-                this.metadata = new AccountMetadata(this.service.about().get().getOauthToken(), this.manifestFileId);
-            } else {
-                this.metadata = new AccountMetadata(this.service.about().get().getOauthToken(), null);
-            }
-        } catch (IOException ex) {
-            System.out.println("Failed to fetch user's access token");
+        if (manifestExists()) {
+            this.metadata = new AccountMetadata(this.accessToken, getManifestId());
+        } else {
+            this.metadata = new AccountMetadata(this.accessToken, null);
         }
     }
 
@@ -195,7 +188,7 @@ public class GoogleDriveAccount extends CloudAccount {
 
         try {
             if (hasManifestId()) {
-                size = downloadFile(this.manifestFileId, outputStream);
+                size = downloadFile(getManifestId(), outputStream);
             } else {
                 String query = "title = '" + MANIFEST_FILE_NAME + "' and '" + getOmniDriveFolderId() + "' in parents";
                 Drive.Files.List request = this.service.files().list().setQ(query);
@@ -204,7 +197,7 @@ public class GoogleDriveAccount extends CloudAccount {
                 for (File manifestFile : files.getItems()) {
                     size = manifestFile.getFileSize();
                     this.service.files().get(manifestFile.getId()).executeMediaAndDownloadTo(outputStream);
-                    this.manifestFileId = manifestFile.getId();
+                    setManifestId(manifestFile.getId());
                     break;
                 }
             }
@@ -216,7 +209,8 @@ public class GoogleDriveAccount extends CloudAccount {
     }
 
     public void uploadManifest(InputStream inputStream, long size) throws AccountException {
-        this.manifestFileId = uploadFile(MANIFEST_FILE_NAME, inputStream, size);
+        String manifestFileId = uploadFile(MANIFEST_FILE_NAME, inputStream, size);
+        setManifestId(manifestFileId);
     }
 
     public void updateManifest(InputStream inputStream, long size) throws AccountException {
@@ -224,7 +218,7 @@ public class GoogleDriveAccount extends CloudAccount {
             throw new GoogleDriveException("Manifest file id does not exist");
         }
 
-        updateFile(this.manifestFileId, inputStream, size);
+        updateFile(getManifestId(), inputStream, size);
     }
 
     @Override
@@ -245,7 +239,7 @@ public class GoogleDriveAccount extends CloudAccount {
 
             for (File file : request.execute().getItems()) {
                 if (file.getTitle().equals(MANIFEST_FILE_NAME)) {
-                    this.manifestFileId = file.getId();
+                    setManifestId(file.getId());
                     exists = true;
                     break;
                 }

@@ -12,10 +12,13 @@ public abstract class CloudAccount {
     protected AccountMetadata metadata;
 
     protected String omniDriveFolderId = null;
-    protected String manifestFileId = null;
 
     protected long totalSize = 0;
     protected long usedSize = 0;
+
+    protected CloudAccount() {
+        metadata = new AccountMetadata();
+    }
 
     protected String getFullRootFolderPath() {
         return OMNIDRIVE_ROOT_FOLDER_PATH + "/";
@@ -65,15 +68,15 @@ public abstract class CloudAccount {
     public abstract void removeManifest() throws AccountException;
 
     protected void removeManifest(AccountType accountType) throws AccountException {
-        if (this.manifestFileId == null) {
+        if (!hasManifestId()) {
             throw new AccountException(accountType, "Manifest file not exists.");
         }
 
-        removeFile(this.manifestFileId);
+        removeFile(getManifestId());
     }
 
     protected boolean hasManifestId() {
-        return this.manifestFileId != null;
+        return getManifestId() != null;
     }
 
     public abstract boolean manifestExists() throws AccountException;
@@ -98,7 +101,20 @@ public abstract class CloudAccount {
         return this.totalSize - this.usedSize;
     }
 
+    protected String getManifestId() {
+        return this.metadata.getManifestId();
+    }
+
     public AccountMetadata getMetadata() {
         return this.metadata;
+    }
+
+    public void setManifestId(String manifestId) {
+        if (this.metadata != null) {
+            this.metadata.setManifestId(manifestId);
+        } else {
+            this.metadata = new AccountMetadata();
+            this.metadata.setManifestId(manifestId);
+        }
     }
 }

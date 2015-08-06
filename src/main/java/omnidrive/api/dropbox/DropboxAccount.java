@@ -23,7 +23,7 @@ public class DropboxAccount extends CloudAccount {
     @Override
     protected void fetchMetadata() throws AccountException {
         if (manifestExists()) {
-            this.metadata = new AccountMetadata(this.client.getAccessToken(), this.manifestFileId);
+            this.metadata = new AccountMetadata(this.client.getAccessToken(), getManifestId());
         } else {
             this.metadata = new AccountMetadata(this.client.getAccessToken(), null);
         }
@@ -199,15 +199,16 @@ public class DropboxAccount extends CloudAccount {
             throw new DropboxException("No 'OmniDrive' root folder exists");
         }
 
-        this.manifestFileId = MANIFEST_FILE_NAME;
-        size = downloadFile(this.manifestFileId, outputStream);
+        setManifestId(MANIFEST_FILE_NAME);
+        size = downloadFile(getManifestId(), outputStream);
 
         return size;
     }
 
     @Override
     public void uploadManifest(InputStream inputStream, long size) throws AccountException {
-        this.manifestFileId = uploadFile(MANIFEST_FILE_NAME, inputStream, size);
+        String manifestFileId = uploadFile(MANIFEST_FILE_NAME, inputStream, size);
+        setManifestId(manifestFileId);
     }
 
     @Override
@@ -216,7 +217,7 @@ public class DropboxAccount extends CloudAccount {
             throw new DropboxException("Manifest file id does not exist");
         }
 
-        updateFile(this.manifestFileId, inputStream, size);
+        updateFile(getManifestId(), inputStream, size);
     }
 
     @Override
@@ -241,7 +242,7 @@ public class DropboxAccount extends CloudAccount {
                 if (child.isFile()) {
                     if (child.name.equals(MANIFEST_FILE_NAME)) {
                         exists = true;
-                        this.manifestFileId = child.name;
+                        setManifestId(child.name);
                         break;
                     }
                 }

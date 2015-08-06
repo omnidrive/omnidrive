@@ -22,7 +22,7 @@ public class BoxAccount extends CloudAccount {
     @Override
     protected void fetchMetadata() throws AccountException {
         if (manifestExists()) {
-            this.metadata = new AccountMetadata(this.user.getAPI().getAccessToken(), this.manifestFileId);
+            this.metadata = new AccountMetadata(this.user.getAPI().getAccessToken(), getManifestId());
         } else {
             this.metadata = new AccountMetadata(this.user.getAPI().getAccessToken(), null);
         }
@@ -164,7 +164,7 @@ public class BoxAccount extends CloudAccount {
         }
 
         if (hasManifestId()) {
-            com.box.sdk.BoxFile manifestFile = new com.box.sdk.BoxFile(this.user.getAPI(), this.manifestFileId);
+            com.box.sdk.BoxFile manifestFile = new com.box.sdk.BoxFile(this.user.getAPI(), getManifestId());
             if (manifestFile != null) {
                 size = manifestFile.getInfo().getSize();
                 manifestFile.download(outputStream);
@@ -181,7 +181,7 @@ public class BoxAccount extends CloudAccount {
                         if (manifestFile != null) {
                             size = manifestFile.getInfo().getSize();
                             manifestFile.download(outputStream);
-                            this.manifestFileId = manifestId;
+                            setManifestId(manifestId);
                             break;
                         } else {
                             throw new BoxException("Failed to download 'manifest' file");
@@ -198,7 +198,8 @@ public class BoxAccount extends CloudAccount {
 
     @Override
     public void uploadManifest(InputStream inputStream, long size) throws AccountException {
-        this.manifestFileId = uploadFile(MANIFEST_FILE_NAME, inputStream, size);
+        String manifestFileId = uploadFile(MANIFEST_FILE_NAME, inputStream, size);
+        setManifestId(manifestFileId);
     }
 
     @Override
@@ -207,7 +208,7 @@ public class BoxAccount extends CloudAccount {
             throw new BoxException("Manifest file id does not exist");
         }
 
-        updateFile(this.manifestFileId, inputStream, size);
+        updateFile(getManifestId(), inputStream, size);
     }
 
     @Override
@@ -232,7 +233,7 @@ public class BoxAccount extends CloudAccount {
             for (com.box.sdk.BoxItem.Info itemInfo : omniDriveFolder.getChildren()) {
                 if (itemInfo.getName().equals(MANIFEST_FILE_NAME)) {
                     exists = true;
-                    this.manifestFileId = itemInfo.getID();
+                    setManifestId(itemInfo.getID());
                     break;
                 }
             }

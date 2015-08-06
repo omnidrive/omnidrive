@@ -5,8 +5,8 @@ public class AccountMetadata {
     private String manifestId;
 
     public AccountMetadata() {
-        this.accessToken = "";
-        this.manifestId = "";
+        this.accessToken = null;
+        this.manifestId = null;
     }
 
     public AccountMetadata(String accessToken, String manifestId) {

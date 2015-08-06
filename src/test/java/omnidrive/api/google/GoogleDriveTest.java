@@ -32,7 +32,7 @@ public class GoogleDriveTest {
     private static final String CLIENT_SECRET = "57T8iW2bKRFZJSiX69Dr4cQV";
     private static final String REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
 
-    private static final String GOOGLE_TOKEN = "ya29.xwEWEXjowVIh8CorAW88ImYEaCvah7YrePtW3gKat5bDg0SX3XXtX8PRcyvNpMtyyqeV";
+    private static final String GOOGLE_TOKEN = "ya29.xwGdukDW6dqeYoWkU-lHyHu-WhTpcA4elvWyyewh-2HrfT_GpBs7m096CFCGvFzpx5Jk";
 
     private static CloudAccount account = null;
 
@@ -50,7 +50,7 @@ public class GoogleDriveTest {
             //Create a new authorized API client
             Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("omnidrive").build();
 
-            account = new GoogleDriveAccount(service);
+            account = new GoogleDriveAccount(service, GOOGLE_TOKEN);
 
             try {
                 account.initialize();
