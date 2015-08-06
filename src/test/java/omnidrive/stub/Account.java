@@ -87,6 +87,21 @@ public class Account extends BaseAccount {
     }
 
     @Override
+    public void uploadManifest(InputStream inputStream, long size) throws BaseException {
+
+    }
+
+    @Override
+    public void updateManifest(InputStream inputStream, long size) throws BaseException {
+
+    }
+
+    @Override
+    public boolean manifestExists() throws BaseException {
+        return false;
+    }
+
+    @Override
     public long getQuotaUsedSize() throws BaseException {
         return usedSize;
     }

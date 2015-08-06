@@ -41,9 +41,10 @@ public class GoogleDriveAccount extends BaseAccount {
     }
 
     @Override
-    public String getOmniDriveFolderId() throws BaseException {
-        if (this.omniDriveFolderId != null)
+    protected String getOmniDriveFolderId() throws BaseException {
+        if (this.omniDriveFolderId != null) {
             return this.omniDriveFolderId;
+        }
 
         try {
             String query = "title = '" + OMNIDRIVE_ROOT_FOLDER_NAME + "' and mimeType = '" + MimeTypeFolder + "'";
@@ -102,6 +103,7 @@ public class GoogleDriveAccount extends BaseAccount {
         try {
             File uploadedFile = this.service.files().insert(body, mediaContent).execute();
             fileId = uploadedFile.getId();
+            this.usedSize += uploadedFile.getFileSize();
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to upload file");
         }
@@ -128,7 +130,10 @@ public class GoogleDriveAccount extends BaseAccount {
     @Override
     public void removeFile(String fileId) throws BaseException {
         try {
+            File file = this.service.files().get(fileId).execute();
+            long fileSize = file.getFileSize();
             this.service.files().delete(fileId).execute();
+            this.usedSize -= fileSize;
         } catch (IOException ex) {
             throw new GoogleDriveException(ex.getMessage());
         }
@@ -144,6 +149,7 @@ public class GoogleDriveAccount extends BaseAccount {
         try {
             // First retrieve the file from the API.
             File file = service.files().get(fileId).execute();
+            this.usedSize -= file.getFileSize();
 
             // File's new content.
             AbstractInputStreamContent mediaContent = new InputStreamContent(MimeTypeFile, inputStream);
@@ -153,6 +159,7 @@ public class GoogleDriveAccount extends BaseAccount {
             if (updatedFile == null) {
                 throw new GoogleDriveException("Failed to update file");
             }
+            this.usedSize += updatedFile.getFileSize();
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to get file.");
         }
@@ -167,8 +174,7 @@ public class GoogleDriveAccount extends BaseAccount {
         }
 
         try {
-            String manifestFilename = "manifest";
-            String query = "title = '" + manifestFilename + "' and '" + getOmniDriveFolderId() + "' in parents";
+            String query = "title = '" + MANIFEST_FILE_NAME + "' and '" + getOmniDriveFolderId() + "' in parents";
             Drive.Files.List request = this.service.files().list().setQ(query);
 
             FileList files = request.execute();
@@ -184,12 +190,40 @@ public class GoogleDriveAccount extends BaseAccount {
         return size;
     }
 
+    public void uploadManifest(InputStream inputStream, long size) throws BaseException {
+        uploadFile(MANIFEST_FILE_NAME, inputStream, size);
+    }
+
+    public void updateManifest(InputStream inputStream, long size) throws BaseException {
+        if (this.manifestFileId == null) {
+            throw new GoogleDriveException("Manifest file id does not exist");
+        }
+
+        updateFile(this.manifestFileId, inputStream, size);
+    }
+
+    public boolean manifestExists() throws BaseException {
+        boolean exists = false;
+
+        try {
+            HttpResponse response = this.service.parents().get(this.manifestFileId, getOmniDriveFolderId()).executeUsingHead();
+            if (response.getStatusCode() == 200) {
+                exists = true;
+            }
+        } catch (IOException ex) {
+            throw new GoogleDriveException("Failed to fetch manifest file");
+        }
+
+        return exists;
+    }
+
     @Override
     public long getQuotaUsedSize() throws BaseException {
         long usedQuota;
 
         try {
             usedQuota = this.service.about().get().execute().getQuotaBytesUsed();
+            this.usedSize = usedQuota;
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to get quota used size.");
         }
@@ -203,6 +237,7 @@ public class GoogleDriveAccount extends BaseAccount {
 
         try {
             totalQuota = this.service.about().get().execute().getQuotaBytesTotal();
+            this.totalSize = totalQuota;
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to get quota total size.");
         }

@@ -23,7 +23,7 @@ import java.util.ResourceBundle;
 
 public class AccountsController implements Initializable, AuthService, Runnable {
 
-    private static final int SIZE_UPDATER_SLEEP_TIME = 30000; //msec
+    private static final int SIZE_UPDATER_SLEEP_TIME = 10000; //msec
 
     private static final int NUM_OF_ACCOUNTS = AccountType.length();
 
@@ -99,14 +99,14 @@ public class AccountsController implements Initializable, AuthService, Runnable 
         this.accountsManager.setAccount(type, account);
         addAccountToListView(type);
         this.loginView.close();
-        fetchCloudSize();
+        fetchCloudTotalSize();
+        fetchCloudFreeSpace();
     }
 
     @Override
     public void run() {
         while (true) {
-            fetchCloudSize();
-
+            fetchCloudFreeSpace();
             try {
                 Thread.sleep(SIZE_UPDATER_SLEEP_TIME);
             } catch (InterruptedException ex) {
@@ -115,15 +115,21 @@ public class AccountsController implements Initializable, AuthService, Runnable 
         }
     }
 
-    private void fetchCloudSize() {
+    private void fetchCloudFreeSpace() {
         try {
-            Float totalSize = new Float((double)this.accountsManager.getUsedSpaceSize() / (1024.0 * 1024.0 * 1024.0));
-            Float freeSpace = new Float((double)this.accountsManager.getFreeSpaceSize() / (1024.0 * 1024.0 * 1024.0));
-
-            this.totalSizeLabel.setText("Cloud Total Size: " + String.format("%.03f GB", totalSize));
+            Float freeSpace = new Float((double)this.accountsManager.getCloudFreeSize() / (1024.0 * 1024.0 * 1024.0));
             this.freeSizeLabel.setText("Cloud Free Space: " + String.format("%.03f GB", freeSpace));
         } catch (BaseException ex) {
-            System.out.println("Failed to fetch cloud size");
+            System.out.println("Failed to fetch cloud free space");
+        }
+    }
+
+    private void fetchCloudTotalSize() {
+        try {
+            Float totalSize = new Float((double)this.accountsManager.getCloudTotalSize() / (1024.0 * 1024.0 * 1024.0));
+            this.totalSizeLabel.setText("Cloud Total Size: " + String.format("%.03f GB", totalSize));
+        } catch (BaseException ex) {
+            System.out.println("Failed to fetch cloud total size");
         }
     }
 

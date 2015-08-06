@@ -35,15 +35,16 @@ public class DropboxAccount extends BaseAccount {
     }
 
     @Override
-    public String getOmniDriveFolderId() throws BaseException {
-        if (this.omniDriveFolderId != null)
+    protected String getOmniDriveFolderId() throws BaseException {
+        if (this.omniDriveFolderId != null) {
             return this.omniDriveFolderId;
+        }
 
         try {
             DbxEntry rootEntry = this.client.getMetadata(OMNIDRIVE_ROOT_FOLDER_PATH);
             if (rootEntry != null) {
                 if (rootEntry.isFolder()) {
-                    this.omniDriveFolderId = rootEntry.path;
+                    this.omniDriveFolderId = rootEntry.name;
                 }
             }
         } catch (DbxException ex1) {
@@ -87,6 +88,7 @@ public class DropboxAccount extends BaseAccount {
             DbxEntry.File file = this.client.uploadFile(getFullPath(name), DbxWriteMode.add(), size, inputStream);
             if (file != null) {
                 fileName = file.asFile().name;
+                this.usedSize += file.numBytes;
             }
         } catch (FileNotFoundException ex) {
             throw new DropboxException("Input file not found.");
@@ -105,7 +107,9 @@ public class DropboxAccount extends BaseAccount {
 
         try {
             DbxEntry.File dbxFile = this.client.getFile(getFullPath(name), null, outputStream);
-            size = dbxFile.numBytes;
+            if (dbxFile != null) {
+                size = dbxFile.numBytes;
+            }
         } catch (IOException ex) {
             throw new DropboxException("Failed to download file.");
         } catch (DbxException ex) {
@@ -120,7 +124,9 @@ public class DropboxAccount extends BaseAccount {
         try {
             DbxEntry entry = this.client.getMetadata(getFullPath(name));
             if (entry.isFile()) {
+                long fileSize = entry.asFile().numBytes;
                 this.client.delete(getFullPath(name));
+                this.usedSize -= fileSize;
             } else {
                 throw new DropboxException("Not a file.");
             }
@@ -135,7 +141,9 @@ public class DropboxAccount extends BaseAccount {
             DbxEntry entry = this.client.getMetadata(getFullPath(name));
             if (entry != null) {
                 if (entry.isFile()) {
+                    this.usedSize -= entry.asFile().numBytes;
                     this.client.uploadFile(entry.asFile().path, DbxWriteMode.update(entry.asFile().rev), size, inputStream);
+                    this.usedSize += size;
                 } else {
                     throw new DropboxException("Not a file.");
                 }
@@ -156,6 +164,7 @@ public class DropboxAccount extends BaseAccount {
             if (entry != null) {
                 if (entry.isFolder()) {
                     this.client.delete(getFullPath(name));
+                    this.usedSize = getQuotaUsedSize();
                 } else {
                     throw new DropboxException("Not a folder.");
                 }
@@ -176,9 +185,10 @@ public class DropboxAccount extends BaseAccount {
         }
 
         try {
-            DbxEntry.File dbxFile = this.client.getFile(getFullPath("manifest"), null, outputStream);
+            DbxEntry.File dbxFile = this.client.getFile(getFullPath(MANIFEST_FILE_NAME), null, outputStream);
             if (dbxFile != null) {
                 size = dbxFile.numBytes;
+                this.manifestFileId = dbxFile.name;
             }
         } catch (DbxException ex) {
             throw new DropboxException("Failed to download manifest file.");
@@ -190,11 +200,51 @@ public class DropboxAccount extends BaseAccount {
     }
 
     @Override
+    public void uploadManifest(InputStream inputStream, long size) throws BaseException {
+        uploadFile(MANIFEST_FILE_NAME, inputStream, size);
+    }
+
+    @Override
+    public void updateManifest(InputStream inputStream, long size) throws BaseException {
+        if (this.manifestFileId == null) {
+            throw new DropboxException("Manifest file id does not exist");
+        }
+
+        updateFile(this.manifestFileId, inputStream, size);
+    }
+
+    @Override
+    public boolean manifestExists() throws BaseException {
+        boolean exists = false;
+
+        if (this.manifestFileId != null) {
+            return true;
+        }
+
+        try {
+            DbxEntry.WithChildren entryWithChildren = this.client.getMetadataWithChildren(getFullPath(getOmniDriveFolderId()));
+            for (DbxEntry child : entryWithChildren.children) {
+                if (child.isFile()) {
+                    if (child.name.equals(MANIFEST_FILE_NAME)) {
+                        exists = true;
+                        break;
+                    }
+                }
+            }
+        } catch (DbxException ex) {
+            exists = false;
+        }
+
+        return exists;
+    }
+
+    @Override
     public long getQuotaUsedSize() throws BaseException {
         long usedQuota;
 
         try {
             usedQuota = this.client.getAccountInfo().quota.normal + this.client.getAccountInfo().quota.shared;
+            this.usedSize = usedQuota;
         } catch (DbxException ex) {
             throw new DropboxException("Failed to get quota used size.");
         }
@@ -208,6 +258,7 @@ public class DropboxAccount extends BaseAccount {
 
         try {
             totalQuota = this.client.getAccountInfo().quota.total;
+            this.totalSize = totalQuota;
         } catch (DbxException ex) {
             throw new DropboxException("Failed to get quota total size.");
         }

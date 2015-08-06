@@ -83,7 +83,25 @@ public class DropboxTest {
     }
 
     @Test
-    public void testF_DownloadManifest() throws Exception {
+    public void testF_ManifestExists() throws Exception {
+        boolean exists = dbxAccount.manifestExists();
+        assertFalse(exists);
+    }
+
+    @Test
+    public void testG_uploadManifest() throws Exception {
+        URL url = this.getClass().getResource("/api/manifest");
+        File file = new File(url.getPath());
+        FileInputStream fileInputStream = new FileInputStream(file);
+
+        dbxAccount.uploadManifest(fileInputStream, file.length());
+    }
+
+    @Test
+    public void testH_DownloadManifest() throws Exception {
+        boolean exists = dbxAccount.manifestExists();
+        assertTrue(exists);
+
         OutputStream outputStream = new FileOutputStream(LOCAL_DOWNLOAD_PATH + "/manifest");
         long size = dbxAccount.downloadManifestFile(outputStream);
 
@@ -91,9 +109,21 @@ public class DropboxTest {
     }
 
     @Test
-    public void testG_RestoreAccount() throws Exception {
+    public void testI_UpdateManifest() throws Exception {
+        boolean exists = dbxAccount.manifestExists();
+        assertTrue(exists);
+
+        URL url = this.getClass().getResource("/api/manifest");
+        File file = new File(url.getPath());
+        FileInputStream fileInputStream = new FileInputStream(file);
+
+        dbxAccount.updateManifest(fileInputStream, file.length());
+    }
+
+    /*@Test
+    public void testJ_RestoreAccount() throws Exception {
         BaseApi api = new DropboxApi();
         dbxAccount = api.createAccount(DbxAccessToken);
         assertNotNull(dbxAccount);
-    }
+    }*/
 }

@@ -57,23 +57,23 @@ public class AccountsManager extends Observable {
         return activeAccounts;
     }
 
-    public long getFreeSpaceSize() throws BaseException {
+    public long getCloudFreeSize() throws BaseException {
         long size = 0;
 
         List<BaseAccount> accounts = getActiveAccounts();
         for (BaseAccount account : accounts) {
-            size += account.getQuotaRemainingSize();
+            size += account.getCachedQuotaRemainingSize();
         }
 
         return size;
     }
 
-    public long getUsedSpaceSize() throws BaseException {
+    public long getCloudTotalSize() throws BaseException {
         long size = 0;
 
         List<BaseAccount> accounts = getActiveAccounts();
         for (BaseAccount account : accounts) {
-            size += account.getQuotaTotalSize();
+            size += account.getCachedQuotaTotalSize();
         }
 
         return size;

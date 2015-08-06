@@ -37,9 +37,10 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
-    public String getOmniDriveFolderId() throws BaseException {
-        if (this.omniDriveFolderId != null)
+    protected String getOmniDriveFolderId() throws BaseException {
+        if (this.omniDriveFolderId != null) {
             return this.omniDriveFolderId;
+        }
 
         com.box.sdk.BoxFolder rootFolder = com.box.sdk.BoxFolder.getRootFolder(this.user.getAPI());
 
@@ -79,6 +80,7 @@ public class BoxAccount extends BaseAccount {
         try {
             Info info = rootFolder.uploadFile(inputStream, name);
             fileId = info.getID();
+            this.usedSize += info.getSize();
         } catch (BoxAPIException ex) {
             throw new BoxException(ex.getResponse());
         }
@@ -88,11 +90,20 @@ public class BoxAccount extends BaseAccount {
 
     @Override
     public long downloadFile(String fileId, OutputStream outputStream) throws BaseException {
-        com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
-        Info info = file.getInfo();
-        file.download(outputStream);
+        long size = 0;
 
-        return info.getSize();
+        try {
+            com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
+            if (file != null) {
+                Info info = file.getInfo();
+                file.download(outputStream);
+                size = info.getSize();
+            }
+        } catch (Exception ex) {
+            throw new BoxException("Failed to download file.");
+        }
+
+        return size;
     }
 
     @Override
@@ -100,7 +111,9 @@ public class BoxAccount extends BaseAccount {
         com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
 
         try {
+            long fileSize = file.getInfo().getSize();
             file.delete();
+            this.usedSize -= fileSize;
         } catch (Exception ex) {
             throw new BoxException(ex.getMessage());
         }
@@ -111,7 +124,9 @@ public class BoxAccount extends BaseAccount {
         com.box.sdk.BoxFolder folder = new com.box.sdk.BoxFolder(this.user.getAPI(), fileId);
 
         try {
+            long folderSize = folder.getInfo().getSize();
             folder.delete(true);
+            this.usedSize -= folderSize;
         } catch (Exception ex) {
             throw new BoxException(ex.getMessage());
         }
@@ -119,8 +134,14 @@ public class BoxAccount extends BaseAccount {
 
     @Override
     public void updateFile(String fileId, InputStream inputStream, long size) throws BaseException {
-        com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
-        file.uploadVersion(inputStream);
+        try {
+            com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
+            this.usedSize -= file.getInfo().getSize();
+            file.uploadVersion(inputStream);
+            this.usedSize += size;
+        } catch (Exception ex) {
+            throw new BoxException("Failed to update file.");
+        }
     }
 
     @Override
@@ -134,12 +155,13 @@ public class BoxAccount extends BaseAccount {
         com.box.sdk.BoxFolder rootFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), getOmniDriveFolderId());
         if (rootFolder != null) {
             for (com.box.sdk.BoxItem.Info itemInfo : rootFolder.getChildren()) {
-                if (itemInfo.getName().equals("manifest")) {
+                if (itemInfo.getName().equals(MANIFEST_FILE_NAME)) {
                     String manifestId = itemInfo.getID();
                     com.box.sdk.BoxFile manifestFile = new com.box.sdk.BoxFile(this.user.getAPI(), manifestId);
                     if (manifestFile != null) {
                         size = manifestFile.getInfo().getSize();
                         manifestFile.download(outputStream);
+                        this.manifestFileId = manifestId;
                         break;
                     } else {
                         throw new BoxException("Failed to download 'manifest' file");
@@ -154,12 +176,70 @@ public class BoxAccount extends BaseAccount {
     }
 
     @Override
+    public void uploadManifest(InputStream inputStream, long size) throws BaseException {
+        uploadFile(MANIFEST_FILE_NAME, inputStream, size);
+    }
+
+    public void updateManifest(InputStream inputStream, long size) throws BaseException {
+        if (this.manifestFileId == null) {
+            throw new BoxException("Manifest file id does not exist");
+        }
+
+        updateFile(this.manifestFileId, inputStream, size);
+    }
+
+    @Override
+    public boolean manifestExists() throws BaseException {
+        boolean exists = false;
+
+        if (this.manifestFileId != null) {
+            return true;
+        }
+
+        try {
+            com.box.sdk.BoxFolder omniDriveFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), getOmniDriveFolderId());
+            if (omniDriveFolder == null) {
+                throw new BoxException("Failed to fetch 'OmniDrive' folder");
+            }
+
+            for (com.box.sdk.BoxItem.Info itemInfo : omniDriveFolder.getChildren()) {
+                if (itemInfo.getName().equals(MANIFEST_FILE_NAME)) {
+                    exists = true;
+                    break;
+                }
+            }
+        } catch (Exception ex) {
+            throw new BoxException("Failed to get 'OmniDrive' folder");
+        }
+
+        return exists;
+    }
+
+    @Override
     public long getQuotaUsedSize() throws BaseException {
-        return this.user.getInfo().getSpaceUsed();
+        long usedQuota = 0;
+
+        try {
+            usedQuota = this.user.getInfo().getSpaceUsed();
+            this.usedSize = usedQuota;
+        } catch (Exception ex) {
+            throw new BoxException("Failed to get quota used size.");
+        }
+
+        return usedQuota;
     }
 
     @Override
     public long getQuotaTotalSize() throws BaseException {
-        return this.user.getInfo().getSpaceAmount();
+        long totalQuota = 0;
+
+        try {
+            totalQuota = this.user.getInfo().getSpaceAmount();
+            this.totalSize = totalQuota;
+        } catch (Exception ex) {
+            throw new BoxException("Failed to get quota total size.");
+        }
+
+        return totalQuota;
     }
 }
