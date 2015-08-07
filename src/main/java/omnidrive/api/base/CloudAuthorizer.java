@@ -6,7 +6,7 @@ import omnidrive.api.auth.Authorizer;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class CloudApi implements Authorizer {
+public abstract class CloudAuthorizer implements Authorizer {
 
     protected final List<AuthListener> listeners = new LinkedList<AuthListener>();
 
@@ -14,7 +14,7 @@ public abstract class CloudApi implements Authorizer {
     private final String appId;
     private final String appSecret;
 
-    public CloudApi(String appName, String appId, String appSecret) {
+    public CloudAuthorizer(String appName, String appId, String appSecret) {
         this.appName = appName;
         this.appId = appId;
         this.appSecret = appSecret;

@@ -12,7 +12,7 @@ import java.util.Observable;
 
 public class AccountsManager extends Observable {
 
-    private final ApiManager apiManager = ApiManager.getApiManager();
+    private final AuthManager authManager = AuthManager.getAuthManager();
 
     private final CloudAccount[] accounts = new CloudAccount[AccountType.length()];
 
@@ -28,7 +28,7 @@ public class AccountsManager extends Observable {
     }
 
     public CloudAccount createAccount(AccountType type, String accessToken) throws AccountException {
-        return this.apiManager.getApi(type).createAccount(accessToken);
+        return this.authManager.getAuthorizer(type).createAccount(accessToken);
     }
 
     public void setAccount(AccountType type, CloudAccount account) {

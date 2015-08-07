@@ -11,7 +11,7 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import javafx.scene.web.WebEngine;
 import omnidrive.api.base.CloudAccount;
-import omnidrive.api.base.CloudApi;
+import omnidrive.api.base.CloudAuthorizer;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
 import omnidrive.api.managers.LoginManager;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class GoogleDriveApi extends CloudApi {
+public class GoogleDriveAuthorizer extends CloudAuthorizer {
 
     private static final String APP_NAME = "GoogleDrive";
     private static final String CLIENT_ID = "438388195219-sf38d0f4bbj4t9at3e9n72uup3cfsb8m.apps.googleusercontent.com";
@@ -38,7 +38,7 @@ public class GoogleDriveApi extends CloudApi {
 
     private final GoogleAuthorizationCodeFlow auth;
 
-    public GoogleDriveApi() {
+    public GoogleDriveAuthorizer() {
         super(APP_NAME, CLIENT_ID, CLIENT_SECRET);
 
         this.auth = new GoogleAuthorizationCodeFlow.Builder(

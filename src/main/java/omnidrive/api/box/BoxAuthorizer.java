@@ -2,13 +2,13 @@ package omnidrive.api.box;
 
 import javafx.scene.web.WebEngine;
 import omnidrive.api.base.CloudAccount;
-import omnidrive.api.base.CloudApi;
+import omnidrive.api.base.CloudAuthorizer;
 
 import com.box.sdk.BoxAPIConnection;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
 
-public class BoxApi extends CloudApi {
+public class BoxAuthorizer extends CloudAuthorizer {
 
     // BOX App Keys
     private static final String APP_NAME = "Box";
@@ -19,7 +19,7 @@ public class BoxApi extends CloudApi {
     private final BoxAPIConnection connection = new BoxAPIConnection(CLIENT_ID, CLIENT_SECRET);
 
 
-    public BoxApi() {
+    public BoxAuthorizer() {
         super(APP_NAME, CLIENT_ID, CLIENT_SECRET);
     }
 

@@ -3,7 +3,7 @@ package omnidrive.api.dropbox;
 import com.dropbox.core.*;
 import javafx.scene.web.WebEngine;
 import omnidrive.api.base.CloudAccount;
-import omnidrive.api.base.CloudApi;
+import omnidrive.api.base.CloudAuthorizer;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
 import org.w3c.dom.Document;
@@ -12,7 +12,7 @@ import org.w3c.dom.Element;
 import java.util.Locale;
 
 
-public class DropboxApi extends CloudApi {
+public class DropboxAuthorizer extends CloudAuthorizer {
 
     // Dropbox App Keys
     private static final String APP_NAME = "Dropbox";
@@ -24,7 +24,7 @@ public class DropboxApi extends CloudApi {
     private final DbxRequestConfig config = new DbxRequestConfig("omnidrive", Locale.getDefault().toString());
     private final DbxWebAuthNoRedirect auth;
 
-    public DropboxApi() {
+    public DropboxAuthorizer() {
         super(APP_NAME, APP_KEY, APP_SECRET);
 
         this.auth = new DbxWebAuthNoRedirect(this.config, appInfo);

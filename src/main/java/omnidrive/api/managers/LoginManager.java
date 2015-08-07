@@ -10,7 +10,7 @@ public class LoginManager implements AuthListener {
 
     private AuthService authService;
 
-    private final ApiManager apiManager = ApiManager.getApiManager();
+    private final AuthManager authManager = AuthManager.getAuthManager();
 
     // singleton
     private LoginManager() {
@@ -22,9 +22,9 @@ public class LoginManager implements AuthListener {
         this.authService = service;
 
         try {
-            String authUrl = this.apiManager.login(type, this);
+            String authUrl = this.authManager.login(type, this);
             if (authUrl != null) {
-                CloudApi api = this.apiManager.getApi(type);
+                CloudAuthorizer api = this.authManager.getAuthorizer(type);
                 requestLogin(type, api, authUrl);
             } else {
                 failure(type, "Failed to get auth url.");
@@ -52,7 +52,7 @@ public class LoginManager implements AuthListener {
         // TODO - remove drive account from user
     }
 
-    private void requestLogin(AccountType type, CloudApi api, String authUrl) {
+    private void requestLogin(AccountType type, CloudAuthorizer api, String authUrl) {
         if (this.authService != null) {
             this.authService.attempt(type, api, authUrl);
         }

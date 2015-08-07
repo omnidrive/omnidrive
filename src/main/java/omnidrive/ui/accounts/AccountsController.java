@@ -9,7 +9,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import omnidrive.api.base.CloudApi;
+import omnidrive.api.base.CloudAuthorizer;
 import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountType;
 import omnidrive.api.base.AccountException;
@@ -89,8 +89,8 @@ public class AccountsController implements Initializable, AuthService, Runnable 
     }
 
     @Override
-    public void attempt(AccountType type, CloudApi api, String authUrl) {
-        this.loginView.show(this.loginManager, api, type, authUrl);
+    public void attempt(AccountType type, CloudAuthorizer authorizer, String authUrl) {
+        this.loginView.show(this.loginManager, authorizer, type, authUrl);
     }
 
     @Override

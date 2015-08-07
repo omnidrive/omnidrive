@@ -64,12 +64,6 @@ public class AccountsFXML extends Application {
         }
     }
 
-    public static void setTrayIconProgress(SyncProgress progress) {
-        if (trayIcon != null) {
-            trayIcon.setProgress(progress);
-        }
-    }
-
     public static void setSyncProgress(SyncProgress progress) {
         if (trayIcon != null) {
             trayIcon.setProgress(progress);
