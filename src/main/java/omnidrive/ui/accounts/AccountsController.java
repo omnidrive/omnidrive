@@ -1,5 +1,6 @@
 package omnidrive.ui.accounts;
 
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -110,12 +111,17 @@ public class AccountsController implements Initializable, AuthService, Runnable 
     @Override
     public void run() {
         while (true) {
-            fetchCloudFreeSpace();
             try {
                 Thread.sleep(SIZE_UPDATER_SLEEP_TIME);
             } catch (InterruptedException ex) {
                 System.out.println("Failed to sleep between fetch cloud size");
             }
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    fetchCloudFreeSpace();
+                }
+            });
         }
     }
 

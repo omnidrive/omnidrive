@@ -59,6 +59,10 @@ public class AccountsManager extends Observable {
         return activeAccounts;
     }
 
+    public boolean hasActiveAccounts() {
+        return getActiveAccounts().size() > 0;
+    }
+
     public long getCloudFreeSize() throws AccountException {
         long size = 0;
 
