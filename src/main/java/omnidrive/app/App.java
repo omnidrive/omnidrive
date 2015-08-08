@@ -17,8 +17,6 @@ import omnidrive.util.MapDbUtils;
 import org.mapdb.DB;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.WatchService;
@@ -67,6 +65,7 @@ public class App {
             }
         }
         startWatcherThread();
+        openTrayIcon();
     }
 
     private void initFileSystem() {
@@ -74,6 +73,10 @@ public class App {
 
     private void openAccountsSelector() {
         uiManager.startGuiInFront();
+    }
+
+    private void openTrayIcon() {
+        uiManager.startGuiInBackground();
     }
 
     private boolean isFirstRun() {
@@ -100,25 +103,26 @@ public class App {
     }
 
     private long getAccountUpdateTime(CloudAccount account) throws Exception {
-        File tempFile = File.createTempFile("manifest", "db");
-        OutputStream outputStream = new FileOutputStream(tempFile);
-        account.downloadManifest(outputStream);
-        outputStream.close();
-        DB db = MapDbUtils.createFileDb(tempFile);
-        Manifest manifest = new MapDbManifest(db);
-        long updateTime = manifest.getUpdatedTime();
-        db.close();
-        assert tempFile.delete();
-        return updateTime;
+        // TODO - fix hack
+        return 1;
+//        File tempFile = File.createTempFile("manifest", "db");
+//        OutputStream outputStream = new FileOutputStream(tempFile);
+//        account.downloadManifest(outputStream);
+//        outputStream.close();
+//        DB db = MapDbUtils.createFileDb(tempFile);
+//        Manifest manifest = new MapDbManifest(db);
+//        long updateTime = manifest.getUpdatedTime();
+//        db.close();
+//        assert tempFile.delete();
+//        return updateTime;
     }
 
     private void fullSync(CloudAccount account) {
-//        Syncer syncer = new Syncer(FileSystem.getRootPath(), account);
-//        syncer.fullSync();
+        // TODO
     }
 
     private void upstreamSync(CloudAccount account) {
-
+        // TODO
     }
 
     private void startWatcherThread() throws Exception {

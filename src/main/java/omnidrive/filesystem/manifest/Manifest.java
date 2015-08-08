@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface Manifest {
 
-    Map<AccountType, AccountMetadata> getAccountsMetadata();
+    Map<String, String> getAccountsMetadata();
 
     void put(AccountType accountType, AccountMetadata metadata);
 

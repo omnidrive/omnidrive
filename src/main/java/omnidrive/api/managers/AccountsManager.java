@@ -16,10 +16,11 @@ public class AccountsManager extends Observable {
 
     private final CloudAccount[] accounts = new CloudAccount[AccountType.length()];
 
-    public void restoreAccounts(Map<AccountType, AccountMetadata> accountsInfo) throws AccountException {
-        for (AccountType type : accountsInfo.keySet()) {
-            AccountMetadata metadata = accountsInfo.get(type);
-            CloudAccount account = createAccount(type, metadata.getAccessToken());
+    public void restoreAccounts(Map<String, String> accountsInfo) throws AccountException {
+        for (Map.Entry<String, String> entry : accountsInfo.entrySet()) {
+            AccountType type = AccountType.valueOf(entry.getKey());
+            String accessToken = entry.getValue();
+            CloudAccount account = createAccount(type, accessToken);
             if (account != null) {
                 setAccount(type, account);
             }

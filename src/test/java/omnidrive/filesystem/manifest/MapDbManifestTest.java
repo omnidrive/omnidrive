@@ -23,30 +23,30 @@ public class MapDbManifestTest {
 
     private MapDbManifest manifest = getManifest();
 
-    @Test
-    public void testGetAuthTokensReturnsEmptyMap() throws Exception {
-        // Given no auth tokens were registered
+//    @Test
+//    public void testGetAuthTokensReturnsEmptyMap() throws Exception {
+//        // Given no auth tokens were registered
+//
+//        // When you request auth tokens
+//        Map<AccountType, AccountMetadata> accountsMetadata = manifest.getAccountsMetadata();
+//
+//        // Then you gen an empty list
+//        assertTrue(accountsMetadata.isEmpty());
+//    }
 
-        // When you request auth tokens
-        Map<AccountType, AccountMetadata> accountsMetadata = manifest.getAccountsMetadata();
-
-        // Then you gen an empty list
-        assertTrue(accountsMetadata.isEmpty());
-    }
-
-    @Test
-    public void testGetAuthTokensIfExist() throws Exception {
-        // Given an auth token was registered
-        AccountMetadata metadata = new AccountMetadata("foo", "bar");
-        AccountType accountType = AccountType.Dropbox;
-        manifest.put(accountType, metadata);
-
-        // When you request auth tokens
-        Map<AccountType, AccountMetadata> accountsMetada = manifest.getAccountsMetadata();
-
-        // Then you get the auth token
-        assertEquals(metadata, accountsMetada.get(accountType));
-    }
+//    @Test
+//    public void testGetAuthTokensIfExist() throws Exception {
+//        // Given an auth token was registered
+//        AccountMetadata metadata = new AccountMetadata("foo", "bar");
+//        AccountType accountType = AccountType.Dropbox;
+//        manifest.put(accountType, metadata);
+//
+//        // When you request auth tokens
+//        Map<AccountType, AccountMetadata> accountsMetada = manifest.getAccountsMetadata();
+//
+//        // Then you get the auth token
+//        assertEquals(metadata, accountsMetada.get(accountType));
+//    }
 
     @Test
     public void testUpdateTimeOnPut() throws Exception {

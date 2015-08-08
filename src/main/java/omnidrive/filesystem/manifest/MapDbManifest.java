@@ -21,7 +21,7 @@ public class MapDbManifest implements Manifest {
 
     public static final String UPDATE_TIME = "update-time";
 
-    final private HTreeMap<AccountType, AccountMetadata> accountsMetadata;
+    final private HTreeMap<String, String> accountsMetadata;
 
     final private HTreeMap<String, Entry> entries;
 
@@ -38,12 +38,13 @@ public class MapDbManifest implements Manifest {
         return get(ROOT_KEY, Tree.class);
     }
 
-    public Map<AccountType, AccountMetadata> getAccountsMetadata() {
+    public Map<String, String> getAccountsMetadata() {
         return new HashMap<>(accountsMetadata);
     }
 
     public void put(AccountType accountType, AccountMetadata metadata) {
-        accountsMetadata.put(accountType, metadata);
+        accountsMetadata.put(accountType.toString(), metadata.getAccessToken());
+        setUpdateTime();
     }
 
     public void put(Entry entry) {
