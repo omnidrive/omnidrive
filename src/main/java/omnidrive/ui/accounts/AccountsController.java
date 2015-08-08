@@ -10,6 +10,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 import omnidrive.api.base.CloudAuthorizer;
 import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountType;
@@ -17,11 +18,11 @@ import omnidrive.api.base.AccountException;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.api.managers.LoginManager;
 import omnidrive.api.auth.AuthService;
-import omnidrive.ui.general.LoginView;
-import omnidrive.ui.general.LogoListCell;
-import omnidrive.ui.general.PopupView;
+import omnidrive.ui.general.*;
 
 import java.net.URL;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class AccountsController implements Initializable, AuthService, Runnable {
@@ -45,6 +46,10 @@ public class AccountsController implements Initializable, AuthService, Runnable 
     private final LoginView loginView;
 
     private final Thread sizeUpdater;
+
+    private OmniDriveTrayIcon omniDriveTrayIcon;
+
+    private Stage parentStage;
 
     @FXML
     private Button addAccountButton;
@@ -71,16 +76,93 @@ public class AccountsController implements Initializable, AuthService, Runnable 
         this.sizeUpdater = new Thread(this, "tSizeUpdater");
     }
 
-    public void setAccountsManager(AccountsManager accountsManager) {
-        this.accountsManager = accountsManager;
-        fetchCloudTotalSize();
-        fetchCloudFreeSpace();
-    }
-
-    public void startSizeUpdater() {
+    private void startSizeUpdater() {
         if (this.accountsManager != null) {
             this.sizeUpdater.start();
         }
+    }
+
+    public void initialize(Stage stage, AccountsManager accountsManager, Path omniDriveFolderPath, boolean startHidden) {
+        this.parentStage = stage;
+        this.accountsManager = accountsManager;
+        createTrayIcon(stage, omniDriveFolderPath, startHidden);
+        restoreAccounts();
+
+        startSizeUpdater();
+    }
+
+    public void showStage() {
+        final Stage stage = this.parentStage;
+
+        if (stage == null) {
+            return;
+        }
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                stage.show();
+            }
+        });
+    }
+
+    public void hideStage() {
+        final Stage stage = this.parentStage;
+
+        if (stage == null) {
+            return;
+        }
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                stage.hide();
+            }
+        });
+    }
+
+    public void setSyncProgress(final SyncProgress progress) {
+        final OmniDriveTrayIcon trayIcon = this.omniDriveTrayIcon;
+
+        if (trayIcon == null) {
+            return;
+        }
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                trayIcon.setProgress(progress);
+            }
+        });
+    }
+
+    private void createTrayIcon(Stage stage, Path omniDriveFolderPath, boolean shouldStartHidden) {
+        omniDriveTrayIcon = new OmniDriveTrayIcon(stage, omniDriveFolderPath);
+        try {
+            omniDriveTrayIcon.applyStyle(!shouldStartHidden);
+        } catch (Exception ex) {
+            System.out.println("Failed to apply style to omnidrive tray icon.");
+        }
+    }
+
+    private void restoreAccounts() {
+        final AccountsManager manager = this.accountsManager;
+
+        if (manager == null) {
+            return;
+        }
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                List<CloudAccount> accounts = manager.getActiveAccounts();
+                for (CloudAccount account : accounts) {
+                    addAccountToListView(account.getType());
+                }
+                fetchCloudTotalSize();
+                fetchCloudFreeSpace();
+            }
+        });
     }
 
     @Override

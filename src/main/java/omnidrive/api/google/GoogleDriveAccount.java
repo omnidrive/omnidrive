@@ -25,6 +25,7 @@ public class GoogleDriveAccount extends CloudAccount {
     private String accessToken;
 
     public GoogleDriveAccount(Drive service, String accessToken) {
+        super(AccountType.GoogleDrive);
         this.service = service;
         this.accessToken = accessToken;
     }

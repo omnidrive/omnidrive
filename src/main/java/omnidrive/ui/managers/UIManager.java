@@ -1,6 +1,7 @@
 package omnidrive.ui.managers;
 
 import omnidrive.api.managers.AccountsManager;
+import omnidrive.ui.accounts.AccountsController;
 import omnidrive.ui.accounts.AccountsFXML;
 import omnidrive.ui.general.SyncProgress;
 
@@ -12,6 +13,8 @@ public class UIManager {
     private boolean guiStarted = false;
 
     private final AccountsManager accountsManager;
+
+    private AccountsController uiController;
 
     private final Path root;
 
@@ -36,24 +39,36 @@ public class UIManager {
         }
     }
 
+    public void setController(AccountsController controller) {
+        this.uiController = controller;
+    }
+
     public void showGui() {
-        AccountsFXML.show();
+        if (this.uiController != null) {
+            this.uiController.showStage();
+        }
     }
 
     public void hideGui() {
-        AccountsFXML.hide();
+        if (this.uiController != null) {
+            this.uiController.hideStage();
+        }
     }
 
     public void setSyncProgress(SyncProgress progress) {
-        AccountsFXML.setSyncProgress(progress);
+        if (this.uiController != null) {
+            this.uiController.setSyncProgress(progress);
+        }
     }
 
     private void loadHidden() {
-        AccountsFXML.load(accountsManager, true, root);
+        boolean hidden  = true;
+        AccountsFXML.load(this, accountsManager, hidden, root);
     }
 
     private void loadShown() {
-        AccountsFXML.load(accountsManager, false, root);
+        boolean hidden  = false;
+        AccountsFXML.load(this, accountsManager, hidden, root);
     }
 
     private void setup() {

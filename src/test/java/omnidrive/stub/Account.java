@@ -2,6 +2,7 @@ package omnidrive.stub;
 
 import com.google.api.client.util.ArrayMap;
 import omnidrive.api.base.AccountException;
+import omnidrive.api.base.AccountType;
 import omnidrive.api.base.CloudAccount;
 
 import java.io.IOException;
@@ -24,6 +25,7 @@ public class Account extends CloudAccount {
     }
 
     public Account(long totalSize) {
+        super(AccountType.Box);
         this.totalSize = totalSize;
     }
 

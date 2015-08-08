@@ -17,6 +17,7 @@ public class DropboxAccount extends CloudAccount {
     private final DbxClient client;
 
     public DropboxAccount(DbxRequestConfig config, String accessToken) {
+        super(AccountType.Dropbox);
         this.client = new DbxClient(config, accessToken);
     }
 

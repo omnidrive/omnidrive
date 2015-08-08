@@ -16,8 +16,11 @@ public abstract class CloudAccount {
     protected long totalSize = 0;
     protected long usedSize = 0;
 
-    protected CloudAccount() {
-        metadata = new AccountMetadata();
+    private AccountType type;
+
+    protected CloudAccount(AccountType type) {
+        this.type = type;
+        this.metadata = new AccountMetadata();
     }
 
     protected String getFullRootFolderPath() {
@@ -122,5 +125,9 @@ public abstract class CloudAccount {
             this.metadata = new AccountMetadata();
             this.metadata.setManifestId(manifestId);
         }
+    }
+
+    public AccountType getType() {
+        return this.type;
     }
 }

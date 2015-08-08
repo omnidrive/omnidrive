@@ -33,7 +33,7 @@ public class OmniDriveTrayIcon {
         Platform.setImplicitExit(false);
     }
 
-    public void createTrayIcon(boolean stageShown) throws Exception {
+    public void applyStyle(boolean stageShown) throws Exception {
         if (SystemTray.isSupported()) {
             // get the SystemTray instance
             final SystemTray tray = SystemTray.getSystemTray();
