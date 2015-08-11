@@ -10,4 +10,6 @@ public interface ManifestSync {
 
     void uploadToAccount(CloudAccount account) throws Exception;
 
+    Manifest downloadFromAccount(CloudAccount account) throws Exception;
+
 }

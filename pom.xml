@@ -73,6 +73,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.kamranzafar</groupId>
+            <artifactId>jtar</artifactId>
+            <version>2.2</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.eclipse.swt</groupId>
             <artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId>
             <version>4.3</version>

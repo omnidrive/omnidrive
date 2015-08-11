@@ -117,8 +117,10 @@ public class App {
 //        return updateTime;
     }
 
-    private void fullSync(CloudAccount account) {
-        // TODO
+    private void fullSync(CloudAccount account) throws Exception {
+//        Syncer syncer = new Syncer(fileSystem.getRootPath(), accountsManager);
+        Manifest manifest = manifestContext.sync.downloadFromAccount(account);
+//        syncer.fullSync();
     }
 
     private void upstreamSync(CloudAccount account) {
