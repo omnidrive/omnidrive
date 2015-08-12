@@ -9,6 +9,7 @@ import omnidrive.filesystem.manifest.MapDbManifest;
 import omnidrive.filesystem.manifest.MapDbManifestSync;
 import omnidrive.filesystem.sync.StupidStrategyForDemo;
 import omnidrive.filesystem.sync.SyncHandler;
+import omnidrive.filesystem.sync.Syncer;
 import omnidrive.filesystem.sync.UploadStrategy;
 import omnidrive.filesystem.watcher.Handler;
 import omnidrive.filesystem.watcher.Watcher;
@@ -57,13 +58,9 @@ public class App {
     private void startSubsequentRun() throws Exception {
         List<CloudAccount> registeredAccounts = getRegisteredAccounts();
         CloudAccount lruAccount = resolveLeastRecentlyUpdatedAccount(registeredAccounts);
-        // TODO rewrite this
         fullSync(lruAccount);
-        for (CloudAccount account : registeredAccounts) {
-            if (account != lruAccount) {
-                upstreamSync(account);
-            }
-        }
+        registeredAccounts.remove(lruAccount);
+        manifestContext.sync.uploadToAll(registeredAccounts);
         startWatcherThread();
         openTrayIcon();
     }
@@ -118,13 +115,9 @@ public class App {
     }
 
     private void fullSync(CloudAccount account) throws Exception {
-//        Syncer syncer = new Syncer(fileSystem.getRootPath(), accountsManager);
+        Syncer syncer = new Syncer(fileSystem.getRootPath(), accountsManager);
         Manifest manifest = manifestContext.sync.downloadFromAccount(account);
-//        syncer.fullSync();
-    }
-
-    private void upstreamSync(CloudAccount account) {
-        // TODO
+        syncer.fullSync(manifest);
     }
 
     private void startWatcherThread() throws Exception {
@@ -134,7 +127,7 @@ public class App {
         Manifest manifest = manifestContext.manifest;
         Handler handler = new SyncHandler(root, manifest, manifestSync, uploadStrategy, accountsManager);
         WatchService watchService = FileSystems.getDefault().newWatchService();
-        ManifestFilter filter = new ManifestFilter(manifestContext.file.getName());
+        ManifestFilter filter = new ManifestFilter();
         Watcher watcher = new Watcher(watchService, handler, filter);
         watcher.registerRecursive(root);
 
@@ -149,8 +142,6 @@ public class App {
 
         final private boolean exists;
 
-        final private File file;
-
         final private DB db;
 
         final private Manifest manifest;
@@ -158,8 +149,8 @@ public class App {
         final private ManifestSync sync;
 
         public ManifestContext() {
+            File file = fileSystem.getManifestFile();
             exists = fileSystem.manifestExists();
-            file = fileSystem.getManifestFile();
             db = MapDbUtils.createFileDb(file);
             manifest = new MapDbManifest(db);
             sync = new MapDbManifestSync(file, db);

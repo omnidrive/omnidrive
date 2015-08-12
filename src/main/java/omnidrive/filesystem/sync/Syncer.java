@@ -6,6 +6,7 @@ import omnidrive.algo.TreeDiff;
 import omnidrive.api.base.AccountType;
 import omnidrive.api.base.CloudAccount;
 import omnidrive.api.managers.AccountsManager;
+import omnidrive.app.ManifestFilter;
 import omnidrive.filesystem.exception.UnableToDeleteFileException;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.entry.Blob;
@@ -34,7 +35,7 @@ public class Syncer {
     public void fullSync(Manifest manifest) throws Exception {
         Comparator<FileNode, EntryNode> comparator = new SyncComparator();
         TreeDiff<FileNode, EntryNode> diff = new TreeDiff<>(comparator);
-        FileNode left = new FileNode(rootPath.toFile());
+        FileNode left = new FileNode(rootPath.toFile(), new ManifestFilter());
         EntryNode right = new EntryNode(manifest, MANIFEST_ROOT_PATH, manifest.getRoot());
         TreeDiff.Result<FileNode, EntryNode> result = diff.run(left, right);
         syncDiffResult(result, manifest);
@@ -65,8 +66,7 @@ public class Syncer {
     }
 
     private void upload(File file) {
-        System.out.println("Upload");
-        System.out.println(file);
+        System.out.println("Upload " + file);
     }
 
     private void delete(File file) throws Exception {
