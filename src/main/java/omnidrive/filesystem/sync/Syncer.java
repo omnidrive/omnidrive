@@ -17,11 +17,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class Syncer {
-
-    public static final Path MANIFEST_ROOT_PATH = Paths.get("");
 
     final private Path rootPath;
 
@@ -36,7 +33,7 @@ public class Syncer {
         Comparator<FileNode, EntryNode> comparator = new SyncComparator();
         TreeDiff<FileNode, EntryNode> diff = new TreeDiff<>(comparator);
         FileNode left = new FileNode(rootPath.toFile(), new ManifestFilter());
-        EntryNode right = new EntryNode(manifest, MANIFEST_ROOT_PATH, manifest.getRoot());
+        EntryNode right = EntryNode.getRoot(manifest);
         TreeDiff.Result<FileNode, EntryNode> result = diff.run(left, right);
         syncDiffResult(result, manifest);
     }

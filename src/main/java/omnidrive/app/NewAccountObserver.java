@@ -34,16 +34,13 @@ public class NewAccountObserver implements Observer {
     private void addAccount(CloudAccount account) throws Exception {
         System.out.println("Account added " + account);
         manifest.put(accountsManager.toType(account), account.getMetadata());
-        if (accountPreviouslyConnected(account)) {
-//            fullSync(account);
-        } else {
+        if (!accountPreviouslyConnected(account)) {
             uploadManifest(account);
-        }
+        } // TODO else full sync
     }
 
     private boolean accountPreviouslyConnected(CloudAccount account) throws Exception {
-        return false;
-//            return account.manifestExists();
+        return account.manifestExists();
     }
 
     private void uploadManifest(CloudAccount account) throws Exception {

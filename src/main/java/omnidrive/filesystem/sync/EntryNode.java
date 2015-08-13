@@ -1,18 +1,19 @@
 package omnidrive.filesystem.sync;
 
 import omnidrive.algo.TreeNode;
-import omnidrive.api.base.AccountType;
 import omnidrive.filesystem.manifest.Manifest;
-import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
 public class EntryNode implements TreeNode<EntryNode> {
+
+    public static final Path MANIFEST_ROOT_PATH = Paths.get("");
 
     final private Manifest manifest;
 
@@ -53,6 +54,10 @@ public class EntryNode implements TreeNode<EntryNode> {
             }
         }
         return children;
+    }
+
+    public static EntryNode getRoot(Manifest manifest) {
+        return new EntryNode(manifest, MANIFEST_ROOT_PATH, manifest.getRoot());
     }
 
 }

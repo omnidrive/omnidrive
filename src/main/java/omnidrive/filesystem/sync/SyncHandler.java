@@ -1,5 +1,6 @@
 package omnidrive.filesystem.sync;
 
+import omnidrive.algo.SimpleVisitor;
 import omnidrive.algo.TreeWalker;
 import omnidrive.algo.Visitor;
 import omnidrive.api.base.CloudAccount;
@@ -11,9 +12,6 @@ import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
-import omnidrive.filesystem.manifest.walker.ItemVisitor;
-import omnidrive.filesystem.manifest.walker.ManifestWalker;
-import omnidrive.filesystem.manifest.walker.SimpleVisitor;
 import omnidrive.filesystem.watcher.Handler;
 
 import java.io.File;
@@ -33,13 +31,9 @@ public class SyncHandler implements Handler {
 
     private final AccountsManager accountsManager;
 
-    private final ManifestWalker walker;
+    private final TreeWalker<EntryNode> walker;
 
-    private final ItemVisitor removeVisitor = new RemoveVisitor();
-
-//    private final TreeWalker<EntryNode> walker2;
-
-//    private final Visitor<EntryNode> removeVisitor2 = new RemoveVisitor2();
+    private final Visitor<EntryNode> removeVisitor = new RemoveVisitor2();
 
     public SyncHandler(Path root,
                        Manifest manifest,
@@ -51,8 +45,7 @@ public class SyncHandler implements Handler {
         this.manifestSync = manifestSync;
         this.uploadStrategy = uploadStrategy;
         this.accountsManager = accountsManager;
-        walker = new ManifestWalker(manifest);
-//        walker2 = new TreeWalker<>();
+        walker = new TreeWalker<>();
 
     }
 
@@ -84,16 +77,20 @@ public class SyncHandler implements Handler {
     }
 
     public void delete(File file) throws Exception {
-        Tree parent = findParent(file.toPath());
+        Path path = file.toPath();
+        Tree parent = findParent(path);
         TreeItem item = parent.getItem(file.getName());
         if (item == null) {
             throw new InvalidFileException();
         }
-        // TODO delete from account!!
-        walker.walk(item, removeVisitor);
-        // TODO use common tree walker from algo
-//        walker2.walk(EntryNode.from(manifest, item), removeVisitor2);
-        parent.removeItem(item.getId());
+
+        String id = item.getId();
+        Entry entry = manifest.get(id);
+        EntryNode node = new EntryNode(manifest, root.relativize(path), entry);
+        walker.walk(node, removeVisitor);
+        removeVisitor.postVisit(node);
+
+        parent.removeItem(id);
         manifest.put(parent);
         uploadManifestToAllAccounts();
     }
@@ -158,19 +155,21 @@ public class SyncHandler implements Handler {
         return accountsManager.getAccount(blob.getAccount());
     }
 
-    private class RemoveVisitor extends SimpleVisitor {
+    private class RemoveVisitor2 extends SimpleVisitor<EntryNode> {
 
-        public void visit(TreeItem item) throws Exception {
-            String id = item.getId();
-            Blob blob = manifest.get(id, Blob.class);
-            CloudAccount account = getAccount(blob);
-            account.removeFile(id);
-            manifest.remove(blob);
+        public void visit(EntryNode item) throws Exception {
+            if (item.getType() == Entry.Type.BLOB) {
+                Blob blob = item.as(Blob.class);
+                CloudAccount account = getAccount(blob);
+                account.removeFile(blob.getId());
+                manifest.remove(blob);
+            }
         }
 
-        public void postVisit(TreeItem item) throws Exception {
-            Tree tree = manifest.get(item.getId(), Tree.class);
-            manifest.remove(tree);
+        public void postVisit(EntryNode item) throws Exception {
+            if (item.getType() == Entry.Type.TREE) {
+                manifest.remove(item.as(Tree.class));
+            }
         }
 
     }

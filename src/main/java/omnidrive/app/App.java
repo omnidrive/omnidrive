@@ -87,31 +87,7 @@ public class App {
     }
 
     private CloudAccount resolveLeastRecentlyUpdatedAccount(List<CloudAccount> accounts) throws Exception {
-        long lruTime = 0;
-        CloudAccount lruAccount = null;
-        for (CloudAccount account : accounts) {
-            long accountUpdateTime = getAccountUpdateTime(account);
-            if (accountUpdateTime > lruTime) {
-                lruTime = accountUpdateTime;
-                lruAccount = account;
-            }
-        }
-        return lruAccount;
-    }
-
-    private long getAccountUpdateTime(CloudAccount account) throws Exception {
-        // TODO - fix hack
-        return 1;
-//        File tempFile = File.createTempFile("manifest", "db");
-//        OutputStream outputStream = new FileOutputStream(tempFile);
-//        account.downloadManifest(outputStream);
-//        outputStream.close();
-//        DB db = MapDbUtils.createFileDb(tempFile);
-//        Manifest manifest = new MapDbManifest(db);
-//        long updateTime = manifest.getUpdatedTime();
-//        db.close();
-//        assert tempFile.delete();
-//        return updateTime;
+        return accounts.get(0); // Ideally this would be resolved using last modified time
     }
 
     private void fullSync(CloudAccount account) throws Exception {

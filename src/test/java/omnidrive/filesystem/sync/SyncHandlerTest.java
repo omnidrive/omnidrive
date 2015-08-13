@@ -277,12 +277,9 @@ public class SyncHandlerTest extends BaseTest {
         writeToFile(file, newContents);
         handler.modify(file);
 
-        // Then original file needs to be deleted from the account
-        verify(account).removeFile(eq(id));
-
-        // And the updated file needs to be uploaded to the account
+        // And the file needs to be updated in the account
         ArgumentCaptor<InputStream> argument = ArgumentCaptor.forClass(InputStream.class);
-        verify(account).uploadFile(eq(id), argument.capture(), eq(newSize));
+        verify(account).updateFile(eq(id), argument.capture(), eq(newSize));
         InputStream value = argument.getValue();
         assertEquals(newContents, inputStreamToString(value));
     }
