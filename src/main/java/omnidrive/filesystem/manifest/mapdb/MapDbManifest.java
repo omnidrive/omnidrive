@@ -1,4 +1,4 @@
-package omnidrive.filesystem.manifest.sync;
+package omnidrive.filesystem.manifest.mapdb;
 
 import omnidrive.api.base.AccountMetadata;
 import omnidrive.api.base.AccountType;

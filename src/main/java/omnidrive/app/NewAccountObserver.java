@@ -2,7 +2,7 @@ package omnidrive.app;
 
 import omnidrive.api.base.CloudAccount;
 import omnidrive.filesystem.manifest.Manifest;
-import omnidrive.filesystem.manifest.sync.ManifestSync;
+import omnidrive.filesystem.manifest.ManifestSync;
 
 import java.util.Observable;
 import java.util.Observer;

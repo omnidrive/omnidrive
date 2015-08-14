@@ -1,4 +1,4 @@
-package omnidrive.filesystem.manifest.sync;
+package omnidrive.filesystem.manifest.mapdb;
 
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarInputStream;
@@ -7,13 +7,13 @@ import org.kamranzafar.jtar.TarOutputStream;
 import java.io.*;
 import java.nio.file.Path;
 
-public class MapDbManifestArchiver {
+public class ManifestArchiver {
 
     public static final int BUFFER_SIZE = 2048;
 
     final private File file;
 
-    public MapDbManifestArchiver(File file) {
+    public ManifestArchiver(File file) {
         this.file = file;
     }
 

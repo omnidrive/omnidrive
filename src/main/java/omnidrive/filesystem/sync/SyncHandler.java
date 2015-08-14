@@ -7,7 +7,7 @@ import omnidrive.api.base.CloudAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.exception.InvalidFileException;
 import omnidrive.filesystem.manifest.Manifest;
-import omnidrive.filesystem.manifest.sync.ManifestSync;
+import omnidrive.filesystem.manifest.ManifestSync;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;

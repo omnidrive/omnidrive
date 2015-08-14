@@ -5,7 +5,7 @@ import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
-import omnidrive.filesystem.manifest.sync.MapDbManifest;
+import omnidrive.filesystem.manifest.mapdb.MapDbManifest;
 import omnidrive.util.MapDbUtils;
 import org.junit.Test;
 import org.mapdb.DB;

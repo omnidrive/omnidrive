@@ -1,10 +1,11 @@
-package omnidrive.filesystem.manifest.sync;
+package omnidrive.filesystem.manifest.mapdb;
 
 import com.google.common.io.Files;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.CloudAccount;
 import omnidrive.filesystem.FileSystem;
 import omnidrive.filesystem.manifest.Manifest;
+import omnidrive.filesystem.manifest.ManifestSync;
 import omnidrive.util.MapDbUtils;
 import org.mapdb.DB;
 
@@ -14,12 +15,12 @@ import java.util.List;
 
 public class MapDbManifestSync implements ManifestSync {
 
-    final private MapDbManifestArchiver archiver;
+    final private ManifestArchiver archiver;
 
     final private DB db;
 
     public MapDbManifestSync(File file, DB db) {
-        archiver = new MapDbManifestArchiver(file);
+        archiver = new ManifestArchiver(file);
         this.db = db;
     }
 
