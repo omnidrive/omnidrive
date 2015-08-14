@@ -1,9 +1,8 @@
 package omnidrive.api.managers;
 
-import omnidrive.api.base.AccountMetadata;
-import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
+import omnidrive.api.base.CloudAccount;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -87,19 +86,6 @@ public class AccountsManager extends Observable {
 
     public boolean isRegistered(AccountType type) {
         return this.accounts[type.ordinal()] != null;
-    }
-
-    public AccountType toType(CloudAccount account) {
-        AccountType type = null;
-
-        for (AccountType candidate : AccountType.values()) {
-            if (accounts[candidate.ordinal()] == account) {
-                type = candidate;
-                break;
-            }
-        }
-
-        return type;
     }
 
 }

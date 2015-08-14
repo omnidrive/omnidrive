@@ -2,11 +2,17 @@ package omnidrive.algo;
 
 public class TreeWalker<T extends TreeNode<T>> {
 
-    public void walk(T node, Visitor<T> visitor) throws Exception {
+    final private Visitor<T> visitor;
+
+    public TreeWalker(Visitor<T> visitor) {
+        this.visitor = visitor;
+    }
+
+    public void walk(T node) throws Exception {
         visitor.visit(node);
         for (T child : node.getChildren().values()) {
             visitor.preVisit(child);
-            walk(child, visitor);
+            walk(child);
             visitor.postVisit(child);
         }
     }

@@ -3,6 +3,7 @@ package omnidrive.filesystem.manifest;
 import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountType;
 import omnidrive.api.managers.AccountsManager;
+import omnidrive.filesystem.manifest.sync.MapDbManifestSync;
 import omnidrive.util.MapDbUtils;
 import org.junit.Test;
 import org.mapdb.DB;
@@ -27,10 +28,10 @@ public class MapDbManifestSyncTest {
         MapDbManifestSync manifestSync = new MapDbManifestSync(dbFile, db);
 
         // When I upload the manifest
-//        manifestSync.upload();
+        manifestSync.uploadToAll(accountsManager.getActiveAccounts());
 
         // Then DB file should be uploaded to accounts
-        verify(account).uploadFile(eq("manifest"), any(InputStream.class), eq(dbFile.length()));
+        verify(account).updateManifest(any(InputStream.class), anyLong());
     }
 
 }

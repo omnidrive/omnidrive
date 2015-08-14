@@ -1,11 +1,11 @@
 package omnidrive.filesystem.manifest;
 
-import omnidrive.api.base.AccountMetadata;
 import omnidrive.api.base.AccountType;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
+import omnidrive.filesystem.manifest.sync.MapDbManifest;
 import omnidrive.util.MapDbUtils;
 import org.junit.Test;
 import org.mapdb.DB;
@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.*;
 

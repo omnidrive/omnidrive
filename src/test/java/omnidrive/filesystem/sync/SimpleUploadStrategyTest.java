@@ -4,6 +4,7 @@ import omnidrive.api.base.CloudAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
 import omnidrive.filesystem.exception.NoAccountFoundException;
+import omnidrive.filesystem.sync.upload.SimpleUploadStrategy;
 import org.junit.Before;
 import org.junit.Test;
 

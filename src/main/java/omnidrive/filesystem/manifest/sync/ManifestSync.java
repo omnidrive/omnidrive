@@ -1,6 +1,7 @@
-package omnidrive.filesystem.manifest;
+package omnidrive.filesystem.manifest.sync;
 
 import omnidrive.api.base.CloudAccount;
+import omnidrive.filesystem.manifest.Manifest;
 
 import java.util.List;
 

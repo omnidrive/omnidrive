@@ -4,13 +4,14 @@ import omnidrive.api.base.CloudAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.FileSystem;
 import omnidrive.filesystem.manifest.Manifest;
-import omnidrive.filesystem.manifest.ManifestSync;
-import omnidrive.filesystem.manifest.MapDbManifest;
-import omnidrive.filesystem.manifest.MapDbManifestSync;
-import omnidrive.filesystem.sync.StupidStrategyForDemo;
+import omnidrive.filesystem.manifest.sync.ManifestSync;
+import omnidrive.filesystem.manifest.sync.MapDbManifest;
+import omnidrive.filesystem.manifest.sync.MapDbManifestSync;
+import omnidrive.filesystem.sync.upload.StupidStrategyForDemo;
 import omnidrive.filesystem.sync.SyncHandler;
 import omnidrive.filesystem.sync.Syncer;
-import omnidrive.filesystem.sync.UploadStrategy;
+import omnidrive.filesystem.sync.upload.UploadStrategy;
+import omnidrive.filesystem.sync.upload.Uploader;
 import omnidrive.filesystem.watcher.Handler;
 import omnidrive.filesystem.watcher.Watcher;
 import omnidrive.ui.managers.UIManager;
@@ -101,13 +102,14 @@ public class App {
         UploadStrategy uploadStrategy = new StupidStrategyForDemo(accountsManager);
         ManifestSync manifestSync = manifestContext.sync;
         Manifest manifest = manifestContext.manifest;
-        Handler handler = new SyncHandler(root, manifest, manifestSync, uploadStrategy, accountsManager);
+        Uploader uploader = new Uploader(uploadStrategy);
+        Handler handler = new SyncHandler(root, manifest, manifestSync, uploader, accountsManager);
         WatchService watchService = FileSystems.getDefault().newWatchService();
         ManifestFilter filter = new ManifestFilter();
         Watcher watcher = new Watcher(watchService, handler, filter);
         watcher.registerRecursive(root);
 
-        accountsManager.addObserver(new NewAccountObserver(manifest, manifestSync, accountsManager));
+        accountsManager.addObserver(new NewAccountObserver(manifest, manifestSync));
 
         Thread thread = new Thread(watcher);
         thread.setDaemon(true);

@@ -1,4 +1,4 @@
-package omnidrive.filesystem.sync;
+package omnidrive.filesystem.sync.upload;
 
 import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountException;
@@ -7,6 +7,10 @@ import omnidrive.filesystem.exception.NoAccountFoundException;
 
 import java.io.File;
 
+/**
+ * This strategy selects an account to upload the file to by walking over
+ * active accounts and finding one that has capacity for this file
+ */
 public class SimpleUploadStrategy implements UploadStrategy {
 
     final private AccountsManager accountsManager;

@@ -7,12 +7,15 @@ import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
 import omnidrive.filesystem.exception.InvalidFileException;
 import omnidrive.filesystem.manifest.Manifest;
-import omnidrive.filesystem.manifest.ManifestSync;
-import omnidrive.filesystem.manifest.MapDbManifest;
+import omnidrive.filesystem.manifest.sync.ManifestSync;
+import omnidrive.filesystem.manifest.sync.MapDbManifest;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
+import omnidrive.filesystem.sync.upload.SimpleUploadStrategy;
+import omnidrive.filesystem.sync.upload.UploadStrategy;
+import omnidrive.filesystem.sync.upload.Uploader;
 import omnidrive.util.MapDbUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,8 +51,10 @@ public class SyncHandlerTest extends BaseTest {
     public void setUp() throws Exception {
         accountsManager.setAccount(DRIVE_TYPE, account);
         UploadStrategy uploadStrategy = new SimpleUploadStrategy(accountsManager);
-        handler = new SyncHandler(getRoot(), manifest, manifestSync, uploadStrategy, accountsManager);
+        Uploader uploader = new Uploader(uploadStrategy);
+        handler = new SyncHandler(getRoot(), manifest, manifestSync, uploader, accountsManager);
 
+        when(account.getType()).thenReturn(DRIVE_TYPE);
         when(account.uploadFile(anyString(), any(InputStream.class), anyLong())).thenReturn(UPLOAD_ID);
         when(account.getQuotaRemainingSize()).thenReturn(100L);
     }

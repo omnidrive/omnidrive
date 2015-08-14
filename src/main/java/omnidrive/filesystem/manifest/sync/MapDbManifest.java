@@ -1,7 +1,8 @@
-package omnidrive.filesystem.manifest;
+package omnidrive.filesystem.manifest.sync;
 
 import omnidrive.api.base.AccountMetadata;
 import omnidrive.api.base.AccountType;
+import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import org.mapdb.Atomic;

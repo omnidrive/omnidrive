@@ -1,9 +1,8 @@
 package omnidrive.app;
 
 import omnidrive.api.base.CloudAccount;
-import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.manifest.Manifest;
-import omnidrive.filesystem.manifest.ManifestSync;
+import omnidrive.filesystem.manifest.sync.ManifestSync;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -14,12 +13,9 @@ public class NewAccountObserver implements Observer {
 
     final private ManifestSync manifestSync;
 
-    final private AccountsManager accountsManager;
-
-    public NewAccountObserver(Manifest manifest, ManifestSync manifestSync, AccountsManager accountsManager) {
+    public NewAccountObserver(Manifest manifest, ManifestSync manifestSync) {
         this.manifest = manifest;
         this.manifestSync = manifestSync;
-        this.accountsManager = accountsManager;
     }
 
     @Override
@@ -33,7 +29,7 @@ public class NewAccountObserver implements Observer {
 
     private void addAccount(CloudAccount account) throws Exception {
         System.out.println("Account added " + account);
-        manifest.put(accountsManager.toType(account), account.getMetadata());
+        manifest.put(account.getType(), account.getMetadata());
         if (!accountPreviouslyConnected(account)) {
             uploadManifest(account);
         } // TODO else full sync

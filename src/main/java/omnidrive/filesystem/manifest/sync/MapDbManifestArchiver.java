@@ -1,4 +1,4 @@
-package omnidrive.filesystem.manifest;
+package omnidrive.filesystem.manifest.sync;
 
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarInputStream;

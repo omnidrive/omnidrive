@@ -4,7 +4,7 @@ import omnidrive.api.base.AccountType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
 import omnidrive.filesystem.manifest.Manifest;
-import omnidrive.filesystem.manifest.MapDbManifest;
+import omnidrive.filesystem.manifest.sync.MapDbManifest;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;

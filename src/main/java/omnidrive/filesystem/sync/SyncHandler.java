@@ -7,11 +7,12 @@ import omnidrive.api.base.CloudAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.exception.InvalidFileException;
 import omnidrive.filesystem.manifest.Manifest;
-import omnidrive.filesystem.manifest.ManifestSync;
+import omnidrive.filesystem.manifest.sync.ManifestSync;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
+import omnidrive.filesystem.sync.upload.Uploader;
 import omnidrive.filesystem.watcher.Handler;
 
 import java.io.File;
@@ -27,25 +28,25 @@ public class SyncHandler implements Handler {
 
     private final ManifestSync manifestSync;
 
-    private final UploadStrategy uploadStrategy;
-
     private final AccountsManager accountsManager;
+
+    private final Uploader uploader;
 
     private final TreeWalker<EntryNode> walker;
 
-    private final Visitor<EntryNode> removeVisitor = new RemoveVisitor2();
+    private final Visitor<EntryNode> removeVisitor = new RemoveVisitor();
 
     public SyncHandler(Path root,
                        Manifest manifest,
                        ManifestSync manifestSync,
-                       UploadStrategy uploadStrategy,
+                       Uploader uploader,
                        AccountsManager accountsManager) {
         this.root = root;
         this.manifest = manifest;
         this.manifestSync = manifestSync;
-        this.uploadStrategy = uploadStrategy;
         this.accountsManager = accountsManager;
-        walker = new TreeWalker<>();
+        this.uploader = uploader;
+        walker = new TreeWalker<>(removeVisitor);
 
     }
 
@@ -87,7 +88,7 @@ public class SyncHandler implements Handler {
         String id = item.getId();
         Entry entry = manifest.get(id);
         EntryNode node = new EntryNode(manifest, root.relativize(path), entry);
-        walker.walk(node, removeVisitor);
+        walker.walk(node);
         removeVisitor.postVisit(node);
 
         parent.removeItem(id);
@@ -100,10 +101,9 @@ public class SyncHandler implements Handler {
     }
 
     private String createFile(File file) throws Exception {
-        long size = file.length();
-        CloudAccount account = uploadStrategy.selectAccount(file);
-        String id = account.uploadFile(randomId(), new FileInputStream(file), size);
-        manifest.put(new Blob(id, size, accountsManager.toType(account)));
+        Blob blob = uploader.upload(file);
+        String id = blob.getId();
+        manifest.put(blob);
         addEntryToParent(file, Entry.Type.BLOB, id);
         return id;
     }
@@ -155,7 +155,7 @@ public class SyncHandler implements Handler {
         return accountsManager.getAccount(blob.getAccount());
     }
 
-    private class RemoveVisitor2 extends SimpleVisitor<EntryNode> {
+    private class RemoveVisitor extends SimpleVisitor<EntryNode> {
 
         public void visit(EntryNode item) throws Exception {
             if (item.getType() == Entry.Type.BLOB) {

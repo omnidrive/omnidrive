@@ -1,9 +1,10 @@
-package omnidrive.filesystem.manifest;
+package omnidrive.filesystem.manifest.sync;
 
 import com.google.common.io.Files;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.CloudAccount;
 import omnidrive.filesystem.FileSystem;
+import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.util.MapDbUtils;
 import org.mapdb.DB;
 

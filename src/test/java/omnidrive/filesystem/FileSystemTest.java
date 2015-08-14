@@ -1,13 +1,7 @@
 package omnidrive.filesystem;
 
 import com.google.common.io.Files;
-import omnidrive.api.base.AccountType;
-import omnidrive.filesystem.manifest.Manifest;
-import omnidrive.filesystem.manifest.MapDbManifest;
-import omnidrive.filesystem.manifest.entry.Blob;
-import omnidrive.util.MapDbUtils;
 import org.junit.Test;
-import org.mapdb.DB;
 
 import java.io.File;
 
