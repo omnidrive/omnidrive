@@ -1,7 +1,7 @@
 package omnidrive.api.box;
 
 import com.box.sdk.BoxAPIConnection;
-import omnidrive.api.base.CloudAccount;
+import omnidrive.api.base.Account;
 
 import omnidrive.api.base.AccountException;
 import org.junit.FixMethodOrder;
@@ -27,7 +27,7 @@ public class BoxTest {
 
     private static final BoxAPIConnection conn = new BoxAPIConnection(BOX_TOKEN);
 
-    private static CloudAccount account = null;
+    private static Account account = null;
 
     public BoxTest() {
 

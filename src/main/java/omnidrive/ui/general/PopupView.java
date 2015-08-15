@@ -1,5 +1,6 @@
 package omnidrive.ui.general;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -89,6 +90,13 @@ public class PopupView {
     }
 
     private void close() {
-        this.stage.close();
+        final Stage stage = this.stage;
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                stage.close();
+            }
+        });
     }
 }

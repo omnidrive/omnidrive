@@ -1,12 +1,11 @@
 package omnidrive.api.base;
 
+import javafx.scene.web.WebEngine;
 import omnidrive.api.auth.AuthListener;
-import omnidrive.api.auth.Authorizer;
-
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class CloudAuthorizer implements Authorizer {
+public abstract class AccountAuthorizer {
 
     protected final List<AuthListener> listeners = new LinkedList<AuthListener>();
 
@@ -14,7 +13,7 @@ public abstract class CloudAuthorizer implements Authorizer {
     private final String appId;
     private final String appSecret;
 
-    public CloudAuthorizer(String appName, String appId, String appSecret) {
+    public AccountAuthorizer(String appName, String appId, String appSecret) {
         this.appName = appName;
         this.appId = appId;
         this.appSecret = appSecret;
@@ -22,7 +21,7 @@ public abstract class CloudAuthorizer implements Authorizer {
 
     public String login(AuthListener listener) throws AccountException {
         addListener(listener);
-        return authorize();
+        return authUrl();
     }
 
     public String getName() {
@@ -37,9 +36,9 @@ public abstract class CloudAuthorizer implements Authorizer {
         return this.appSecret;
     }
 
-    protected void notifyAll(AccountType type, CloudAccount account) {
+    protected void notifyAll(AccountType type, Account account) {
         for (AuthListener listener : this.listeners) {
-            listener.authenticated(type, account);
+            listener.authSucceed(type, account);
         }
     }
 
@@ -50,4 +49,12 @@ public abstract class CloudAuthorizer implements Authorizer {
             }
         }
     }
+
+    public abstract Account recreateAccount(String accessToken) throws AccountException;
+
+    public abstract String authUrl();
+
+    public abstract void fetchAuthCode(WebEngine engine) throws AccountException;
+
+    public abstract void finishAuthProcess(String code) throws AccountException;
 }

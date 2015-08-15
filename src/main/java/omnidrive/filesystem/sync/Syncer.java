@@ -4,7 +4,7 @@ import omnidrive.algo.Comparator;
 import omnidrive.algo.Pair;
 import omnidrive.algo.TreeDiff;
 import omnidrive.api.base.AccountType;
-import omnidrive.api.base.CloudAccount;
+import omnidrive.api.base.Account;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.app.ManifestFilter;
 import omnidrive.filesystem.exception.UnableToDeleteFileException;
@@ -83,7 +83,7 @@ public class Syncer {
 
     private void download(Blob blob, Path path) throws Exception {
         AccountType accountType = blob.getAccount();
-        CloudAccount account = accountsManager.getAccount(accountType);
+        Account account = accountsManager.getAccount(accountType);
         File file = rootPath.resolve(path).toFile();
         OutputStream outputStream = new FileOutputStream(file);
         account.downloadFile(blob.getId(), outputStream);

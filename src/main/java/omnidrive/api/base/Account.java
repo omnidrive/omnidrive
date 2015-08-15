@@ -3,7 +3,7 @@ package omnidrive.api.base;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public abstract class CloudAccount {
+public abstract class Account {
 
     protected static final String MANIFEST_FILE_NAME = "manifest";
     protected static final String OMNIDRIVE_ROOT_FOLDER_NAME = ".omnidrive";
@@ -18,7 +18,7 @@ public abstract class CloudAccount {
 
     private AccountType type;
 
-    protected CloudAccount(AccountType type) {
+    protected Account(AccountType type) {
         this.type = type;
         this.metadata = new AccountMetadata();
     }
@@ -58,7 +58,7 @@ public abstract class CloudAccount {
 
     public abstract void removeFile(String fileId) throws AccountException;
 
-    public abstract void removeFolder(String fileId) throws AccountException;
+    public abstract void removeFolder(String folderId) throws AccountException;
 
     public abstract void updateFile(String fileId, InputStream inputStream, long size) throws AccountException;
 

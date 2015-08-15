@@ -1,6 +1,6 @@
 package omnidrive.filesystem.sync.upload;
 
-import omnidrive.api.base.CloudAccount;
+import omnidrive.api.base.Account;
 import omnidrive.api.base.AccountException;
 import omnidrive.filesystem.exception.NoAccountFoundException;
 
@@ -8,6 +8,6 @@ import java.io.File;
 
 public interface UploadStrategy {
 
-    CloudAccount selectAccount(File file) throws AccountException, NoAccountFoundException;
+    Account selectAccount(File file) throws AccountException, NoAccountFoundException;
 
 }

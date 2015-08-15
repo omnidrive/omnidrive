@@ -3,14 +3,13 @@ package omnidrive.stub;
 import com.google.api.client.util.ArrayMap;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
-import omnidrive.api.base.CloudAccount;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
-public class Account extends CloudAccount {
+public class Account extends omnidrive.api.base.Account {
 
     public static final int DEFAULT_CAPACITY = 100;
 

@@ -24,27 +24,27 @@ public class LoginManager implements AuthListener {
         try {
             String authUrl = this.authManager.login(type, this);
             if (authUrl != null) {
-                CloudAuthorizer api = this.authManager.getAuthorizer(type);
+                AccountAuthorizer api = this.authManager.getAuthorizer(type);
                 requestLogin(type, api, authUrl);
             } else {
-                failure(type, "Failed to get auth url.");
+                authFailure(type, "Failed to get auth url.");
             }
         } catch (Exception ex) {
-            failure(type, "Error occured: " + ex.getMessage());
+            authFailure(type, "Error occured: " + ex.getMessage());
         }
     }
 
     @Override
-    public void authenticated(AccountType type, CloudAccount account) {
+    public void authSucceed(AccountType type, Account account) {
         if (this.authService != null) {
-            this.authService.succeed(type, account);
+            this.authService.accountAuthorized(type, account);
         }
     }
 
     @Override
-    public void failure(AccountType type, String error) {
+    public void authFailure(AccountType type, String error) {
         if (this.authService != null) {
-            this.authService.report(type, error);
+            this.authService.reportAuthError(type, error);
         }
     }
 
@@ -52,9 +52,9 @@ public class LoginManager implements AuthListener {
         // TODO - remove drive account from user
     }
 
-    private void requestLogin(AccountType type, CloudAuthorizer api, String authUrl) {
+    private void requestLogin(AccountType type, AccountAuthorizer api, String authUrl) {
         if (this.authService != null) {
-            this.authService.attempt(type, api, authUrl);
+            this.authService.attemptToAuth(type, api, authUrl);
         }
     }
 

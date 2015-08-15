@@ -3,7 +3,8 @@ package omnidrive.api.base;
 public enum AccountType {
     Dropbox("Dropbox"),
     GoogleDrive("Google Drive"),
-    Box("Box");
+    Box("Box"),
+    OneDrive("OneDrive");
 
     private final String text;
 

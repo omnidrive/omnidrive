@@ -1,12 +1,12 @@
 package omnidrive.api.auth;
 
-import omnidrive.api.base.CloudAccount;
+import omnidrive.api.base.Account;
 import omnidrive.api.base.AccountType;
 
 public interface AuthListener {
 
-    void authenticated(AccountType type, CloudAccount account);
+    void authSucceed(AccountType type, Account account);
 
-    void failure(AccountType type, String error);
+    void authFailure(AccountType type, String error);
 
 }

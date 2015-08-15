@@ -11,8 +11,8 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import omnidrive.api.base.CloudAuthorizer;
-import omnidrive.api.base.CloudAccount;
+import omnidrive.api.base.AccountAuthorizer;
+import omnidrive.api.base.Account;
 import omnidrive.api.base.AccountType;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.managers.AccountsManager;
@@ -27,14 +27,16 @@ import java.util.ResourceBundle;
 
 public class AccountsController implements Initializable, AuthService, Runnable {
 
+    private static final int DOUBLE_CLICK = 2;
+
     private static final int SIZE_UPDATER_SLEEP_TIME = 10000; //msec
 
     private static final int NUM_OF_ACCOUNTS = AccountType.length();
 
     private static final String BigIconImagePaths[] =
-            {"/dropbox_icon.png", "/google_drive_icon.png", "/box_icon.png"};
+            {"/dropbox_icon.png", "/google_drive_icon.png", "/box_icon.png", "/onedrive_icon.png"};
     private static final String SmallIconImagePaths[] =
-            {"/dropbox_icon_small.png", "/google_drive_icon_small.png", "/box_icon_small.png"};
+            {"/dropbox_icon_small.png", "/google_drive_icon_small.png", "/box_icon_small.png", "/onedrive_icon_small.png"};
 
     private static final int HeightOfUnregisteredCell = 80;
     private static final int HeightOfRegisteredCell = 40;
@@ -155,8 +157,8 @@ public class AccountsController implements Initializable, AuthService, Runnable 
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                List<CloudAccount> accounts = manager.getActiveAccounts();
-                for (CloudAccount account : accounts) {
+                List<Account> accounts = manager.getActiveAccounts();
+                for (Account account : accounts) {
                     addAccountToListView(account.getType());
                 }
                 fetchCloudTotalSize();
@@ -172,17 +174,17 @@ public class AccountsController implements Initializable, AuthService, Runnable 
     }
 
     @Override
-    public void attempt(AccountType type, CloudAuthorizer authorizer, String authUrl) {
+    public void attemptToAuth(AccountType type, AccountAuthorizer authorizer, String authUrl) {
         this.loginView.show(this.loginManager, authorizer, type, authUrl);
     }
 
     @Override
-    public void report(AccountType type, String message) {
+    public void reportAuthError(AccountType type, String message) {
         PopupView.popup().info(message);
     }
 
     @Override
-    public void succeed(AccountType type, CloudAccount account) {
+    public void accountAuthorized(AccountType type, Account account) {
         this.accountsManager.setAccount(type, account);
         addAccountToListView(type);
         this.loginView.close();
@@ -276,7 +278,7 @@ public class AccountsController implements Initializable, AuthService, Runnable 
             cells[cellIdx].setSize(this.unregisteredAccountsListView.getPrefWidth() - 20, HeightOfUnregisteredCell);
             cells[cellIdx].setOnMouseClicked(new EventHandler<MouseEvent>() {
                 public void handle(MouseEvent event) {
-                    if (event.getClickCount() == 2) {
+                    if (event.getClickCount() == DOUBLE_CLICK) {
                         accountClick();
                     }
                 }

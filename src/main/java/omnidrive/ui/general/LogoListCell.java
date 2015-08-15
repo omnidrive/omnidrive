@@ -27,8 +27,6 @@ public class LogoListCell extends Pane {
 
     public LogoListCell(AccountType type, Image iconImage) {
         this(type, iconImage, DEFAULT_TEXT_SIZE);
-
-        // TODO - add double click action
     }
 
     public LogoListCell(AccountType type, Image iconImage, int textSize) {

@@ -2,7 +2,7 @@ package omnidrive.api.dropbox;
 
 import com.dropbox.core.*;
 import omnidrive.api.base.AccountMetadata;
-import omnidrive.api.base.CloudAccount;
+import omnidrive.api.base.Account;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
 
@@ -12,7 +12,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 
-public class DropboxAccount extends CloudAccount {
+public class DropboxAccount extends Account {
 
     private final DbxClient client;
 

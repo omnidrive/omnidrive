@@ -9,7 +9,7 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import omnidrive.api.auth.AuthListener;
-import omnidrive.api.auth.Authorizer;
+import omnidrive.api.base.AccountAuthorizer;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
 
@@ -21,7 +21,7 @@ public class LoginView {
         this.loginStage = new Stage();
     }
 
-    public void show(final AuthListener authListener, final Authorizer authorizer, final AccountType type, final String authUrl) {
+    public void show(final AuthListener authListener, final AccountAuthorizer authorizer, final AccountType type, final String authUrl) {
         final WebView browser = new WebView();
         final WebEngine engine = browser.getEngine();
 
@@ -38,10 +38,10 @@ public class LoginView {
                     try {
                         authorizer.fetchAuthCode(engine);
                     } catch (AccountException ex) {
-                        authListener.failure(type, ex.getMessage());
+                        authListener.authFailure(type, ex.getMessage());
                     }
                 } else if (newState == Worker.State.FAILED) {
-                    authListener.failure(type, engine.getLoadWorker().getException().getMessage());
+                    authListener.authFailure(type, engine.getLoadWorker().getException().getMessage());
                 }
             }
         });

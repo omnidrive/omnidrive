@@ -1,6 +1,6 @@
 package omnidrive.app;
 
-import omnidrive.api.base.CloudAccount;
+import omnidrive.api.base.Account;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.FileSystem;
 import omnidrive.filesystem.manifest.Manifest;
@@ -57,8 +57,8 @@ public class App {
     }
 
     private void startSubsequentRun() throws Exception {
-        List<CloudAccount> registeredAccounts = getRegisteredAccounts();
-        CloudAccount lruAccount = resolveLeastRecentlyUpdatedAccount(registeredAccounts);
+        List<Account> registeredAccounts = getRegisteredAccounts();
+        Account lruAccount = resolveLeastRecentlyUpdatedAccount(registeredAccounts);
         fullSync(lruAccount);
         registeredAccounts.remove(lruAccount);
         manifestContext.sync.uploadToAll(registeredAccounts);
@@ -81,17 +81,17 @@ public class App {
         return !manifestContext.exists;
     }
 
-    private List<CloudAccount> getRegisteredAccounts() throws Exception {
+    private List<Account> getRegisteredAccounts() throws Exception {
         Manifest manifest = manifestContext.manifest;
         accountsManager.restoreAccounts(manifest.getAccountsMetadata());
         return accountsManager.getActiveAccounts();
     }
 
-    private CloudAccount resolveLeastRecentlyUpdatedAccount(List<CloudAccount> accounts) throws Exception {
+    private Account resolveLeastRecentlyUpdatedAccount(List<Account> accounts) throws Exception {
         return accounts.get(0); // Ideally this would be resolved using last modified time
     }
 
-    private void fullSync(CloudAccount account) throws Exception {
+    private void fullSync(Account account) throws Exception {
         Syncer syncer = new Syncer(fileSystem.getRootPath(), accountsManager);
         Manifest manifest = manifestContext.sync.downloadFromAccount(account);
         syncer.fullSync(manifest);

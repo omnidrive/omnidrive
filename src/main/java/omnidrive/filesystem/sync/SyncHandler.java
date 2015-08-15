@@ -3,7 +3,7 @@ package omnidrive.filesystem.sync;
 import omnidrive.algo.SimpleVisitor;
 import omnidrive.algo.TreeWalker;
 import omnidrive.algo.Visitor;
-import omnidrive.api.base.CloudAccount;
+import omnidrive.api.base.Account;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.exception.InvalidFileException;
 import omnidrive.filesystem.manifest.Manifest;
@@ -70,7 +70,7 @@ public class SyncHandler implements Handler {
         Blob blob = getBlob(file);
         String id = blob.getId();
         Blob updated = new Blob(id, file.length(), blob.getAccount());
-        CloudAccount account = getAccount(blob);
+        Account account = getAccount(blob);
         account.updateFile(id, new FileInputStream(file), updated.getSize());
         manifest.put(updated);
         uploadManifestToAllAccounts();
@@ -151,7 +151,7 @@ public class SyncHandler implements Handler {
         }
     }
 
-    private CloudAccount getAccount(Blob blob) {
+    private Account getAccount(Blob blob) {
         return accountsManager.getAccount(blob.getAccount());
     }
 
@@ -160,7 +160,7 @@ public class SyncHandler implements Handler {
         public void visit(EntryNode item) throws Exception {
             if (item.getType() == Entry.Type.BLOB) {
                 Blob blob = item.as(Blob.class);
-                CloudAccount account = getAccount(blob);
+                Account account = getAccount(blob);
                 account.removeFile(blob.getId());
                 manifest.remove(blob);
             }

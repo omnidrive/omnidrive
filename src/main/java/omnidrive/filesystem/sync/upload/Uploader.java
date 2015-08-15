@@ -1,6 +1,6 @@
 package omnidrive.filesystem.sync.upload;
 
-import omnidrive.api.base.CloudAccount;
+import omnidrive.api.base.Account;
 import omnidrive.filesystem.manifest.entry.Blob;
 
 import java.io.File;
@@ -17,7 +17,7 @@ public class Uploader {
 
     public Blob upload(File file) throws Exception {
         long size = file.length();
-        CloudAccount account = uploadStrategy.selectAccount(file);
+        Account account = uploadStrategy.selectAccount(file);
         String id = account.uploadFile(randomId(), new FileInputStream(file), size);
 
         return new Blob(id, size, account.getType());

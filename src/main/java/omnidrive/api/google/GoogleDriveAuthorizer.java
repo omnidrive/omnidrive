@@ -10,8 +10,8 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import javafx.scene.web.WebEngine;
-import omnidrive.api.base.CloudAccount;
-import omnidrive.api.base.CloudAuthorizer;
+import omnidrive.api.base.Account;
+import omnidrive.api.base.AccountAuthorizer;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
 import omnidrive.api.managers.LoginManager;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class GoogleDriveAuthorizer extends CloudAuthorizer {
+public class GoogleDriveAuthorizer extends AccountAuthorizer {
 
     private static final String APP_NAME = "GoogleDrive";
     private static final String CLIENT_ID = "438388195219-sf38d0f4bbj4t9at3e9n72uup3cfsb8m.apps.googleusercontent.com";
@@ -48,7 +48,7 @@ public class GoogleDriveAuthorizer extends CloudAuthorizer {
     }
 
     @Override
-    public CloudAccount createAccount(String accessToken) throws AccountException {
+    public Account recreateAccount(String accessToken) throws AccountException {
         GoogleCredential credential = new GoogleCredential.Builder()
                 .setClientSecrets(CLIENT_ID, CLIENT_SECRET)
                 .setJsonFactory(jsonFactory)
@@ -62,7 +62,7 @@ public class GoogleDriveAuthorizer extends CloudAuthorizer {
     }
 
     @Override
-    public final String authorize() {
+    public final String authUrl() {
         return this.auth.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
     }
 

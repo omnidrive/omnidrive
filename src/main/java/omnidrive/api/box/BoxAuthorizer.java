@@ -1,14 +1,14 @@
 package omnidrive.api.box;
 
 import javafx.scene.web.WebEngine;
-import omnidrive.api.base.CloudAccount;
-import omnidrive.api.base.CloudAuthorizer;
+import omnidrive.api.base.Account;
+import omnidrive.api.base.AccountAuthorizer;
 
 import com.box.sdk.BoxAPIConnection;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
 
-public class BoxAuthorizer extends CloudAuthorizer {
+public class BoxAuthorizer extends AccountAuthorizer {
 
     // BOX App Keys
     private static final String APP_NAME = "Box";
@@ -24,13 +24,13 @@ public class BoxAuthorizer extends CloudAuthorizer {
     }
 
     @Override
-    public CloudAccount createAccount(String accessToken) throws AccountException {
+    public Account recreateAccount(String accessToken) throws AccountException {
         final BoxAPIConnection conn = new BoxAPIConnection(accessToken);
         return new BoxAccount(conn);
     }
 
     @Override
-    public final String authorize() {
+    public final String authUrl() {
         String baseUrl = "https://www.box.com/api/oauth2/authorize?";
         String clientId = "client_id=" + CLIENT_ID;
         String responseType = "&response_type=code";

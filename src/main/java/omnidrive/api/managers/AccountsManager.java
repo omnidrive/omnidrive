@@ -1,8 +1,8 @@
 package omnidrive.api.managers;
 
+import omnidrive.api.base.Account;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
-import omnidrive.api.base.CloudAccount;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,24 +13,24 @@ public class AccountsManager extends Observable {
 
     private final AuthManager authManager = AuthManager.getAuthManager();
 
-    private final CloudAccount[] accounts = new CloudAccount[AccountType.length()];
+    private final Account[] accounts = new Account[AccountType.length()];
 
     public void restoreAccounts(Map<String, String> accountsInfo) throws AccountException {
         for (Map.Entry<String, String> entry : accountsInfo.entrySet()) {
             AccountType type = AccountType.valueOf(entry.getKey());
             String accessToken = entry.getValue();
-            CloudAccount account = createAccount(type, accessToken);
+            Account account = restoreAccount(type, accessToken);
             if (account != null) {
                 setAccount(type, account);
             }
         }
     }
 
-    public CloudAccount createAccount(AccountType type, String accessToken) throws AccountException {
-        return this.authManager.getAuthorizer(type).createAccount(accessToken);
+    public Account restoreAccount(AccountType type, String accessToken) throws AccountException {
+        return this.authManager.getAuthorizer(type).recreateAccount(accessToken);
     }
 
-    public void setAccount(AccountType type, CloudAccount account) {
+    public void setAccount(AccountType type, Account account) {
         this.accounts[type.ordinal()] = account;
         setChanged();
         notifyObservers(account);
@@ -42,14 +42,14 @@ public class AccountsManager extends Observable {
         }
     }
 
-    public CloudAccount getAccount(AccountType type) {
+    public Account getAccount(AccountType type) {
         return this.accounts[type.ordinal()];
     }
 
-    public List<CloudAccount> getActiveAccounts() {
-        List<CloudAccount> activeAccounts = new LinkedList<>();
+    public List<Account> getActiveAccounts() {
+        List<Account> activeAccounts = new LinkedList<>();
 
-        for (CloudAccount account : this.accounts) {
+        for (Account account : this.accounts) {
             if (account != null) {
                 activeAccounts.add(account);
             }
@@ -65,8 +65,8 @@ public class AccountsManager extends Observable {
     public long getCloudFreeSize() throws AccountException {
         long size = 0;
 
-        List<CloudAccount> accounts = getActiveAccounts();
-        for (CloudAccount account : accounts) {
+        List<Account> accounts = getActiveAccounts();
+        for (Account account : accounts) {
             size += account.getCachedQuotaRemainingSize();
         }
 
@@ -76,8 +76,8 @@ public class AccountsManager extends Observable {
     public long getCloudTotalSize() throws AccountException {
         long size = 0;
 
-        List<CloudAccount> accounts = getActiveAccounts();
-        for (CloudAccount account : accounts) {
+        List<Account> accounts = getActiveAccounts();
+        for (Account account : accounts) {
             size += account.getCachedQuotaTotalSize();
         }
 
@@ -88,4 +88,16 @@ public class AccountsManager extends Observable {
         return this.accounts[type.ordinal()] != null;
     }
 
+    public AccountType toType(Account account) {
+        AccountType type = null;
+
+        for (AccountType candidate : AccountType.values()) {
+            if (accounts[candidate.ordinal()] == account) {
+                type = candidate;
+                break;
+            }
+        }
+
+        return type;
+    }
 }
