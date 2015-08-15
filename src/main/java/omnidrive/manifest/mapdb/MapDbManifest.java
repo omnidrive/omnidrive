@@ -1,10 +1,10 @@
-package omnidrive.filesystem.manifest.mapdb;
+package omnidrive.manifest.mapdb;
 
 import omnidrive.api.base.AccountMetadata;
 import omnidrive.api.base.AccountType;
-import omnidrive.filesystem.manifest.Manifest;
-import omnidrive.filesystem.manifest.entry.Entry;
-import omnidrive.filesystem.manifest.entry.Tree;
+import omnidrive.manifest.Manifest;
+import omnidrive.manifest.entry.Entry;
+import omnidrive.manifest.entry.Tree;
 import org.mapdb.Atomic;
 import org.mapdb.DB;
 import org.mapdb.HTreeMap;

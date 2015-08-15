@@ -1,9 +1,9 @@
-package omnidrive.filesystem.manifest;
+package omnidrive.manifest;
 
 import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountType;
 import omnidrive.api.managers.AccountsManager;
-import omnidrive.filesystem.manifest.mapdb.MapDbManifestSync;
+import omnidrive.manifest.mapdb.MapDbManifestSync;
 import omnidrive.util.MapDbUtils;
 import org.junit.Test;
 import org.mapdb.DB;

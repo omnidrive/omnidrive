@@ -1,11 +1,11 @@
-package omnidrive.filesystem.manifest;
+package omnidrive.manifest;
 
 import omnidrive.api.base.AccountType;
-import omnidrive.filesystem.manifest.entry.Blob;
-import omnidrive.filesystem.manifest.entry.Entry;
-import omnidrive.filesystem.manifest.entry.Tree;
-import omnidrive.filesystem.manifest.entry.TreeItem;
-import omnidrive.filesystem.manifest.mapdb.MapDbManifest;
+import omnidrive.manifest.entry.Blob;
+import omnidrive.manifest.entry.Entry;
+import omnidrive.manifest.entry.Tree;
+import omnidrive.manifest.entry.TreeItem;
+import omnidrive.manifest.mapdb.MapDbManifest;
 import omnidrive.util.MapDbUtils;
 import org.junit.Test;
 import org.mapdb.DB;

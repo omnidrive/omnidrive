@@ -1,10 +1,10 @@
 package omnidrive.sync;
 
 import omnidrive.algo.TreeNode;
-import omnidrive.filesystem.manifest.Manifest;
-import omnidrive.filesystem.manifest.entry.Entry;
-import omnidrive.filesystem.manifest.entry.Tree;
-import omnidrive.filesystem.manifest.entry.TreeItem;
+import omnidrive.manifest.Manifest;
+import omnidrive.manifest.entry.Entry;
+import omnidrive.manifest.entry.Tree;
+import omnidrive.manifest.entry.TreeItem;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

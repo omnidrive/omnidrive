@@ -1,9 +1,9 @@
-package omnidrive.filesystem.manifest;
+package omnidrive.manifest;
 
 import omnidrive.api.base.AccountMetadata;
 import omnidrive.api.base.AccountType;
-import omnidrive.filesystem.manifest.entry.Entry;
-import omnidrive.filesystem.manifest.entry.Tree;
+import omnidrive.manifest.entry.Entry;
+import omnidrive.manifest.entry.Tree;
 
 import java.util.Map;
 

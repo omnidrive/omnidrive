@@ -8,10 +8,10 @@ import omnidrive.api.base.CloudAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.app.ManifestFilter;
 import omnidrive.filesystem.exception.UnableToDeleteFileException;
-import omnidrive.filesystem.manifest.Manifest;
-import omnidrive.filesystem.manifest.entry.Blob;
-import omnidrive.filesystem.manifest.entry.Entry;
-import omnidrive.filesystem.manifest.entry.Tree;
+import omnidrive.manifest.Manifest;
+import omnidrive.manifest.entry.Blob;
+import omnidrive.manifest.entry.Entry;
+import omnidrive.manifest.entry.Tree;
 
 import java.io.File;
 import java.io.FileOutputStream;

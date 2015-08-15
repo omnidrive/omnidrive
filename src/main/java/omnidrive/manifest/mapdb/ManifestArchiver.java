@@ -1,4 +1,4 @@
-package omnidrive.filesystem.manifest.mapdb;
+package omnidrive.manifest.mapdb;
 
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarInputStream;

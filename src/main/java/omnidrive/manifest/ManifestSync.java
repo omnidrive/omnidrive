@@ -1,4 +1,4 @@
-package omnidrive.filesystem.manifest;
+package omnidrive.manifest;
 
 import omnidrive.api.base.CloudAccount;
 

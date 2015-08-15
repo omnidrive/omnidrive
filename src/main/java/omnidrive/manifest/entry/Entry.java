@@ -1,4 +1,4 @@
-package omnidrive.filesystem.manifest.entry;
+package omnidrive.manifest.entry;
 
 import java.io.Serializable;
 

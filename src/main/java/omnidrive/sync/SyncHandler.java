@@ -6,12 +6,12 @@ import omnidrive.algo.Visitor;
 import omnidrive.api.base.CloudAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.exception.InvalidFileException;
-import omnidrive.filesystem.manifest.Manifest;
-import omnidrive.filesystem.manifest.ManifestSync;
-import omnidrive.filesystem.manifest.entry.Blob;
-import omnidrive.filesystem.manifest.entry.Entry;
-import omnidrive.filesystem.manifest.entry.Tree;
-import omnidrive.filesystem.manifest.entry.TreeItem;
+import omnidrive.manifest.Manifest;
+import omnidrive.manifest.ManifestSync;
+import omnidrive.manifest.entry.Blob;
+import omnidrive.manifest.entry.Entry;
+import omnidrive.manifest.entry.Tree;
+import omnidrive.manifest.entry.TreeItem;
 import omnidrive.sync.upload.Uploader;
 import omnidrive.filesystem.watcher.Handler;
 
