@@ -1,4 +1,4 @@
-package omnidrive.filesystem.sync.upload;
+package omnidrive.sync.upload;
 
 import omnidrive.api.base.CloudAccount;
 import omnidrive.filesystem.manifest.entry.Blob;

@@ -1,4 +1,4 @@
-package omnidrive.filesystem.sync.upload;
+package omnidrive.sync.upload;
 
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.CloudAccount;

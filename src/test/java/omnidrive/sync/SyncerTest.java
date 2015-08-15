@@ -1,4 +1,4 @@
-package omnidrive.filesystem.sync;
+package omnidrive.sync;
 
 import omnidrive.api.base.AccountType;
 import omnidrive.api.managers.AccountsManager;

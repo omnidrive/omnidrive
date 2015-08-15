@@ -1,4 +1,4 @@
-package omnidrive.filesystem.sync;
+package omnidrive.sync;
 
 import omnidrive.algo.SimpleVisitor;
 import omnidrive.algo.TreeWalker;
@@ -12,7 +12,7 @@ import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;
 import omnidrive.filesystem.manifest.entry.TreeItem;
-import omnidrive.filesystem.sync.upload.Uploader;
+import omnidrive.sync.upload.Uploader;
 import omnidrive.filesystem.watcher.Handler;
 
 import java.io.File;

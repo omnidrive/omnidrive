@@ -1,4 +1,4 @@
-package omnidrive.filesystem.sync;
+package omnidrive.sync;
 
 import omnidrive.algo.TreeNode;
 import omnidrive.filesystem.watcher.Filter;
