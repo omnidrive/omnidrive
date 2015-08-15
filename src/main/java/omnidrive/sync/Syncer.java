@@ -7,7 +7,7 @@ import omnidrive.api.base.AccountType;
 import omnidrive.api.base.CloudAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.app.ManifestFilter;
-import omnidrive.filesystem.exception.UnableToDeleteFileException;
+import omnidrive.exceptions.UnableToDeleteFileException;
 import omnidrive.manifest.Manifest;
 import omnidrive.manifest.entry.Blob;
 import omnidrive.manifest.entry.Entry;

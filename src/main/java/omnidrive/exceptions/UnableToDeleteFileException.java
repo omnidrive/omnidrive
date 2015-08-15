@@ -1,4 +1,4 @@
-package omnidrive.filesystem.exception;
+package omnidrive.exceptions;
 
 import java.io.File;
 

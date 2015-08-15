@@ -2,7 +2,7 @@ package omnidrive.sync.upload;
 
 import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountException;
-import omnidrive.filesystem.exception.NoAccountFoundException;
+import omnidrive.exceptions.NoAccountFoundException;
 
 import java.io.File;
 

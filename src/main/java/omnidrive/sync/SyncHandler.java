@@ -5,7 +5,7 @@ import omnidrive.algo.TreeWalker;
 import omnidrive.algo.Visitor;
 import omnidrive.api.base.CloudAccount;
 import omnidrive.api.managers.AccountsManager;
-import omnidrive.filesystem.exception.InvalidFileException;
+import omnidrive.exceptions.InvalidFileException;
 import omnidrive.manifest.Manifest;
 import omnidrive.manifest.ManifestSync;
 import omnidrive.manifest.entry.Blob;

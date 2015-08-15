@@ -5,7 +5,7 @@ import omnidrive.api.base.CloudAccount;
 import omnidrive.api.base.AccountType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
-import omnidrive.filesystem.exception.InvalidFileException;
+import omnidrive.exceptions.InvalidFileException;
 import omnidrive.manifest.Manifest;
 import omnidrive.manifest.ManifestSync;
 import omnidrive.manifest.mapdb.MapDbManifest;
