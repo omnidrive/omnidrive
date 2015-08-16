@@ -11,7 +11,17 @@ public class OneDriveParent {
 
     public OneDriveParent(JSONObject json) {
         this.driveId = json.getString("driveId");
+        /*int idEndIndex = this.driveId.indexOf("!");
+        if (idEndIndex >= 0) {
+            this.driveId = this.driveId.substring(0, idEndIndex);
+        }*/
+
         this.id = json.getString("id");
+        /*idEndIndex = this.id.indexOf("!");
+        if (idEndIndex >= 0) {
+            this.id = this.id.substring(0, idEndIndex);
+        }*/
+
         this.path = json.getString("path").substring("/drive/root:".length());
     }
 

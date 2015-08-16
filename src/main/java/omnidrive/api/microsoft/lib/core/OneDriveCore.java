@@ -31,9 +31,15 @@ public class OneDriveCore {
         params.put("client_secret", clientSecret);
         params.put("code", code);
         params.put("grant_type", "authorization_code");
-        params.put("redirect_uri", OneDriveConstants.ONEDRIVE_API_REDIRECT_URL);
+        params.put("redirect_uri", OneDriveRestApi.ONEDRIVE_API_REDIRECT_URL);
 
-        JSONObject result = restApi.doPost(OneDriveConstants.ONEDRIVE_API_AUTH_TOKEN_URL, null, null, params);
+        JSONObject result = restApi.doPost(
+                OneDriveRestApi.ONEDRIVE_API_AUTH_TOKEN_URL,
+                null,
+                null,
+                params
+        );
+
         OneDriveOAuth oauth = new OneDriveOAuth(clientId, clientSecret, result);
         OneDriveCore core = new OneDriveCore(oauth);
 
@@ -59,10 +65,10 @@ public class OneDriveCore {
     }
 
     public OneDriveOwner getOwner() throws Exception {
-        String path = OneDriveConstants.ONEDRIVE_API_DRIVE;
+        String path = OneDriveRestApi.ONEDRIVE_API_DRIVE;
 
         JSONObject result = restApi.doGet(
-                OneDriveConstants.ONEDRIVE_API_URL,
+                OneDriveRestApi.ONEDRIVE_API_URL,
                 path,
                 getAccessToken()
         );
@@ -76,16 +82,16 @@ public class OneDriveCore {
 
     public OneDriveItem getItemById(String itemId, boolean withChildren) throws Exception {
         String path =
-                OneDriveConstants.ONEDRIVE_API_DRIVE +
-                OneDriveConstants.ONEDRIVE_API_ITEM_BY_ID +
+                OneDriveRestApi.ONEDRIVE_API_DRIVE +
+                OneDriveRestApi.ONEDRIVE_API_ITEM_BY_ID +
                 "/" + itemId;
 
         if (withChildren) {
-            path += OneDriveConstants.ONEDRIVE_API_EXPAND_CHILDREN;
+            path += OneDriveRestApi.ONEDRIVE_API_EXPAND_CHILDREN;
         }
 
         JSONObject result = restApi.doGet(
-                OneDriveConstants.ONEDRIVE_API_URL,
+                OneDriveRestApi.ONEDRIVE_API_URL,
                 path,
                 getAccessToken()
         );
@@ -94,17 +100,21 @@ public class OneDriveCore {
     }
 
     public OneDriveItem getItemByPath(String itemPath, boolean withChildren) throws Exception {
+        if (itemPath.startsWith("/")) {
+            itemPath = itemPath.substring(1);
+        }
+
         String path =
-                OneDriveConstants.ONEDRIVE_API_DRIVE +
-                OneDriveConstants.ONEDRIVE_API_ITEM_BY_PATH +
+                OneDriveRestApi.ONEDRIVE_API_DRIVE +
+                OneDriveRestApi.ONEDRIVE_API_ITEM_BY_PATH +
                 "/" + itemPath;
 
         if (withChildren) {
-            path += OneDriveConstants.ONEDRIVE_API_EXPAND_CHILDREN;
+            path += OneDriveRestApi.ONEDRIVE_API_EXPAND_CHILDREN;
         }
 
         JSONObject result = restApi.doGet(
-                OneDriveConstants.ONEDRIVE_API_URL,
+                OneDriveRestApi.ONEDRIVE_API_URL,
                 path,
                 getAccessToken()
         );
@@ -114,15 +124,15 @@ public class OneDriveCore {
 
     public String uploadItem(String parentId, String name, InputStream inputStream) throws Exception {
         String path =
-                OneDriveConstants.ONEDRIVE_API_DRIVE +
-                OneDriveConstants.ONEDRIVE_API_ITEM_BY_ID +
+                OneDriveRestApi.ONEDRIVE_API_DRIVE +
+                OneDriveRestApi.ONEDRIVE_API_ITEM_BY_ID +
                 "/" + parentId +
-                OneDriveConstants.ONEDRIVE_API_CHILDREN +
+                OneDriveRestApi.ONEDRIVE_API_CHILDREN +
                 "/" + name +
-                OneDriveConstants.ONEDRIVE_API_CONTENT;
+                OneDriveRestApi.ONEDRIVE_API_CONTENT;
 
         JSONObject result = restApi.doPut(
-                OneDriveConstants.ONEDRIVE_API_URL,
+                OneDriveRestApi.ONEDRIVE_API_URL,
                 path,
                 getAccessToken(),
                 inputStream
@@ -135,22 +145,22 @@ public class OneDriveCore {
         return result.getString("id");
     }
 
-    public OneDriveItem updateItem(String itemId, InputStream inputStream) throws Exception {
+    public OneDriveItem updateItem(String itemId, InputStream inputStream, OneDriveNameConflict nameConflict) throws Exception {
         String path =
-                OneDriveConstants.ONEDRIVE_API_DRIVE +
-                OneDriveConstants.ONEDRIVE_API_ITEM_BY_ID +
+                OneDriveRestApi.ONEDRIVE_API_DRIVE +
+                OneDriveRestApi.ONEDRIVE_API_ITEM_BY_ID +
                 "/" + itemId +
-                OneDriveConstants.ONEDRIVE_API_CONTENT +
-                "?@name.conflictBehavior=replace";
+                OneDriveRestApi.ONEDRIVE_API_CONTENT +
+                nameConflict.toString();
 
         JSONObject result = restApi.doPut(
-                OneDriveConstants.ONEDRIVE_API_URL,
+                OneDriveRestApi.ONEDRIVE_API_URL,
                 path,
                 getAccessToken(),
                 inputStream
         );
 
-        if (result.getString("id") == null || result.getString("id").isEmpty()) {
+        if (result.getString("id") == null || result.getString("id").isEmpty() || !result.getString("id").equals(itemId)) {
             throw new Exception("OneDriveCore: failed to update item.");
         }
 
@@ -159,12 +169,12 @@ public class OneDriveCore {
 
     public void deleteItem(String itemId) throws Exception {
         String path =
-                OneDriveConstants.ONEDRIVE_API_DRIVE +
-                OneDriveConstants.ONEDRIVE_API_ITEM_BY_ID +
+                OneDriveRestApi.ONEDRIVE_API_DRIVE +
+                OneDriveRestApi.ONEDRIVE_API_ITEM_BY_ID +
                 "/" + itemId;
 
         JSONObject result = restApi.doDelete(
-                OneDriveConstants.ONEDRIVE_API_URL,
+                OneDriveRestApi.ONEDRIVE_API_URL,
                 path,
                 getAccessToken()
         );
@@ -182,19 +192,19 @@ public class OneDriveCore {
         return ChannelTools.fastChannelCopy(readChannel, writeChannel);
     }
 
-    public String createFolderItem(String name) throws Exception {
+    public String createFolderItem(String name, OneDriveNameConflict nameConflict) throws Exception {
         String path =
-                OneDriveConstants.ONEDRIVE_API_DRIVE +
-                OneDriveConstants.ONEDRIVE_API_ROOT +
-                OneDriveConstants.ONEDRIVE_API_CHILDREN;
+                OneDriveRestApi.ONEDRIVE_API_DRIVE +
+                OneDriveRestApi.ONEDRIVE_API_ROOT +
+                OneDriveRestApi.ONEDRIVE_API_CHILDREN +
+                nameConflict.toString();
 
         JSONObject jsonBody = new JSONObject();
         jsonBody.put("name", name);
         jsonBody.put("folder", new JSONObject("{}"));
-        jsonBody.put("@name.conflictBehavior", "replace");
 
         JSONObject result = restApi.doPost(
-                OneDriveConstants.ONEDRIVE_API_URL,
+                OneDriveRestApi.ONEDRIVE_API_URL,
                 path,
                 getAccessToken(),
                 jsonBody
@@ -205,8 +215,8 @@ public class OneDriveCore {
 
     public OneDriveQuota getQuota() throws Exception {
         JSONObject json = restApi.doGet(
-                OneDriveConstants.ONEDRIVE_API_URL,
-                OneDriveConstants.ONEDRIVE_API_DRIVE,
+                OneDriveRestApi.ONEDRIVE_API_URL,
+                OneDriveRestApi.ONEDRIVE_API_DRIVE,
                 this.oauth.getAccessToken()
         );
 
@@ -223,14 +233,14 @@ public class OneDriveCore {
 
     private static class ChannelTools {
         public static long fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException {
-            int size = 0;
+            long size = 0;
 
             final ByteBuffer buffer = ByteBuffer.allocateDirect(16 * 1024);
             while (src.read(buffer) != -1) {
                 // prepare the buffer to be drained
                 buffer.flip();
                 // write to the channel, may block
-                dest.write(buffer);
+                size += dest.write(buffer);
                 // If partial transfer, shift remainder down
                 // If buffer is empty, same as doing clear()
                 buffer.compact();

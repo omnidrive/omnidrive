@@ -5,6 +5,7 @@ import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountMetadata;
 import omnidrive.api.base.AccountType;
 import omnidrive.api.microsoft.lib.core.OneDriveCore;
+import omnidrive.api.microsoft.lib.core.OneDriveNameConflict;
 import omnidrive.api.microsoft.lib.entry.OneDriveChildItem;
 import omnidrive.api.microsoft.lib.entry.OneDriveEntryType;
 import omnidrive.api.microsoft.lib.entry.OneDriveItem;
@@ -34,7 +35,7 @@ public class OneDriveAccount extends Account {
     protected void createRootFolder() throws AccountException {
         if (!isOmniDriveFolderExists()) {
             try {
-                this.core.createFolderItem(OMNIDRIVE_ROOT_FOLDER_NAME);
+                this.core.createFolderItem(OMNIDRIVE_ROOT_FOLDER_NAME, OneDriveNameConflict.Fail);
             } catch (Exception ex) {
                 throw new OneDriveException("Failed to create 'OmniDrive' folder");
             }
@@ -138,7 +139,7 @@ public class OneDriveAccount extends Account {
         try {
             OneDriveItem before = this.core.getItemById(fileId, false);
             this.usedSize -= before.getSize();
-            this.core.updateItem(fileId, inputStream);
+            this.core.updateItem(fileId, inputStream, OneDriveNameConflict.Replace);
             this.usedSize += size;
         } catch (Exception ex) {
             throw new OneDriveException("Failed to remove item");
@@ -172,11 +173,17 @@ public class OneDriveAccount extends Account {
     public boolean manifestExists() throws AccountException {
         boolean exists = false;
 
+        if (hasManifestId()) {
+            return true;
+        }
+
         try {
             OneDriveItem item = this.core.getItemByPath(getFullPath(MANIFEST_FILE_NAME), false);
             if (item != null) {
-                setManifestId(item.getId());
-                exists = true;
+                if (!item.isDeleted()) {
+                    setManifestId(item.getId());
+                    exists = true;
+                }
             }
         } catch (Exception ex) {
             exists = false;

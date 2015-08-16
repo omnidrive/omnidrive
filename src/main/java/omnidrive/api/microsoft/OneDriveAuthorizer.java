@@ -5,16 +5,22 @@ import omnidrive.api.base.Account;
 import omnidrive.api.base.AccountAuthorizer;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
-import omnidrive.api.microsoft.lib.core.OneDriveConstants;
 import omnidrive.api.microsoft.lib.core.OneDriveCore;
 import omnidrive.api.microsoft.lib.core.OneDriveOAuth;
+import omnidrive.api.microsoft.lib.core.OneDriveRestApi;
+import omnidrive.api.microsoft.lib.core.OneDriveScope;
 
 public class OneDriveAuthorizer extends AccountAuthorizer {
 
     private static final String APP_NAME = "omnidrive";
     private static final String APP_ID = "000000004C14C243";
     private static final String APP_SECRET = "4Xucj-d2MSpbnxXJ8dbkhK3Bi1XWFUTC";
-    private static final String APP_SCOPE = "wl.signin wl.offline_access onedrive.readwrite";
+
+    private static final String APP_SCOPE = OneDriveScope.toString(
+            OneDriveScope.SignIn,
+            OneDriveScope.OfflineAccess,
+            OneDriveScope.ReadWrite
+    );
 
     public OneDriveAuthorizer() {
         super(APP_NAME, APP_ID, APP_SECRET);
@@ -32,17 +38,17 @@ public class OneDriveAuthorizer extends AccountAuthorizer {
 
     @Override
     public String authUrl() {
-        return OneDriveConstants.ONEDRIVE_API_AUTH_URL +
+        return OneDriveRestApi.ONEDRIVE_API_AUTH_URL +
                 "?client_id=" + APP_ID +
                 "&scope=" + APP_SCOPE +
                 "&response_type=code" +
-                "&redirect_uri=" + OneDriveConstants.ONEDRIVE_API_REDIRECT_URL;
+                "&redirect_uri=" + OneDriveRestApi.ONEDRIVE_API_REDIRECT_URL;
     }
 
     @Override
     public void fetchAuthCode(WebEngine engine) throws AccountException {
         String url = engine.getLocation();
-        if (url.contains(OneDriveConstants.ONEDRIVE_API_REDIRECT_URL)) {
+        if (url.contains(OneDriveRestApi.ONEDRIVE_API_REDIRECT_URL)) {
             if (url.contains("?code=")) {
                 int indexOfCodeString = url.indexOf("?code=");
                 String code = url.substring(indexOfCodeString + "?code=".length());

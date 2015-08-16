@@ -35,39 +35,46 @@ package omnidrive.api.microsoft.lib.entry;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.OutputStream;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
 public class OneDriveItem {
-    private final String id;
-    private final String name;
-    private final long size;
-    private final String description;
-    private final String downloadUrl;
-    private final OneDriveParent parent;
-    private final boolean deleted;
-    private final OneDriveEntryType type;
-    private final List<OneDriveChildItem> children = new LinkedList<OneDriveChildItem>();
+    private String id;
+    private String name;
+    private long size;
+    private String downloadUrl;
+    private OneDriveParent parent;
+    private boolean deleted;
+    private OneDriveEntryType type;
+    private List<OneDriveChildItem> children = new LinkedList<OneDriveChildItem>();
 
     public OneDriveItem(JSONObject json) {
         this.id = json.getString("id");
+        /*int idEndIndex = this.id.indexOf("!");
+        if (idEndIndex >= 0) {
+            this.id = this.id.substring(0, idEndIndex);
+        }*/
+
         this.name = json.getString("name");
         this.size = json.getLong("size");
-        this.description = json.getString("description");
-        this.parent = new OneDriveParent(json.getJSONObject("parentReference"));
-        this.deleted = json.getJSONObject("deleted").length() != 0;
-        this.downloadUrl = json.getString("@content.downloadUrl");
-
-        if (json.get("file") != null) {
-            this.type = OneDriveEntryType.File;
+        if (json.has("parentReference")) {
+            this.parent = new OneDriveParent(json.getJSONObject("parentReference"));
         } else {
-            this.type = OneDriveEntryType.Folder;
+            parent = null;
         }
 
-        JSONArray childrenJsonArray = json.getJSONArray("children");
-        if (childrenJsonArray != null) {
+        this.deleted = json.has("deleted");
+
+        if (json.has("file")) {
+            this.type = OneDriveEntryType.File;
+            this.downloadUrl = json.getString("@content.downloadUrl");
+        } else {
+            this.type = OneDriveEntryType.Folder;
+            this.downloadUrl = null;
+        }
+
+        if (json.has("children")) {
+            JSONArray childrenJsonArray = json.getJSONArray("children");
             for (int index = 0; index < childrenJsonArray.length(); index++) {
                 JSONObject childJson = childrenJsonArray.getJSONObject(index);
                 this.children.add(new OneDriveChildItem(childJson));
@@ -85,10 +92,6 @@ public class OneDriveItem {
 
     public long getSize() {
         return size;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public String getDownloadUrl() {
