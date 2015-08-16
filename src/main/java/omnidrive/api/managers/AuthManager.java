@@ -6,6 +6,7 @@ import omnidrive.api.base.AccountType;
 import omnidrive.api.box.BoxAuthorizer;
 import omnidrive.api.dropbox.DropboxAuthorizer;
 import omnidrive.api.google.GoogleDriveAuthorizer;
+import omnidrive.api.microsoft.OneDriveAuthorizer;
 
 public class AuthManager {
 
@@ -41,7 +42,7 @@ public class AuthManager {
                 authorizer = new BoxAuthorizer();
                 break;
             case OneDrive:
-                //authorizer = new OneDriveAuthorizer();
+                authorizer = new OneDriveAuthorizer();
                 break;
         }
 
@@ -71,10 +72,9 @@ public class AuthManager {
             type = AccountType.GoogleDrive;
         } else if (authorizer instanceof BoxAuthorizer) {
             type = AccountType.Box;
-        }
-        /*} else if (authorizer instanceof OneDriveAuthorizer) {
+        } else if (authorizer instanceof OneDriveAuthorizer) {
             type = AccountType.OneDrive;
-        }*/
+        }
 
         return type;
     }
