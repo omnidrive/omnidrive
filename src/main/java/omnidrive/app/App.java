@@ -3,17 +3,17 @@ package omnidrive.app;
 import omnidrive.api.base.CloudAccount;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.FileSystem;
+import omnidrive.filesystem.watcher.Handler;
+import omnidrive.filesystem.watcher.Watcher;
 import omnidrive.manifest.Manifest;
 import omnidrive.manifest.ManifestSync;
 import omnidrive.manifest.mapdb.MapDbManifest;
 import omnidrive.manifest.mapdb.MapDbManifestSync;
-import omnidrive.sync.upload.StupidStrategyForDemo;
 import omnidrive.sync.SyncHandler;
-import omnidrive.sync.Syncer;
+import omnidrive.sync.Synchronizer;
+import omnidrive.sync.upload.StupidStrategyForDemo;
 import omnidrive.sync.upload.UploadStrategy;
 import omnidrive.sync.upload.Uploader;
-import omnidrive.filesystem.watcher.Handler;
-import omnidrive.filesystem.watcher.Watcher;
 import omnidrive.ui.managers.UIManager;
 import omnidrive.util.MapDbUtils;
 import org.mapdb.DB;
@@ -34,11 +34,14 @@ public class App {
 
     final private ManifestContext manifestContext;
 
+    final private Synchronizer synchronizer;
+
     public App(FileSystem fileSystem, AccountsManager accountsManager, UIManager uiManager) {
         this.fileSystem = fileSystem;
         this.accountsManager = accountsManager;
         this.uiManager = uiManager;
         manifestContext = new ManifestContext();
+        synchronizer = getSynchronizer();
     }
 
     public void start() throws Exception {
@@ -92,18 +95,15 @@ public class App {
     }
 
     private void fullSync(CloudAccount account) throws Exception {
-        Syncer syncer = new Syncer(fileSystem.getRootPath(), accountsManager);
         Manifest manifest = manifestContext.sync.downloadFromAccount(account);
-        syncer.fullSync(manifest);
+        synchronizer.fullSync(manifest);
     }
 
     private void startWatcherThread() throws Exception {
         Path root = fileSystem.getRootPath();
-        UploadStrategy uploadStrategy = new StupidStrategyForDemo(accountsManager);
         ManifestSync manifestSync = manifestContext.sync;
         Manifest manifest = manifestContext.manifest;
-        Uploader uploader = new Uploader(uploadStrategy);
-        Handler handler = new SyncHandler(root, manifest, manifestSync, uploader, accountsManager);
+        Handler handler = new SyncHandler(synchronizer, manifestSync, accountsManager);
         WatchService watchService = FileSystems.getDefault().newWatchService();
         ManifestFilter filter = new ManifestFilter();
         Watcher watcher = new Watcher(watchService, handler, filter);
@@ -114,6 +114,14 @@ public class App {
         Thread thread = new Thread(watcher);
         thread.setDaemon(true);
         thread.start();
+    }
+
+    private Synchronizer getSynchronizer() {
+        Path root = fileSystem.getRootPath();
+        Manifest manifest = manifestContext.manifest;
+        UploadStrategy uploadStrategy = new StupidStrategyForDemo(accountsManager);
+        Uploader uploader = new Uploader(uploadStrategy);
+        return new Synchronizer(root, manifest, uploader, accountsManager);
     }
 
     private class ManifestContext {

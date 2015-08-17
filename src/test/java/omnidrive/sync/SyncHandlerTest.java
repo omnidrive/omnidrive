@@ -52,7 +52,9 @@ public class SyncHandlerTest extends BaseTest {
         accountsManager.setAccount(DRIVE_TYPE, account);
         UploadStrategy uploadStrategy = new SimpleUploadStrategy(accountsManager);
         Uploader uploader = new Uploader(uploadStrategy);
-        handler = new SyncHandler(getRoot(), manifest, manifestSync, uploader, accountsManager);
+        Path root = getRoot();
+        Synchronizer synchronizer = new Synchronizer(root, manifest, uploader, accountsManager);
+        handler = new SyncHandler(synchronizer, manifestSync, accountsManager);
 
         when(account.getType()).thenReturn(DRIVE_TYPE);
         when(account.uploadFile(anyString(), any(InputStream.class), anyLong())).thenReturn(UPLOAD_ID);
