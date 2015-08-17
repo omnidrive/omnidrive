@@ -24,8 +24,8 @@ public class BoxAuthorizer extends AccountAuthorizer {
     }
 
     @Override
-    public Account recreateAccount(String accessToken) throws AccountException {
-        final BoxAPIConnection conn = new BoxAPIConnection(accessToken);
+    public Account recreateAccount(String accessToken, String refreshToken) throws AccountException {
+        final BoxAPIConnection conn = new BoxAPIConnection(CLIENT_ID, CLIENT_SECRET, accessToken, refreshToken);
         return new BoxAccount(conn);
     }
 

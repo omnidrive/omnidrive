@@ -25,9 +25,11 @@ public class OneDriveAccount extends Account {
     @Override
     protected void fetchMetadata() throws AccountException {
         if (manifestExists()) {
-            this.metadata = new AccountMetadata(this.core.getOauth().getAccessToken(), getManifestId());
+            this.metadata = new AccountMetadata(this.core.getOauth().getAccessToken(),
+                    this.core.getOauth().getRefreshToken(), getManifestId());
         } else {
-            this.metadata = new AccountMetadata(this.core.getOauth().getAccessToken(), null);
+            this.metadata = new AccountMetadata(this.core.getOauth().getAccessToken(),
+                    this.core.getOauth().getRefreshToken(), null);
         }
     }
 

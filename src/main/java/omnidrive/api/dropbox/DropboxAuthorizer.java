@@ -31,7 +31,7 @@ public class DropboxAuthorizer extends AccountAuthorizer {
     }
 
     @Override
-    public Account recreateAccount(String accessToken) throws AccountException {
+    public Account recreateAccount(String accessToken, String refreshToken) throws AccountException {
         return new DropboxAccount(this.config, accessToken);
     }
 

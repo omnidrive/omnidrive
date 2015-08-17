@@ -6,9 +6,9 @@ import omnidrive.api.base.AccountAuthorizer;
 import omnidrive.api.base.AccountException;
 import omnidrive.api.base.AccountType;
 import omnidrive.api.microsoft.lib.core.OneDriveCore;
-import omnidrive.api.microsoft.lib.core.OneDriveOAuth;
-import omnidrive.api.microsoft.lib.core.OneDriveRestApi;
-import omnidrive.api.microsoft.lib.core.OneDriveScope;
+import omnidrive.api.microsoft.lib.auth.OneDriveOAuth;
+import omnidrive.api.microsoft.lib.rest.OneDriveRestApi;
+import omnidrive.api.microsoft.lib.auth.OneDriveScope;
 
 public class OneDriveAuthorizer extends AccountAuthorizer {
 
@@ -16,7 +16,7 @@ public class OneDriveAuthorizer extends AccountAuthorizer {
     private static final String APP_ID = "000000004C14C243";
     private static final String APP_SECRET = "4Xucj-d2MSpbnxXJ8dbkhK3Bi1XWFUTC";
 
-    private static final String APP_SCOPE = OneDriveScope.toString(
+    private static final String APP_SCOPE = OneDriveScope.toQuery(
             OneDriveScope.SignIn,
             OneDriveScope.OfflineAccess,
             OneDriveScope.ReadWrite
@@ -27,10 +27,14 @@ public class OneDriveAuthorizer extends AccountAuthorizer {
     }
 
     @Override
-    public Account recreateAccount(String accessToken) throws AccountException {
-        // TODO - must recreate account according to refresh token and not access token
-        OneDriveOAuth oauth = new OneDriveOAuth(APP_ID, APP_SECRET, accessToken, null);
+    public Account recreateAccount(String accessToken, String refreshToken) throws AccountException {
+        OneDriveOAuth oauth = new OneDriveOAuth(APP_ID, APP_SECRET, accessToken, refreshToken);
         OneDriveCore core = new OneDriveCore(oauth);
+        try {
+            core.refreshAuthorization();
+        } catch (Exception ex) {
+            throw new OneDriveException("Failed to refresh token");
+        }
         OneDriveAccount account = new OneDriveAccount(core);
         account.initialize();
         return account;

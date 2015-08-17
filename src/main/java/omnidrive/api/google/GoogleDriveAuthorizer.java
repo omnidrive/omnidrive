@@ -48,17 +48,17 @@ public class GoogleDriveAuthorizer extends AccountAuthorizer {
     }
 
     @Override
-    public Account recreateAccount(String accessToken) throws AccountException {
+    public Account recreateAccount(String accessToken, String refreshToken) throws AccountException {
         GoogleCredential credential = new GoogleCredential.Builder()
                 .setClientSecrets(CLIENT_ID, CLIENT_SECRET)
                 .setJsonFactory(jsonFactory)
                 .setTransport(httpTransport).build()
-                .setAccessToken(accessToken);
+                .setAccessToken(accessToken).setRefreshToken(refreshToken);
 
         //Create a new authorized API client
         Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("omnidrive").build();
 
-        return new GoogleDriveAccount(service, accessToken);
+        return new GoogleDriveAccount(service, accessToken, refreshToken);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class GoogleDriveAuthorizer extends AccountAuthorizer {
 
             //Create a new authorized API client
             Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("omnidrive").build();
-            GoogleDriveAccount googleAccount = new GoogleDriveAccount(service, credential.getAccessToken());
+            GoogleDriveAccount googleAccount = new GoogleDriveAccount(service, credential.getAccessToken(), credential.getRefreshToken());
             googleAccount.initialize();
             notifyAll(AccountType.GoogleDrive, googleAccount);
         } catch (IOException ex) {

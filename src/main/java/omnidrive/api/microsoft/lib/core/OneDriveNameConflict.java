@@ -11,8 +11,7 @@ public enum OneDriveNameConflict {
         this.text = text;
     }
 
-    @Override
-    public String toString() {
+    public String toQuery() {
         return "?nameConflict=" + this.text;
     }
 }

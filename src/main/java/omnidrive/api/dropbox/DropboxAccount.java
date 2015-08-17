@@ -24,9 +24,9 @@ public class DropboxAccount extends Account {
     @Override
     protected void fetchMetadata() throws AccountException {
         if (manifestExists()) {
-            this.metadata = new AccountMetadata(this.client.getAccessToken(), getManifestId());
+            this.metadata = new AccountMetadata(this.client.getAccessToken(), null, getManifestId());
         } else {
-            this.metadata = new AccountMetadata(this.client.getAccessToken(), null);
+            this.metadata = new AccountMetadata(this.client.getAccessToken(), null, null);
         }
     }
 

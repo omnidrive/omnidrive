@@ -1,4 +1,4 @@
-package omnidrive.api.microsoft.lib.core;
+package omnidrive.api.microsoft.lib.auth;
 
 public enum OneDriveScope {
     SignIn("wl.signin"), //Allows your application to take advantage of single sign-on capabilities.
@@ -18,7 +18,7 @@ public enum OneDriveScope {
         return this.text;
     }
 
-    public static String toString(OneDriveScope... args) {
+    public static String toQuery(OneDriveScope... args) {
         String scope = "";
         for (OneDriveScope arg : args) {
             if (scope.isEmpty()) {

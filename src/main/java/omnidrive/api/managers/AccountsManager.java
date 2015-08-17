@@ -2,6 +2,7 @@ package omnidrive.api.managers;
 
 import omnidrive.api.base.Account;
 import omnidrive.api.base.AccountException;
+import omnidrive.api.base.AccountMetadata;
 import omnidrive.api.base.AccountType;
 
 import java.util.LinkedList;
@@ -15,19 +16,19 @@ public class AccountsManager extends Observable {
 
     private final Account[] accounts = new Account[AccountType.length()];
 
-    public void restoreAccounts(Map<String, String> accountsInfo) throws AccountException {
-        for (Map.Entry<String, String> entry : accountsInfo.entrySet()) {
+    public void restoreAccounts(Map<String, AccountMetadata> accountsInfo) throws AccountException {
+        for (Map.Entry<String, AccountMetadata> entry : accountsInfo.entrySet()) {
             AccountType type = AccountType.valueOf(entry.getKey());
-            String accessToken = entry.getValue();
-            Account account = restoreAccount(type, accessToken);
+            AccountMetadata metadata = entry.getValue();
+            Account account = restoreAccount(type, metadata.getAccessToken(), metadata.getRefreshToken());
             if (account != null) {
                 setAccount(type, account);
             }
         }
     }
 
-    public Account restoreAccount(AccountType type, String accessToken) throws AccountException {
-        return this.authManager.getAuthorizer(type).recreateAccount(accessToken);
+    public Account restoreAccount(AccountType type, String accessToken, String refreshToken) throws AccountException {
+        return this.authManager.getAuthorizer(type).recreateAccount(accessToken, refreshToken);
     }
 
     public void setAccount(AccountType type, Account account) {

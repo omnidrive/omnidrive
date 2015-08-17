@@ -23,9 +23,11 @@ public class BoxAccount extends Account {
     @Override
     protected void fetchMetadata() throws AccountException {
         if (manifestExists()) {
-            this.metadata = new AccountMetadata(this.user.getAPI().getAccessToken(), getManifestId());
+            this.metadata = new AccountMetadata(this.user.getAPI().getAccessToken(),
+                    this.user.getAPI().getRefreshToken(), getManifestId());
         } else {
-            this.metadata = new AccountMetadata(this.user.getAPI().getAccessToken(), null);
+            this.metadata = new AccountMetadata(this.user.getAPI().getAccessToken(),
+                    this.user.getAPI().getRefreshToken(), null);
         }
     }
 

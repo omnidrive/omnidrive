@@ -23,19 +23,21 @@ public class GoogleDriveAccount extends Account {
 
     private Drive service;
     private String accessToken;
+    private String refreshToken;
 
-    public GoogleDriveAccount(Drive service, String accessToken) {
+    public GoogleDriveAccount(Drive service, String accessToken, String refreshToken) {
         super(AccountType.GoogleDrive);
         this.service = service;
         this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
     }
 
     @Override
     protected void fetchMetadata() throws AccountException {
         if (manifestExists()) {
-            this.metadata = new AccountMetadata(this.accessToken, getManifestId());
+            this.metadata = new AccountMetadata(this.accessToken, this.refreshToken, getManifestId());
         } else {
-            this.metadata = new AccountMetadata(this.accessToken, null);
+            this.metadata = new AccountMetadata(this.accessToken, this.refreshToken, null);
         }
     }
 
