@@ -15,6 +15,27 @@ public class RestApi {
     public static final String REST_API_CONTENT_TYPE_BINARY = "application/octet-stream";
 
     private final AsyncHttpClient client = new AsyncHttpClient();
+    private RestApiErrorListener errorListener = null;
+
+    public void resgiterToErrors(RestApiErrorListener listener) {
+        if (errorListener == null) {
+            errorListener = listener;
+        }
+    }
+
+    protected void notifyErrorListener(int code) {
+        if (errorListener != null) {
+            errorListener.errorOccured(code);
+        }
+    }
+
+    protected boolean shouldContinueOnError(int code) {
+        if (errorListener != null) {
+            return errorListener.shouldContinueOnError(code);
+        }
+
+        return false;
+    }
 
     public JSONObject doGet(String host, String path, String query) throws Exception {
         String url = toUrl(host, path, query);
@@ -187,8 +208,12 @@ public class RestApi {
         @Override
         public STATE onStatusReceived(HttpResponseStatus httpResponseStatus) throws Exception {
             int statusCode = httpResponseStatus.getStatusCode();
+
             if (statusCode >= 300) {
-                return STATE.ABORT;
+                notifyErrorListener(statusCode);
+                if (!shouldContinueOnError(statusCode)) {
+                    return STATE.ABORT;
+                }
             }
 
             return STATE.CONTINUE;

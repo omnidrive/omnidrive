@@ -7,6 +7,7 @@ import omnidrive.api.microsoft.lib.model.OneDriveOwner;
 import omnidrive.api.microsoft.lib.model.OneDriveQuota;
 import omnidrive.api.microsoft.lib.rest.OneDriveRestApi;
 import omnidrive.api.microsoft.lib.rest.RestApi;
+import omnidrive.api.microsoft.lib.rest.RestApiErrorListener;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -19,15 +20,17 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.HashMap;
 
-public class OneDriveCore {
+public class OneDriveCore implements RestApiErrorListener {
 
     private final OneDriveRestApi restApi;
 
+    private boolean refreshAuthSucceed;
     private OneDriveOAuth oauth;
 
     public OneDriveCore(OneDriveOAuth oauth) {
         this.oauth = oauth;
         this.restApi = new OneDriveRestApi(this.oauth.getAccessToken());
+        this.restApi.resgiterToErrors(this);
     }
 
     public static OneDriveCore authorize(String clientId, String clientSecret, String code) throws Exception {
@@ -259,6 +262,30 @@ public class OneDriveCore {
         if (this.oauth.hasExpired()) {
             refreshAuthorization();
         }
+    }
+
+    @Override
+    public void errorOccured(int code) {
+        if (code == 401) {
+            try {
+                refreshAuthorization();
+                if (!oauth.hasExpired()) {
+                    refreshAuthSucceed = true;
+                }
+            } catch (Exception ex) {
+                refreshAuthSucceed = false;
+            }
+        }
+    }
+
+    @Override
+    public boolean shouldContinueOnError(int code) {
+        if (code == 401 && refreshAuthSucceed) {
+            refreshAuthSucceed = false;
+            return true;
+        }
+
+        return false;
     }
 
     private static class ChannelTools {
