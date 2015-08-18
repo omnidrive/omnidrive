@@ -1,15 +1,16 @@
 package omnidrive.stub;
 
 import com.google.api.client.util.ArrayMap;
-import omnidrive.api.base.AccountException;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.AccountException;
+import omnidrive.api.account.AccountMetadata;
+import omnidrive.api.account.AccountType;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
-public class Account extends omnidrive.api.base.Account {
+public class Account extends omnidrive.api.account.Account {
 
     public static final int DEFAULT_CAPACITY = 100;
 
@@ -24,13 +25,8 @@ public class Account extends omnidrive.api.base.Account {
     }
 
     public Account(long totalSize) {
-        super(AccountType.Box);
+        super(AccountType.Box, new AccountMetadata("client_id", "client_secret"));
         this.totalSize = totalSize;
-    }
-
-    @Override
-    protected void fetchMetadata() throws AccountException {
-
     }
 
     @Override

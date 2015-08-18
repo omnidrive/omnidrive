@@ -1,6 +1,6 @@
 package omnidrive.app;
 
-import omnidrive.api.base.Account;
+import omnidrive.api.account.Account;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.sync.ManifestSync;
 

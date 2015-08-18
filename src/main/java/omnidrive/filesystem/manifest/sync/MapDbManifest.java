@@ -1,7 +1,7 @@
 package omnidrive.filesystem.manifest.sync;
 
-import omnidrive.api.base.AccountMetadata;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.AccountMetadata;
+import omnidrive.api.account.AccountType;
 import omnidrive.filesystem.manifest.Manifest;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;

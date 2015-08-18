@@ -9,9 +9,9 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import omnidrive.api.auth.AuthListener;
-import omnidrive.api.base.AccountAuthorizer;
-import omnidrive.api.base.AccountException;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.AccountAuthorizer;
+import omnidrive.api.account.AccountException;
+import omnidrive.api.account.AccountType;
 
 public class LoginView {
 

@@ -1,6 +1,6 @@
 package omnidrive.filesystem.manifest;
 
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.AccountType;
 import omnidrive.filesystem.manifest.entry.Blob;
 import omnidrive.filesystem.manifest.entry.Entry;
 import omnidrive.filesystem.manifest.entry.Tree;

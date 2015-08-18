@@ -1,8 +1,8 @@
 package omnidrive.filesystem.sync;
 
 import com.google.common.io.CharStreams;
-import omnidrive.api.base.Account;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.Account;
+import omnidrive.api.account.AccountType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
 import omnidrive.filesystem.exception.InvalidFileException;

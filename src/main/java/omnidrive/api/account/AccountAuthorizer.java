@@ -1,7 +1,10 @@
-package omnidrive.api.base;
+package omnidrive.api.account;
 
 import javafx.scene.web.WebEngine;
 import omnidrive.api.auth.AuthListener;
+import omnidrive.api.auth.AuthSecretFile;
+import omnidrive.api.auth.AuthSecretKey;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,12 +14,15 @@ public abstract class AccountAuthorizer {
 
     private final String appName;
     private final String appId;
-    private final String appSecret;
+    private final AuthSecretFile secretFile;
+    private final AuthSecretKey secretKey;
 
-    public AccountAuthorizer(String appName, String appId, String appSecret) {
+
+    public AccountAuthorizer(String appName, String appId, AuthSecretFile secretFile, AuthSecretKey secretKey) {
         this.appName = appName;
         this.appId = appId;
-        this.appSecret = appSecret;
+        this.secretFile = secretFile;
+        this.secretKey = secretKey;
     }
 
     public String login(AuthListener listener) throws AccountException {
@@ -33,7 +39,7 @@ public abstract class AccountAuthorizer {
     }
 
     protected String getAppSecret() {
-        return this.appSecret;
+        return this.secretFile.getSecret(this.secretKey);
     }
 
     protected void notifyAll(AccountType type, Account account) {

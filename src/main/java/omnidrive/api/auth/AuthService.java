@@ -1,8 +1,8 @@
 package omnidrive.api.auth;
 
-import omnidrive.api.base.AccountAuthorizer;
-import omnidrive.api.base.Account;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.AccountAuthorizer;
+import omnidrive.api.account.Account;
+import omnidrive.api.account.AccountType;
 
 public interface AuthService {
 

@@ -1,6 +1,6 @@
 package omnidrive.app;
 
-import omnidrive.api.base.Account;
+import omnidrive.api.account.Account;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.FileSystem;
 import omnidrive.filesystem.manifest.Manifest;
@@ -83,7 +83,7 @@ public class App {
 
     private List<Account> getRegisteredAccounts() throws Exception {
         Manifest manifest = manifestContext.manifest;
-        accountsManager.restoreAccounts(manifest.getAccountsMetadata());
+        //accountsManager.restoreAccounts(manifest.getAccountsMetadata()); // TODO - amitay, please support saving refresh token too.
         return accountsManager.getActiveAccounts();
     }
 

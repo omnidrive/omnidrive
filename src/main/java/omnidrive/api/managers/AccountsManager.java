@@ -1,9 +1,9 @@
 package omnidrive.api.managers;
 
-import omnidrive.api.base.Account;
-import omnidrive.api.base.AccountException;
-import omnidrive.api.base.AccountMetadata;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.Account;
+import omnidrive.api.account.AccountException;
+import omnidrive.api.account.AccountMetadata;
+import omnidrive.api.account.AccountType;
 
 import java.util.LinkedList;
 import java.util.List;

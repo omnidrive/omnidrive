@@ -1,7 +1,7 @@
 package omnidrive.api.google;
 
-import omnidrive.api.base.AccountType;
-import omnidrive.api.base.AccountException;
+import omnidrive.api.account.AccountType;
+import omnidrive.api.account.AccountException;
 
 public class GoogleDriveException extends AccountException {
 

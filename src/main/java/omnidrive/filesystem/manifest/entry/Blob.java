@@ -1,6 +1,6 @@
 package omnidrive.filesystem.manifest.entry;
 
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.AccountType;
 
 public class Blob implements Entry {
 

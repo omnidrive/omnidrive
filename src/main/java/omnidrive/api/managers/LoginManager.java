@@ -1,21 +1,14 @@
 package omnidrive.api.managers;
 
 import omnidrive.api.auth.AuthListener;
-import omnidrive.api.base.*;
+import omnidrive.api.account.*;
 import omnidrive.api.auth.AuthService;
 
 public class LoginManager implements AuthListener {
 
-    private static LoginManager manager = null;
-
     private AuthService authService;
 
     private final AuthManager authManager = AuthManager.getAuthManager();
-
-    // singleton
-    private LoginManager() {
-
-    }
 
     public void login(AccountType type, AuthService service) {
 
@@ -56,13 +49,5 @@ public class LoginManager implements AuthListener {
         if (this.authService != null) {
             this.authService.attemptToAuth(type, api, authUrl);
         }
-    }
-
-    public static LoginManager getLoginManager() {
-        if (manager == null) {
-            manager = new LoginManager();
-        }
-
-        return manager;
     }
 }

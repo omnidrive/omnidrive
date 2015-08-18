@@ -1,8 +1,11 @@
 package omnidrive.api.onedrive;
 
-import omnidrive.api.base.Account;
+import omnidrive.api.auth.AuthSecretFile;
+import omnidrive.api.auth.AuthSecretKey;
+import omnidrive.api.account.Account;
 
-import omnidrive.api.base.AccountException;
+import omnidrive.api.account.AccountException;
+import omnidrive.api.account.AccountMetadata;
 import omnidrive.api.microsoft.OneDriveAccount;
 import omnidrive.api.microsoft.lib.core.OneDriveCore;
 import omnidrive.api.microsoft.lib.auth.OneDriveOAuth;
@@ -26,9 +29,13 @@ public class OneDriveTest {
     private static final String LOCAL_DOWNLOAD_PATH = "/Users/assafey/Downloads";
 
     private static final String CLIENT_ID = "000000004C14C243";
-    private static final String CLIENT_SECRET = "4Xucj-d2MSpbnxXJ8dbkhK3Bi1XWFUTC";
 
-    private static final String ONE_DRIVE_TOKEN = "EwBoAq1DBAAUGCCXc8wU/zFu9QnLdZXy+YnElFkAAdCIyhzg7+1BVj6ZmNNs3TK0bTUjnQfYAfu3KawpI5r2c7WubNc5Jwa6pws5IYTENwa787eN/Uh6C5/HvWOQyLc3W5RLijO5nsyPl96ZEFsaa6ZFXrlhwtSPZU1co29/2yZ33d8yH6/uAlsAFGDXa2ne09jMpMsX1p4LOE5szUlEqchC5krITGkc3a+WDBJ/xGIoVf492Sr0Mf3gr+bI1VlzirtW9tf9xgykVZmY71sINrQY/DbHP3pvvBeYVdU7dN+yB3N0cFKRQ4E0qzaukhDYWSbwEoBc+wa4VedRtfosJHHvGy6K2xvjBIAj6qTTueCdO/hq0ueIQVuuQJo5ZRoDZgAACCfghAws1Qj3OAF6Ohp+OXGWxznKAjzF1p73vryAZrWcw6e3+Aer+RneoOeWTR9dvuUfuhHTtgA9vJsOXTleu3wb7IZS02egfzfmZwHdfc8Z6NllQHkm2m09pSfmDyE9h17AVHVd0H1Ls8QT587JcaF3LOCROTKZ8fRORwf+f17yUOQlH9S1+vM36m5W6uIjUks8jAkG4hPKKdk6ljxcJOT720sZPYCe5VScuugGtRRjYbe8aEV+Ko78MVPx0rBKlkmAsAJjFzLqXsMjJ+H8ZD/XRam5LRyvbwsuv/hW6k6ND7XaJT77lMODNeNqOEw3AZp/GkQBsGmx7VttNYjj93TbKVPb3S2BkBDD7vHfBupgAYjqKaKLfxnkTLxGe8anpcgz8A8kCnOpyxDNz2ERr6TN+Sc2YK725eFShTCGuiguUeRWAQ==";
+    private static final String CLIENT_SECRET_FILE = OneDriveTest.class.getResource("/api/accounts.secret").getPath();
+    private static final String TOKEN_SECRET_FILE = OneDriveTest.class.getResource("/api/tokens.secret").getPath();
+
+    private static final AuthSecretFile clientSecretFile = new AuthSecretFile().analyze(CLIENT_SECRET_FILE);
+    private static final AuthSecretFile tokenSecretFile = new AuthSecretFile().analyze(TOKEN_SECRET_FILE);
+
 
     private static Account account = null;
 
@@ -36,8 +43,23 @@ public class OneDriveTest {
     public void setUp() throws Exception {
         if (account == null) {
 
-            OneDriveCore core = new OneDriveCore(new OneDriveOAuth(CLIENT_ID, CLIENT_SECRET, ONE_DRIVE_TOKEN, null));
-            account = new OneDriveAccount(core);
+            OneDriveCore core = new OneDriveCore(
+                    new OneDriveOAuth(
+                            CLIENT_ID,
+                            clientSecretFile.getSecret(AuthSecretKey.OneDrive),
+                            tokenSecretFile.getSecret(AuthSecretKey.OneDrive),
+                            null
+                    )
+            );
+
+            AccountMetadata metadata = new AccountMetadata(
+                    CLIENT_ID,
+                    clientSecretFile.getSecret(AuthSecretKey.OneDrive),
+                    tokenSecretFile.getSecret(AuthSecretKey.OneDrive),
+                    null
+            );
+
+            account = new OneDriveAccount(metadata, core);
 
             try {
                 account.initialize();

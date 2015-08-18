@@ -1,6 +1,6 @@
 package omnidrive.filesystem.sync.upload;
 
-import omnidrive.api.base.Account;
+import omnidrive.api.account.Account;
 import omnidrive.filesystem.manifest.entry.Blob;
 
 import java.io.File;

@@ -1,7 +1,7 @@
 package omnidrive.filesystem.manifest.sync;
 
 import omnidrive.filesystem.manifest.Manifest;
-import omnidrive.api.base.Account;
+import omnidrive.api.account.Account;
 
 import java.util.List;
 

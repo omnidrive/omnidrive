@@ -1,10 +1,10 @@
 package omnidrive.api.dropbox;
 
 import com.dropbox.core.*;
-import omnidrive.api.base.AccountMetadata;
-import omnidrive.api.base.Account;
-import omnidrive.api.base.AccountException;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.AccountMetadata;
+import omnidrive.api.account.Account;
+import omnidrive.api.account.AccountException;
+import omnidrive.api.account.AccountType;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,18 +16,10 @@ public class DropboxAccount extends Account {
 
     private final DbxClient client;
 
-    public DropboxAccount(DbxRequestConfig config, String accessToken) {
-        super(AccountType.Dropbox);
-        this.client = new DbxClient(config, accessToken);
-    }
-
-    @Override
-    protected void fetchMetadata() throws AccountException {
-        if (manifestExists()) {
-            this.metadata = new AccountMetadata(this.client.getAccessToken(), null, getManifestId());
-        } else {
-            this.metadata = new AccountMetadata(this.client.getAccessToken(), null, null);
-        }
+    public DropboxAccount(AccountMetadata metadata, DbxRequestConfig config) {
+        super(AccountType.Dropbox, metadata);
+        this.client = new DbxClient(config, metadata.getAccessToken());
+        // dropbox token never changes, no need for auto-refresh
     }
 
     @Override
@@ -193,31 +185,6 @@ public class DropboxAccount extends Account {
     }
 
     @Override
-    public long downloadManifest(OutputStream outputStream) throws AccountException {
-        long size = 0;
-
-        if (!isOmniDriveFolderExists()) {
-            throw new DropboxException("No 'OmniDrive' root folder exists");
-        }
-
-        setManifestId(MANIFEST_FILE_NAME);
-        size = downloadFile(getManifestId(), outputStream);
-
-        return size;
-    }
-
-    @Override
-    public void uploadManifest(InputStream inputStream, long size) throws AccountException {
-        String manifestFileId = uploadFile(MANIFEST_FILE_NAME, inputStream, size);
-        setManifestId(manifestFileId);
-    }
-
-    @Override
-    public void removeManifest() throws AccountException {
-        removeManifest(AccountType.Dropbox);
-    }
-
-    @Override
     public boolean manifestExists() throws AccountException {
         boolean exists = false;
 
@@ -234,7 +201,7 @@ public class DropboxAccount extends Account {
                 if (child.isFile()) {
                     if (child.name.equals(MANIFEST_FILE_NAME)) {
                         exists = true;
-                        setManifestId(child.name);
+                        this.manifestId = child.name;
                         break;
                     }
                 }

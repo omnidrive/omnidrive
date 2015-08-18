@@ -1,38 +1,44 @@
 package omnidrive.api.box;
 
 import javafx.scene.web.WebEngine;
-import omnidrive.api.base.Account;
-import omnidrive.api.base.AccountAuthorizer;
+import omnidrive.api.auth.AuthSecretFile;
+import omnidrive.api.auth.AuthSecretKey;
+import omnidrive.api.account.*;
 
 import com.box.sdk.BoxAPIConnection;
-import omnidrive.api.base.AccountException;
-import omnidrive.api.base.AccountType;
 
 public class BoxAuthorizer extends AccountAuthorizer {
 
     // BOX App Keys
     private static final String APP_NAME = "Box";
     private static final String CLIENT_ID = "z4p9d2zjhmh15f4rsdzc4dbtm79e85xu";
-    private static final String CLIENT_SECRET = "BwYmmj711tW47ETycwAMzyxL6xjXhteI";
     private static final String REDIRECT_URI = "https://app.box.com/services/poc_connector";
 
-    private final BoxAPIConnection connection = new BoxAPIConnection(CLIENT_ID, CLIENT_SECRET);
+    private final BoxAPIConnection connection;
 
-
-    public BoxAuthorizer() {
-        super(APP_NAME, CLIENT_ID, CLIENT_SECRET);
+    public BoxAuthorizer(AuthSecretFile secretFile) {
+        super(APP_NAME, CLIENT_ID, secretFile, AuthSecretKey.Box);
+        connection = new BoxAPIConnection(getAppId(), getAppSecret());
     }
 
     @Override
     public Account recreateAccount(String accessToken, String refreshToken) throws AccountException {
-        final BoxAPIConnection conn = new BoxAPIConnection(CLIENT_ID, CLIENT_SECRET, accessToken, refreshToken);
-        return new BoxAccount(conn);
+        BoxAPIConnection conn = new BoxAPIConnection(
+                getAppId(),
+                getAppSecret(),
+                accessToken,
+                refreshToken
+        );
+
+        AccountMetadata metadata = new AccountMetadata(getAppId(), getAppSecret(), accessToken, refreshToken);
+
+        return new BoxAccount(metadata, conn);
     }
 
     @Override
     public final String authUrl() {
         String baseUrl = "https://www.box.com/api/oauth2/authorize?";
-        String clientId = "client_id=" + CLIENT_ID;
+        String clientId = "client_id=" + getAppId();
         String responseType = "&response_type=code";
         String redirectUri = "&redirect_uri=" + REDIRECT_URI;
 
@@ -53,7 +59,16 @@ public class BoxAuthorizer extends AccountAuthorizer {
     public final void finishAuthProcess(String code) throws AccountException {
         this.connection.authenticate(code);
         this.connection.setAutoRefresh(true);
-        BoxAccount boxAccount = new BoxAccount(this.connection);
+
+        AccountMetadata metadata = new AccountMetadata(
+                getAppId(),
+                getAppSecret(),
+                this.connection.getAccessToken(),
+                this.connection.getRefreshToken()
+        );
+
+        BoxAccount boxAccount = new BoxAccount(metadata, this.connection);
+
         boxAccount.initialize();
         notifyAll(AccountType.Box, boxAccount);
     }

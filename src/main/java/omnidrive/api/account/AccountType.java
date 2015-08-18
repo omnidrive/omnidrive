@@ -1,4 +1,4 @@
-package omnidrive.api.base;
+package omnidrive.api.account;
 
 public enum AccountType {
     Dropbox("Dropbox"),

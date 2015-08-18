@@ -1,7 +1,7 @@
 package omnidrive.api.managers;
 
-import omnidrive.api.base.Account;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.Account;
+import omnidrive.api.account.AccountType;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

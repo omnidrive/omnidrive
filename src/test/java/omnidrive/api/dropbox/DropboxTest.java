@@ -1,10 +1,12 @@
 package omnidrive.api.dropbox;
 
 import com.dropbox.core.DbxRequestConfig;
-import omnidrive.api.base.AccountMetadata;
-import omnidrive.api.base.Account;
+import omnidrive.api.auth.AuthSecretFile;
+import omnidrive.api.auth.AuthSecretKey;
+import omnidrive.api.account.AccountMetadata;
+import omnidrive.api.account.Account;
 
-import omnidrive.api.base.AccountException;
+import omnidrive.api.account.AccountException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.After;
@@ -25,8 +27,15 @@ public class DropboxTest {
 
     private static final String LOCAL_DOWNLOAD_PATH = "/Users/assafey/Downloads";
 
-    private static final String DbxAccessToken = "-rySTYC5rUYAAAAAAAASsL7CbWbE1TIXg1rPGkLn7lAShpns-51ylA78jwy4DY7W";
     private static final DbxRequestConfig DbxConfig = new DbxRequestConfig("omnidrive", Locale.getDefault().toString());
+
+    private static final String APP_KEY = "zkbnr6hfxzqgxx2";
+
+    private static final String CLIENT_SECRET_FILE = DropboxTest.class.getResource("/api/accounts.secret").getPath();
+    private static final String TOKEN_SECRET_FILE = DropboxTest.class.getResource("/api/tokens.secret").getPath();
+
+    private static final AuthSecretFile clientSecretFile = new AuthSecretFile().analyze(CLIENT_SECRET_FILE);
+    private static final AuthSecretFile tokenSecretFile = new AuthSecretFile().analyze(TOKEN_SECRET_FILE);
 
     private static Account account = null;
 
@@ -37,7 +46,15 @@ public class DropboxTest {
     @Before
     public void setUp() throws Exception {
         if (account == null) {
-            account = new DropboxAccount(DbxConfig, DbxAccessToken);
+            AccountMetadata metadata = new AccountMetadata(
+                    APP_KEY,
+                    clientSecretFile.getSecret(AuthSecretKey.Dropbox),
+                    tokenSecretFile.getSecret(AuthSecretKey.Dropbox),
+                    null
+            );
+
+            account = new DropboxAccount(metadata, DbxConfig);
+
             try {
                 account.initialize();
             } catch (AccountException ex) {
@@ -114,7 +131,6 @@ public class DropboxTest {
         account.updateManifest(fileInputStream, file.length());
 
         AccountMetadata metadata = account.getMetadata();
-        assertNotNull(metadata.getManifestId());
         assertNotNull(metadata.getAccessToken());
 
         // remove manifest

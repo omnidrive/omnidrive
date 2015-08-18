@@ -1,9 +1,9 @@
 package omnidrive.api.microsoft;
 
-import omnidrive.api.base.Account;
-import omnidrive.api.base.AccountException;
-import omnidrive.api.base.AccountMetadata;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.Account;
+import omnidrive.api.account.AccountException;
+import omnidrive.api.account.AccountMetadata;
+import omnidrive.api.account.AccountType;
 import omnidrive.api.microsoft.lib.core.OneDriveCore;
 import omnidrive.api.microsoft.lib.core.OneDriveNameConflict;
 import omnidrive.api.microsoft.lib.entry.OneDriveChildItem;
@@ -17,20 +17,9 @@ public class OneDriveAccount extends Account {
 
     private final OneDriveCore core;
 
-    public OneDriveAccount(OneDriveCore core) {
-        super(AccountType.OneDrive);
+    public OneDriveAccount(AccountMetadata metadata, OneDriveCore core) {
+        super(AccountType.OneDrive, metadata);
         this.core = core;
-    }
-
-    @Override
-    protected void fetchMetadata() throws AccountException {
-        if (manifestExists()) {
-            this.metadata = new AccountMetadata(this.core.getOauth().getAccessToken(),
-                    this.core.getOauth().getRefreshToken(), getManifestId());
-        } else {
-            this.metadata = new AccountMetadata(this.core.getOauth().getAccessToken(),
-                    this.core.getOauth().getRefreshToken(), null);
-        }
     }
 
     @Override
@@ -149,29 +138,6 @@ public class OneDriveAccount extends Account {
     }
 
     @Override
-    public long downloadManifest(OutputStream outputStream) throws AccountException {
-        long size = 0;
-
-        if (manifestExists()) {
-            size = downloadFile(getManifestId(), outputStream);
-        }
-
-        return size;
-    }
-
-    @Override
-    public void uploadManifest(InputStream inputStream, long size) throws AccountException {
-        uploadFile(MANIFEST_FILE_NAME, inputStream, size);
-    }
-
-    @Override
-    public void removeManifest() throws AccountException {
-        if (manifestExists()) {
-            removeFile(getManifestId());
-        }
-    }
-
-    @Override
     public boolean manifestExists() throws AccountException {
         boolean exists = false;
 
@@ -183,7 +149,7 @@ public class OneDriveAccount extends Account {
             OneDriveItem item = this.core.getItemByPath(getFullPath(MANIFEST_FILE_NAME), false);
             if (item != null) {
                 if (!item.isDeleted()) {
-                    setManifestId(item.getId());
+                    this.manifestId = item.getId();
                     exists = true;
                 }
             }

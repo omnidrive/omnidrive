@@ -11,10 +11,10 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import omnidrive.api.base.AccountAuthorizer;
-import omnidrive.api.base.Account;
-import omnidrive.api.base.AccountType;
-import omnidrive.api.base.AccountException;
+import omnidrive.api.account.AccountAuthorizer;
+import omnidrive.api.account.Account;
+import omnidrive.api.account.AccountType;
+import omnidrive.api.account.AccountException;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.api.managers.LoginManager;
 import omnidrive.api.auth.AuthService;
@@ -73,7 +73,7 @@ public class AccountsController implements Initializable, AuthService, Runnable 
 
 
     public AccountsController() {
-        this.loginManager = LoginManager.getLoginManager();
+        this.loginManager = new LoginManager();
         this.loginView = new LoginView();
         this.sizeUpdater = new Thread(this, "tSizeUpdater");
     }
@@ -229,7 +229,7 @@ public class AccountsController implements Initializable, AuthService, Runnable 
 
     @FXML
     protected void onAddAccountButtonClicked() {
-        accountClick();
+        accountClicked();
     }
 
     @FXML
@@ -247,7 +247,7 @@ public class AccountsController implements Initializable, AuthService, Runnable 
         }
     }
 
-    private void accountClick() {
+    private void accountClicked() {
         int selectedIndex = this.unregisteredAccountsListView.getFocusModel().getFocusedIndex();
 
         if (selectedIndex >= 0) {
@@ -279,7 +279,7 @@ public class AccountsController implements Initializable, AuthService, Runnable 
             cells[cellIdx].setOnMouseClicked(new EventHandler<MouseEvent>() {
                 public void handle(MouseEvent event) {
                     if (event.getClickCount() == DOUBLE_CLICK) {
-                        accountClick();
+                        accountClicked();
                     }
                 }
             });

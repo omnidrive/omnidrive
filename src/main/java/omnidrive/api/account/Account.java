@@ -1,4 +1,4 @@
-package omnidrive.api.base;
+package omnidrive.api.account;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,6 +10,7 @@ public abstract class Account {
     protected static final String OMNIDRIVE_ROOT_FOLDER_PATH = "/" + OMNIDRIVE_ROOT_FOLDER_NAME;
 
     protected AccountMetadata metadata;
+    protected String manifestId;
 
     protected String omniDriveFolderId = null;
 
@@ -18,9 +19,9 @@ public abstract class Account {
 
     private AccountType type;
 
-    protected Account(AccountType type) {
+    protected Account(AccountType type, AccountMetadata metadata) {
         this.type = type;
-        this.metadata = new AccountMetadata();
+        this.metadata = metadata;
     }
 
     protected String getFullRootFolderPath() {
@@ -33,7 +34,7 @@ public abstract class Account {
 
     public void initialize() throws AccountException {
         createRootFolder();
-        fetchMetadata();
+        fetchManifestIdIfExists();
         this.usedSize = getQuotaUsedSize();
         this.totalSize = getQuotaTotalSize();
     }
@@ -41,8 +42,6 @@ public abstract class Account {
     protected boolean isOmniDriveFolderExists() throws AccountException {
         return getOmniDriveFolderId() != null;
     }
-
-    protected abstract void fetchMetadata() throws AccountException;
 
     protected abstract void createRootFolder() throws AccountException;
 
@@ -62,30 +61,40 @@ public abstract class Account {
 
     public abstract void updateFile(String fileId, InputStream inputStream, long size) throws AccountException;
 
-    public abstract long downloadManifest(OutputStream outputStream) throws AccountException;
+    public long downloadManifest(OutputStream outputStream) throws AccountException {
+        long size = 0;
 
-    public abstract void uploadManifest(InputStream inputStream, long size) throws AccountException;
+        if (hasManifestId()) {
+            size = downloadFile(this.manifestId, outputStream);
+        }
 
-    public abstract void removeManifest() throws AccountException;
+        return size;
+    }
+
+    public void uploadManifest(InputStream inputStream, long size) throws AccountException {
+        this.manifestId = uploadFile(MANIFEST_FILE_NAME, inputStream, size);
+    }
 
     public void updateManifest(InputStream inputStream, long size) throws AccountException {
         if (!hasManifestId()) {
             uploadManifest(inputStream, size);
         } else {
-            updateFile(getManifestId(), inputStream, size);
+            updateFile(this.manifestId, inputStream, size);
         }
     }
 
-    protected void removeManifest(AccountType accountType) throws AccountException {
-        if (!hasManifestId()) {
-            throw new AccountException(accountType, "Manifest file not exists.");
+    public void removeManifest() throws AccountException {
+        if (hasManifestId()) {
+            removeFile(this.manifestId);
         }
-
-        removeFile(getManifestId());
     }
 
     protected boolean hasManifestId() {
-        return getManifestId() != null;
+        return this.manifestId != null;
+    }
+
+    protected void fetchManifestIdIfExists() throws AccountException {
+        manifestExists(); // also set manifestId
     }
 
     public abstract boolean manifestExists() throws AccountException;
@@ -110,21 +119,8 @@ public abstract class Account {
         return this.totalSize - this.usedSize;
     }
 
-    protected String getManifestId() {
-        return this.metadata.getManifestId();
-    }
-
     public AccountMetadata getMetadata() {
         return this.metadata;
-    }
-
-    public void setManifestId(String manifestId) {
-        if (this.metadata != null) {
-            this.metadata.setManifestId(manifestId);
-        } else {
-            this.metadata = new AccountMetadata();
-            this.metadata.setManifestId(manifestId);
-        }
     }
 
     public AccountType getType() {

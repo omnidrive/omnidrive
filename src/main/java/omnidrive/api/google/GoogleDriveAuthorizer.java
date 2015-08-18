@@ -10,10 +10,9 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import javafx.scene.web.WebEngine;
-import omnidrive.api.base.Account;
-import omnidrive.api.base.AccountAuthorizer;
-import omnidrive.api.base.AccountException;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.auth.AuthSecretFile;
+import omnidrive.api.auth.AuthSecretKey;
+import omnidrive.api.account.*;
 import omnidrive.api.managers.LoginManager;
 
 import java.beans.PropertyChangeListener;
@@ -26,7 +25,6 @@ public class GoogleDriveAuthorizer extends AccountAuthorizer {
 
     private static final String APP_NAME = "GoogleDrive";
     private static final String CLIENT_ID = "438388195219-sf38d0f4bbj4t9at3e9n72uup3cfsb8m.apps.googleusercontent.com";
-    private static final String CLIENT_SECRET = "57T8iW2bKRFZJSiX69Dr4cQV";
     private static final String REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
 
     private LoginManager loginManager;
@@ -38,19 +36,22 @@ public class GoogleDriveAuthorizer extends AccountAuthorizer {
 
     private final GoogleAuthorizationCodeFlow auth;
 
-    public GoogleDriveAuthorizer() {
-        super(APP_NAME, CLIENT_ID, CLIENT_SECRET);
+    public GoogleDriveAuthorizer(AuthSecretFile secretFile) {
+        super(APP_NAME, CLIENT_ID, secretFile, AuthSecretKey.GoogleDrive);
 
         this.auth = new GoogleAuthorizationCodeFlow.Builder(
-                this.httpTransport, this.jsonFactory, CLIENT_ID, CLIENT_SECRET, Arrays.asList(DriveScopes.DRIVE))
-                .setAccessType("online")
-                .setApprovalPrompt("auto").build();
+                this.httpTransport,
+                this.jsonFactory,
+                getAppId(),
+                getAppSecret(),
+                Arrays.asList(DriveScopes.DRIVE)
+        ).setAccessType("online").setApprovalPrompt("auto").build();
     }
 
     @Override
     public Account recreateAccount(String accessToken, String refreshToken) throws AccountException {
         GoogleCredential credential = new GoogleCredential.Builder()
-                .setClientSecrets(CLIENT_ID, CLIENT_SECRET)
+                .setClientSecrets(getAppId(), getAppSecret())
                 .setJsonFactory(jsonFactory)
                 .setTransport(httpTransport).build()
                 .setAccessToken(accessToken).setRefreshToken(refreshToken);
@@ -58,7 +59,9 @@ public class GoogleDriveAuthorizer extends AccountAuthorizer {
         //Create a new authorized API client
         Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("omnidrive").build();
 
-        return new GoogleDriveAccount(service, accessToken, refreshToken);
+        AccountMetadata metadata = new AccountMetadata(getAppId(), getAppSecret(), accessToken, refreshToken);
+
+        return new GoogleDriveAccount(metadata, service);
     }
 
     @Override
@@ -94,7 +97,15 @@ public class GoogleDriveAuthorizer extends AccountAuthorizer {
 
             //Create a new authorized API client
             Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("omnidrive").build();
-            GoogleDriveAccount googleAccount = new GoogleDriveAccount(service, credential.getAccessToken(), credential.getRefreshToken());
+
+            AccountMetadata metadata = new AccountMetadata(
+                    getAppId(),
+                    getAppSecret(),
+                    credential.getAccessToken(),
+                    credential.getRefreshToken()
+            );
+
+            GoogleDriveAccount googleAccount = new GoogleDriveAccount(metadata, service);
             googleAccount.initialize();
             notifyAll(AccountType.GoogleDrive, googleAccount);
         } catch (IOException ex) {

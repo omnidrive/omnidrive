@@ -1,8 +1,9 @@
 package omnidrive.api.managers;
 
 import omnidrive.api.auth.AuthListener;
-import omnidrive.api.base.AccountAuthorizer;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.auth.AuthSecretFile;
+import omnidrive.api.account.AccountAuthorizer;
+import omnidrive.api.account.AccountType;
 import omnidrive.api.box.BoxAuthorizer;
 import omnidrive.api.dropbox.DropboxAuthorizer;
 import omnidrive.api.google.GoogleDriveAuthorizer;
@@ -11,10 +12,13 @@ import omnidrive.api.microsoft.OneDriveAuthorizer;
 public class AuthManager {
 
     private final AccountAuthorizer[] authorizers = new AccountAuthorizer[AccountType.length()];
+    private final AuthSecretFile secretFile;
 
     private static AuthManager authManager = null;
 
     private AuthManager() {
+        secretFile = new AuthSecretFile().analyze();
+
         for (AccountType type : AccountType.values()) {
             authorizers[type.ordinal()] = createAuthorizer(type);
         }
@@ -33,16 +37,16 @@ public class AuthManager {
 
         switch (type) {
             case Dropbox:
-                authorizer = new DropboxAuthorizer();
+                authorizer = new DropboxAuthorizer(secretFile);
                 break;
             case GoogleDrive:
-                authorizer = new GoogleDriveAuthorizer();
+                authorizer = new GoogleDriveAuthorizer(secretFile);
                 break;
             case Box:
-                authorizer = new BoxAuthorizer();
+                authorizer = new BoxAuthorizer(secretFile);
                 break;
             case OneDrive:
-                authorizer = new OneDriveAuthorizer();
+                authorizer = new OneDriveAuthorizer(secretFile);
                 break;
         }
 

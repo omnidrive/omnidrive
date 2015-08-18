@@ -1,7 +1,7 @@
 package omnidrive.filesystem.manifest;
 
-import omnidrive.api.base.Account;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.Account;
+import omnidrive.api.account.AccountType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.manifest.sync.MapDbManifestSync;
 import omnidrive.util.MapDbUtils;

@@ -1,7 +1,7 @@
 package omnidrive.api.microsoft;
 
-import omnidrive.api.base.AccountException;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.AccountException;
+import omnidrive.api.account.AccountType;
 
 public class OneDriveException extends AccountException {
     public OneDriveException(String message) {
