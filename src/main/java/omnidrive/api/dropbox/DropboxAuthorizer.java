@@ -15,7 +15,7 @@ public class DropboxAuthorizer extends AccountAuthorizer {
 
     // Dropbox App Keys
     private static final String APP_NAME = "Dropbox";
-    private static final String APP_KEY = "zkbnr6hfxzqgxx2";
+    private static final String APP_KEY = "xoqvidzofuotsju";
 
 
     private final DbxAppInfo appInfo;

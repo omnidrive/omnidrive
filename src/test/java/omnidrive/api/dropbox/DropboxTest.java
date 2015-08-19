@@ -29,7 +29,7 @@ public class DropboxTest {
 
     private static final DbxRequestConfig DbxConfig = new DbxRequestConfig("omnidrive", Locale.getDefault().toString());
 
-    private static final String APP_KEY = "zkbnr6hfxzqgxx2";
+    private static final String APP_KEY = "xoqvidzofuotsju";
 
     private static final String CLIENT_SECRET_FILE = DropboxTest.class.getResource("/api/accounts.secret").getPath();
     private static final String TOKEN_SECRET_FILE = DropboxTest.class.getResource("/api/tokens.secret").getPath();
