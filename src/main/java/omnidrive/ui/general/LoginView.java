@@ -48,7 +48,7 @@ public class LoginView {
 
         // create scene
         this.loginStage.setTitle(type.toString());
-        Scene scene = new Scene(authPane, 750, 500);
+        Scene scene = new Scene(authPane, 750, 650);
         this.loginStage.setScene(scene);
         this.loginStage.showAndWait();
     }

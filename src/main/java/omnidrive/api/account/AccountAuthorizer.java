@@ -56,7 +56,7 @@ public abstract class AccountAuthorizer {
         }
     }
 
-    public abstract Account recreateAccount(String accessToken, String refreshToken) throws AccountException;
+    public abstract Account restoreAccount(AccountMetadata metadata) throws AccountException;
 
     public abstract String authUrl();
 

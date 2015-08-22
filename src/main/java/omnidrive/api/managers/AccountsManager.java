@@ -20,7 +20,7 @@ public class AccountsManager extends Observable {
         for (Map.Entry<String, AccountMetadata> entry : accountsInfo.entrySet()) {
             AccountType type = AccountType.valueOf(entry.getKey());
             AccountMetadata metadata = entry.getValue();
-            Account account = restoreAccount(type, metadata.getAccessToken(), metadata.getRefreshToken());
+            Account account = restoreAccount(type, metadata);
             if (account != null) {
                 account.initialize();
                 setAccount(type, account);
@@ -28,8 +28,8 @@ public class AccountsManager extends Observable {
         }
     }
 
-    public Account restoreAccount(AccountType type, String accessToken, String refreshToken) throws AccountException {
-        return this.authManager.getAuthorizer(type).recreateAccount(accessToken, refreshToken);
+    public Account restoreAccount(AccountType type, AccountMetadata metadata) throws AccountException {
+        return this.authManager.getAuthorizer(type).restoreAccount(metadata);
     }
 
     public void setAccount(AccountType type, Account account) {

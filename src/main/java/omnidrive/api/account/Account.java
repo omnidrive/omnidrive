@@ -10,9 +10,6 @@ public abstract class Account {
     protected static final String OMNIDRIVE_ROOT_FOLDER_PATH = "/" + OMNIDRIVE_ROOT_FOLDER_NAME;
 
     protected AccountMetadata metadata;
-    protected String manifestId;
-
-    protected String omniDriveFolderId = null;
 
     protected long totalSize = 0;
     protected long usedSize = 0;
@@ -65,32 +62,33 @@ public abstract class Account {
         long size = 0;
 
         if (hasManifestId()) {
-            size = downloadFile(this.manifestId, outputStream);
+            size = downloadFile(this.metadata.getManifestId(), outputStream);
         }
 
         return size;
     }
 
     public void uploadManifest(InputStream inputStream, long size) throws AccountException {
-        this.manifestId = uploadFile(MANIFEST_FILE_NAME, inputStream, size);
+        String fileId = uploadFile(MANIFEST_FILE_NAME, inputStream, size);
+        this.metadata.setManifestId(fileId);
     }
 
     public void updateManifest(InputStream inputStream, long size) throws AccountException {
         if (!hasManifestId()) {
             uploadManifest(inputStream, size);
         } else {
-            updateFile(this.manifestId, inputStream, size);
+            updateFile(this.metadata.getManifestId(), inputStream, size);
         }
     }
 
     public void removeManifest() throws AccountException {
         if (hasManifestId()) {
-            removeFile(this.manifestId);
+            removeFile(metadata.getManifestId());
         }
     }
 
     protected boolean hasManifestId() {
-        return this.manifestId != null;
+        return metadata.getManifestId() != null;
     }
 
     protected void fetchManifestIdIfExists() throws AccountException {

@@ -35,8 +35,8 @@ public class OneDriveAccount extends Account {
 
     @Override
     protected String getOmniDriveFolderId() throws AccountException {
-        if (this.omniDriveFolderId != null) {
-            return this.omniDriveFolderId;
+        if (this.metadata.getRootFolderId() != null) {
+            return this.metadata.getRootFolderId();
         }
 
         try {
@@ -44,7 +44,7 @@ public class OneDriveAccount extends Account {
             for (OneDriveChildItem childItem : item.getChildren()) {
                 if (childItem.getType() == OneDriveEntryType.Folder) {
                     if (childItem.getName().equals(OMNIDRIVE_ROOT_FOLDER_NAME)) {
-                        this.omniDriveFolderId = childItem.getId();
+                        this.metadata.setRootFolderId(childItem.getId());
                         break;
                     }
                 }
@@ -53,7 +53,7 @@ public class OneDriveAccount extends Account {
             throw new OneDriveException("Failed to get root item");
         }
 
-        return this.omniDriveFolderId;
+        return this.metadata.getRootFolderId();
     }
 
     @Override
@@ -149,7 +149,7 @@ public class OneDriveAccount extends Account {
             OneDriveItem item = this.core.getItemByPath(getFullPath(MANIFEST_FILE_NAME), false);
             if (item != null) {
                 if (!item.isDeleted()) {
-                    this.manifestId = item.getId();
+                    this.metadata.setManifestId(item.getId());
                     exists = true;
                 }
             }

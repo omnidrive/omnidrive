@@ -29,8 +29,7 @@ public class DropboxAuthorizer extends AccountAuthorizer {
     }
 
     @Override
-    public Account recreateAccount(String accessToken, String refreshToken) throws AccountException {
-        AccountMetadata metadata = new AccountMetadata(getAppId(), getAppSecret(), accessToken, refreshToken);
+    public Account restoreAccount(AccountMetadata metadata) throws AccountException {
         return new DropboxAccount(metadata, this.config);
     }
 

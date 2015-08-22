@@ -4,6 +4,16 @@ import org.json.JSONObject;
 
 import java.io.*;
 
+/*
+AuthSecretFile parses a file with keys and values that represent the auth-secret-key of a cloud
+The file format is:
+{
+    "dropbox":"secret-key",
+    "google":"secret-key",
+    ...
+}
+ */
+
 public class AuthSecretFile {
 
     public static final String DEFAULT_AUTH_SECRET_FILE = AuthSecretFile.class.getResource("/accounts.secret").getPath();

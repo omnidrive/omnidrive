@@ -45,8 +45,8 @@ public class GoogleDriveAccount extends Account {
 
     @Override
     protected String getOmniDriveFolderId() throws AccountException {
-        if (this.omniDriveFolderId != null) {
-            return this.omniDriveFolderId;
+        if (this.metadata.getRootFolderId() != null) {
+            return this.metadata.getRootFolderId();
         }
 
         try {
@@ -55,7 +55,7 @@ public class GoogleDriveAccount extends Account {
 
             for (File rootFolder : request.execute().getItems()) {
                 if (rootFolder.getTitle().equals(OMNIDRIVE_ROOT_FOLDER_NAME)) {
-                    this.omniDriveFolderId = rootFolder.getId();
+                    this.metadata.setRootFolderId(rootFolder.getId());
                     break;
                 }
             }
@@ -63,7 +63,7 @@ public class GoogleDriveAccount extends Account {
             throw new GoogleDriveException("Failed to get root folder.");
         }
 
-        return this.omniDriveFolderId;
+        return this.metadata.getRootFolderId();
     }
 
     @Override
@@ -181,7 +181,7 @@ public class GoogleDriveAccount extends Account {
 
             for (File file : request.execute().getItems()) {
                 if (file.getTitle().equals(MANIFEST_FILE_NAME)) {
-                    this.manifestId = file.getId();
+                    this.metadata.setManifestId(file.getId());
                     exists = true;
                     break;
                 }

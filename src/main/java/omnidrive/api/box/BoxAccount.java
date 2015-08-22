@@ -41,8 +41,8 @@ public class BoxAccount extends Account {
 
     @Override
     protected String getOmniDriveFolderId() throws AccountException {
-        if (this.omniDriveFolderId != null) {
-            return this.omniDriveFolderId;
+        if (this.metadata.getRootFolderId() != null) {
+            return this.metadata.getRootFolderId();
         }
 
         com.box.sdk.BoxFolder rootFolder = com.box.sdk.BoxFolder.getRootFolder(this.user.getAPI());
@@ -51,7 +51,7 @@ public class BoxAccount extends Account {
             if (rootFolder != null) {
                 for (com.box.sdk.BoxItem.Info itemInfo : rootFolder.getChildren()) {
                     if (itemInfo.getName().equals(OMNIDRIVE_ROOT_FOLDER_NAME)) {
-                        this.omniDriveFolderId = itemInfo.getID();
+                        this.metadata.setRootFolderId(itemInfo.getID());
                         break;
                     }
                 }
@@ -62,7 +62,7 @@ public class BoxAccount extends Account {
             throw new BoxException(ex.getMessage());
         }
 
-        return this.omniDriveFolderId;
+        return this.metadata.getRootFolderId();
     }
 
     @Override
@@ -164,7 +164,7 @@ public class BoxAccount extends Account {
             for (com.box.sdk.BoxItem.Info itemInfo : omniDriveFolder.getChildren()) {
                 if (itemInfo.getName().equals(MANIFEST_FILE_NAME)) {
                     exists = true;
-                    this.manifestId = itemInfo.getID();
+                    this.metadata.setManifestId(itemInfo.getID());
                     break;
                 }
             }

@@ -22,15 +22,13 @@ public class BoxAuthorizer extends AccountAuthorizer {
     }
 
     @Override
-    public Account recreateAccount(String accessToken, String refreshToken) throws AccountException {
+    public Account restoreAccount(AccountMetadata metadata) throws AccountException {
         BoxAPIConnection conn = new BoxAPIConnection(
                 getAppId(),
                 getAppSecret(),
-                accessToken,
-                refreshToken
+                metadata.getAccessToken(),
+                metadata.getRefreshToken()
         );
-
-        AccountMetadata metadata = new AccountMetadata(getAppId(), getAppSecret(), accessToken, refreshToken);
 
         return new BoxAccount(metadata, conn);
     }

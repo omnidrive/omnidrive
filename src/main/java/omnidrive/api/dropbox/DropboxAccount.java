@@ -40,22 +40,22 @@ public class DropboxAccount extends Account {
 
     @Override
     protected String getOmniDriveFolderId() throws AccountException {
-        if (this.omniDriveFolderId != null) {
-            return this.omniDriveFolderId;
+        if (this.metadata.getRootFolderId() != null) {
+            return this.metadata.getRootFolderId();
         }
 
         try {
             DbxEntry rootEntry = this.client.getMetadata(OMNIDRIVE_ROOT_FOLDER_PATH);
             if (rootEntry != null) {
                 if (rootEntry.isFolder()) {
-                    this.omniDriveFolderId = rootEntry.name;
+                    this.metadata.setRootFolderId(rootEntry.name);
                 }
             }
         } catch (DbxException ex1) {
-            this.omniDriveFolderId = null;
+            this.metadata.setRootFolderId(null);
         }
 
-        return this.omniDriveFolderId;
+        return this.metadata.getRootFolderId();
     }
 
     @Override
@@ -201,7 +201,7 @@ public class DropboxAccount extends Account {
                 if (child.isFile()) {
                     if (child.name.equals(MANIFEST_FILE_NAME)) {
                         exists = true;
-                        this.manifestId = child.name;
+                        this.metadata.setManifestId(child.name);
                         break;
                     }
                 }
