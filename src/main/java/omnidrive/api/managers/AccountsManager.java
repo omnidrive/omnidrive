@@ -22,6 +22,7 @@ public class AccountsManager extends Observable {
             AccountMetadata metadata = entry.getValue();
             Account account = restoreAccount(type, metadata.getAccessToken(), metadata.getRefreshToken());
             if (account != null) {
+                account.initialize();
                 setAccount(type, account);
             }
         }
