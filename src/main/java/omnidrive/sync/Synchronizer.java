@@ -168,6 +168,7 @@ public class Synchronizer {
             if (file.lastModified() > manifestUpdateTime) {
                 upload(file);
             } else {
+                assert file.delete();
                 delete(file);
             }
         }
