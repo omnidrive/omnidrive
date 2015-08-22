@@ -1,9 +1,12 @@
 package omnidrive.api.box;
 
 import com.box.sdk.BoxAPIConnection;
-import omnidrive.api.base.CloudAccount;
+import omnidrive.api.auth.AuthSecretFile;
+import omnidrive.api.auth.AuthSecretKey;
+import omnidrive.api.account.Account;
 
-import omnidrive.api.base.AccountException;
+import omnidrive.api.account.AccountException;
+import omnidrive.api.account.AccountMetadata;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.After;
@@ -23,11 +26,17 @@ public class BoxTest {
 
     private static final String LOCAL_DOWNLOAD_PATH = "/Users/assafey/Downloads";
 
-    private static final String BOX_TOKEN = "GifgIzRYVqjgQR1RG2oZEnbCDIbzXYrJ";
+    private static final String CLIENT_SECRET_FILE = BoxTest.class.getResource("/api/accounts.secret").getPath();
+    private static final String TOKEN_SECRET_FILE = BoxTest.class.getResource("/api/tokens.secret").getPath();
 
-    private static final BoxAPIConnection conn = new BoxAPIConnection(BOX_TOKEN);
+    private static final AuthSecretFile clientSecretFile = new AuthSecretFile().analyze(CLIENT_SECRET_FILE);
+    private static final AuthSecretFile tokenSecretFile = new AuthSecretFile().analyze(TOKEN_SECRET_FILE);
 
-    private static CloudAccount account = null;
+    private static final BoxAPIConnection conn = new BoxAPIConnection(tokenSecretFile.getSecret(AuthSecretKey.Box));
+
+    private static final String CLIENT_ID = "z4p9d2zjhmh15f4rsdzc4dbtm79e85xu";
+
+    private static Account account = null;
 
     public BoxTest() {
 
@@ -36,8 +45,14 @@ public class BoxTest {
     @Before
     public void setUp() throws Exception {
         if (account == null) {
+            AccountMetadata metadata = new AccountMetadata(
+                    CLIENT_ID,
+                    clientSecretFile.getSecret(AuthSecretKey.Box),
+                    tokenSecretFile.getSecret(AuthSecretKey.Box),
+                    null
+            );
 
-            account = new BoxAccount(conn);
+            account = new BoxAccount(metadata, conn);
 
             try {
                 account.initialize();

@@ -1,7 +1,7 @@
 package omnidrive.api.box;
 
-import omnidrive.api.base.AccountType;
-import omnidrive.api.base.AccountException;
+import omnidrive.api.account.AccountType;
+import omnidrive.api.account.AccountException;
 
 public class BoxException extends AccountException {
     public BoxException(String message) {

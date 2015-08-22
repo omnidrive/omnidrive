@@ -1,7 +1,7 @@
 package omnidrive.manifest;
 
-import omnidrive.api.base.AccountMetadata;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.AccountMetadata;
+import omnidrive.api.account.AccountType;
 import omnidrive.manifest.entry.Entry;
 import omnidrive.manifest.entry.Tree;
 
@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface Manifest {
 
-    Map<String, String> getAccountsMetadata();
+    Map<String, AccountMetadata> getAccountsMetadata();
 
     void put(AccountType accountType, AccountMetadata metadata);
 

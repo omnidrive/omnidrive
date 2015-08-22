@@ -1,7 +1,7 @@
 package omnidrive.manifest;
 
-import omnidrive.api.base.CloudAccount;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.Account;
+import omnidrive.api.account.AccountType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.manifest.mapdb.MapDbManifestSync;
 import omnidrive.util.MapDbUtils;
@@ -18,7 +18,7 @@ public class MapDbManifestSyncTest {
     @Test
     public void testUploadManifestToAccounts() throws Exception {
         // Given an account
-        CloudAccount account = mock(CloudAccount.class);
+        Account account = mock(Account.class);
         AccountsManager accountsManager = new AccountsManager();
         accountsManager.setAccount(AccountType.Dropbox, account);
 

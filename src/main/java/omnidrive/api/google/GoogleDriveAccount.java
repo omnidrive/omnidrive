@@ -3,17 +3,16 @@ package omnidrive.api.google;
 import com.google.api.client.http.*;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.ParentReference;
-import omnidrive.api.base.AccountMetadata;
-import omnidrive.api.base.CloudAccount;
-import omnidrive.api.base.AccountException;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.AccountMetadata;
+import omnidrive.api.account.Account;
+import omnidrive.api.account.AccountException;
+import omnidrive.api.account.AccountType;
 
 import java.io.*;
 import java.util.Arrays;
 
-public class GoogleDriveAccount extends CloudAccount {
+public class GoogleDriveAccount extends Account {
 
     private static final String MimeTypeFile = "application/vnd.google-apps.file";
     private static final String MimeTypeFolder = "application/vnd.google-apps.folder";
@@ -21,22 +20,12 @@ public class GoogleDriveAccount extends CloudAccount {
     private static final String GoogleFileKind = "drive#file";
     private static final String GoogleFolderKind = "drive#parentReference";
 
-    private Drive service;
-    private String accessToken;
+    private final Drive service;
 
-    public GoogleDriveAccount(Drive service, String accessToken) {
-        super(AccountType.GoogleDrive);
+
+    public GoogleDriveAccount(AccountMetadata metadata, Drive service) {
+        super(AccountType.GoogleDrive, metadata);
         this.service = service;
-        this.accessToken = accessToken;
-    }
-
-    @Override
-    protected void fetchMetadata() throws AccountException {
-        if (manifestExists()) {
-            this.metadata = new AccountMetadata(this.accessToken, getManifestId());
-        } else {
-            this.metadata = new AccountMetadata(this.accessToken, null);
-        }
     }
 
     @Override
@@ -179,45 +168,6 @@ public class GoogleDriveAccount extends CloudAccount {
         }
     }
 
-    @Override
-    public long downloadManifest(OutputStream outputStream) throws AccountException {
-        long size = 0;
-
-        if (!isOmniDriveFolderExists()) {
-            throw new GoogleDriveException("No 'OmniDrive' root folder exists");
-        }
-
-        try {
-            if (hasManifestId()) {
-                size = downloadFile(getManifestId(), outputStream);
-            } else {
-                String query = "title = '" + MANIFEST_FILE_NAME + "' and '" + getOmniDriveFolderId() + "' in parents";
-                Drive.Files.List request = this.service.files().list().setQ(query);
-
-                FileList files = request.execute();
-                for (File manifestFile : files.getItems()) {
-                    size = manifestFile.getFileSize();
-                    this.service.files().get(manifestFile.getId()).executeMediaAndDownloadTo(outputStream);
-                    setManifestId(manifestFile.getId());
-                    break;
-                }
-            }
-        } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to download manifest file.");
-        }
-
-        return size;
-    }
-
-    public void uploadManifest(InputStream inputStream, long size) throws AccountException {
-        String manifestFileId = uploadFile(MANIFEST_FILE_NAME, inputStream, size);
-        setManifestId(manifestFileId);
-    }
-
-    public void removeManifest() throws AccountException {
-        removeManifest(AccountType.GoogleDrive);
-    }
-
     public boolean manifestExists() throws AccountException {
         boolean exists = false;
 
@@ -231,7 +181,7 @@ public class GoogleDriveAccount extends CloudAccount {
 
             for (File file : request.execute().getItems()) {
                 if (file.getTitle().equals(MANIFEST_FILE_NAME)) {
-                    setManifestId(file.getId());
+                    this.manifestId = file.getId();
                     exists = true;
                     break;
                 }

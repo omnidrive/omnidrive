@@ -1,8 +1,8 @@
 package omnidrive.sync;
 
 import omnidrive.algo.*;
-import omnidrive.api.base.AccountType;
-import omnidrive.api.base.CloudAccount;
+import omnidrive.api.account.Account;
+import omnidrive.api.account.AccountType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.app.ManifestFilter;
 import omnidrive.exceptions.InvalidFileException;
@@ -77,7 +77,7 @@ public class Synchronizer {
         Blob blob = getBlob(file);
         String id = blob.getId();
         Blob updated = new Blob(id, file.length(), blob.getAccount());
-        CloudAccount account = getAccount(blob);
+        Account account = getAccount(blob);
         account.updateFile(id, new FileInputStream(file), updated.getSize());
         manifest.put(updated);
         return id;
@@ -154,7 +154,7 @@ public class Synchronizer {
         }
     }
 
-    private CloudAccount getAccount(Blob blob) {
+    private Account getAccount(Blob blob) {
         return accountsManager.getAccount(blob.getAccount());
     }
 
@@ -195,7 +195,7 @@ public class Synchronizer {
 
     private void download(Blob blob, Path path) throws Exception {
         AccountType accountType = blob.getAccount();
-        CloudAccount account = accountsManager.getAccount(accountType);
+        Account account = accountsManager.getAccount(accountType);
         File file = rootPath.resolve(path).toFile();
         OutputStream outputStream = new FileOutputStream(file);
         account.downloadFile(blob.getId(), outputStream);
@@ -219,7 +219,7 @@ public class Synchronizer {
         public void visit(EntryNode item) throws Exception {
             if (item.getType() == Entry.Type.BLOB) {
                 Blob blob = item.as(Blob.class);
-                CloudAccount account = getAccount(blob);
+                Account account = getAccount(blob);
                 account.removeFile(blob.getId());
                 manifest.remove(blob);
             }

@@ -61,6 +61,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20141113</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.box</groupId>
             <artifactId>box-java-sdk</artifactId>
             <version>1.0.0</version>
@@ -105,6 +111,19 @@
             <artifactId>mockito-core</artifactId>
             <version>1.10.8</version>
             <scope>test</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.5</version>
         </dependency>
 
     </dependencies>

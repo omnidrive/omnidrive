@@ -1,15 +1,15 @@
 package omnidrive.manifest;
 
-import omnidrive.api.base.CloudAccount;
+import omnidrive.api.account.Account;
 
 import java.util.List;
 
 public interface ManifestSync {
 
-    void uploadToAll(List<CloudAccount> accounts) throws Exception;
+    void uploadToAll(List<Account> accounts) throws Exception;
 
-    void uploadToAccount(CloudAccount account) throws Exception;
+    void uploadToAccount(Account account) throws Exception;
 
-    Manifest downloadFromAccount(CloudAccount account) throws Exception;
+    Manifest downloadFromAccount(Account account) throws Exception;
 
 }

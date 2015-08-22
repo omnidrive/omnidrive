@@ -1,7 +1,7 @@
 package omnidrive.manifest.mapdb;
 
-import omnidrive.api.base.AccountMetadata;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.AccountMetadata;
+import omnidrive.api.account.AccountType;
 import omnidrive.manifest.Manifest;
 import omnidrive.manifest.entry.Entry;
 import omnidrive.manifest.entry.Tree;
@@ -22,7 +22,7 @@ public class MapDbManifest implements Manifest {
 
     public static final String UPDATE_TIME = "update-time";
 
-    final private HTreeMap<String, String> accountsMetadata;
+    final private HTreeMap<String, AccountMetadata> accountsMetadata;
 
     final private HTreeMap<String, Entry> entries;
 
@@ -39,12 +39,12 @@ public class MapDbManifest implements Manifest {
         return get(ROOT_KEY, Tree.class);
     }
 
-    public Map<String, String> getAccountsMetadata() {
+    public Map<String, AccountMetadata> getAccountsMetadata() {
         return new HashMap<>(accountsMetadata);
     }
 
     public void put(AccountType accountType, AccountMetadata metadata) {
-        accountsMetadata.put(accountType.toString(), metadata.getAccessToken());
+        accountsMetadata.put(accountType.toString(), metadata);
         setUpdateTime();
     }
 

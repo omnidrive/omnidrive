@@ -1,7 +1,7 @@
 package omnidrive.sync.upload;
 
-import omnidrive.api.base.AccountException;
-import omnidrive.api.base.CloudAccount;
+import omnidrive.api.account.AccountException;
+import omnidrive.api.account.Account;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.exceptions.NoAccountFoundException;
 
@@ -22,9 +22,9 @@ public class StupidStrategyForDemo implements UploadStrategy {
         this.accountsManager = accountsManager;
     }
 
-    public CloudAccount selectAccount(File file) throws AccountException, NoAccountFoundException {
-        List<CloudAccount> accounts = accountsManager.getActiveAccounts();
-        CloudAccount account = accounts.get(current % accounts.size());
+    public Account selectAccount(File file) throws AccountException, NoAccountFoundException {
+        List<Account> accounts = accountsManager.getActiveAccounts();
+        Account account = accounts.get(current % accounts.size());
         current++;
         return account;
     }

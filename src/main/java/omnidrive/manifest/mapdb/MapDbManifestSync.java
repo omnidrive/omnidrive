@@ -1,8 +1,8 @@
 package omnidrive.manifest.mapdb;
 
 import com.google.common.io.Files;
-import omnidrive.api.base.AccountException;
-import omnidrive.api.base.CloudAccount;
+import omnidrive.api.account.AccountException;
+import omnidrive.api.account.Account;
 import omnidrive.filesystem.FileSystem;
 import omnidrive.manifest.Manifest;
 import omnidrive.manifest.ManifestSync;
@@ -24,24 +24,24 @@ public class MapDbManifestSync implements ManifestSync {
         this.db = db;
     }
 
-    public void uploadToAll(List<CloudAccount> accounts) throws Exception {
+    public void uploadToAll(List<Account> accounts) throws Exception {
         commitChanges();
         File archive = archiver.archive();
         long size = archive.length();
-        for (CloudAccount account : accounts) {
+        for (Account account : accounts) {
             account.updateManifest(new FileInputStream(archive), size);
         }
         assert archive.delete();
     }
 
-    public void uploadToAccount(CloudAccount account) throws Exception {
+    public void uploadToAccount(Account account) throws Exception {
         commitChanges();
         File archive = archiver.archive();
         account.updateManifest(new FileInputStream(archive), archive.length());
         assert archive.delete();
     }
 
-    public Manifest downloadFromAccount(CloudAccount account) throws Exception {
+    public Manifest downloadFromAccount(Account account) throws Exception {
         File tempDir = Files.createTempDir();
         Path tempDirPath = tempDir.toPath();
         File tar = File.createTempFile("manifest", "tar", tempDir);
@@ -58,7 +58,7 @@ public class MapDbManifestSync implements ManifestSync {
         db.compact();
     }
 
-    private void downloadManifest(CloudAccount account, File tar) throws AccountException, IOException {
+    private void downloadManifest(Account account, File tar) throws AccountException, IOException {
         OutputStream outputStream = new FileOutputStream(tar);
         account.downloadManifest(outputStream);
         outputStream.close();

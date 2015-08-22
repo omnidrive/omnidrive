@@ -1,13 +1,11 @@
 package omnidrive.ui.general;
 
-import javafx.event.Event;
-import javafx.event.EventType;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.AccountType;
 
 public class LogoListCell extends Pane {
 
@@ -27,8 +25,6 @@ public class LogoListCell extends Pane {
 
     public LogoListCell(AccountType type, Image iconImage) {
         this(type, iconImage, DEFAULT_TEXT_SIZE);
-
-        // TODO - add double click action
     }
 
     public LogoListCell(AccountType type, Image iconImage, int textSize) {

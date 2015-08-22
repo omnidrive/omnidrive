@@ -8,7 +8,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import omnidrive.api.managers.AccountsManager;
-import omnidrive.ui.general.SyncProgress;
 import omnidrive.ui.managers.UIManager;
 
 import java.net.URL;

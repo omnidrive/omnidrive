@@ -6,9 +6,12 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
-import omnidrive.api.base.CloudAccount;
+import omnidrive.api.auth.AuthSecretFile;
+import omnidrive.api.auth.AuthSecretKey;
+import omnidrive.api.account.Account;
 
-import omnidrive.api.base.AccountException;
+import omnidrive.api.account.AccountException;
+import omnidrive.api.account.AccountMetadata;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.After;
@@ -29,12 +32,16 @@ public class GoogleDriveTest {
     private static final String LOCAL_DOWNLOAD_PATH = "/Users/assafey/Downloads";
 
     private static final String CLIENT_ID = "438388195219-sf38d0f4bbj4t9at3e9n72uup3cfsb8m.apps.googleusercontent.com";
-    private static final String CLIENT_SECRET = "57T8iW2bKRFZJSiX69Dr4cQV";
     private static final String REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
 
-    private static final String GOOGLE_TOKEN = "ya29.xwGdukDW6dqeYoWkU-lHyHu-WhTpcA4elvWyyewh-2HrfT_GpBs7m096CFCGvFzpx5Jk";
+    private static final String CLIENT_SECRET_FILE = GoogleDriveTest.class.getResource("/api/accounts.secret").getPath();
+    private static final String TOKEN_SECRET_FILE = GoogleDriveTest.class.getResource("/api/tokens.secret").getPath();
 
-    private static CloudAccount account = null;
+    private static final AuthSecretFile clientSecretFile = new AuthSecretFile().analyze(CLIENT_SECRET_FILE);
+    private static final AuthSecretFile tokenSecretFile = new AuthSecretFile().analyze(TOKEN_SECRET_FILE);
+
+
+    private static Account account = null;
 
     @Before
     public void setUp() throws Exception {
@@ -43,14 +50,21 @@ public class GoogleDriveTest {
             final JsonFactory jsonFactory = new JacksonFactory();
 
             GoogleCredential credential = new GoogleCredential.Builder()
-                    .setClientSecrets(CLIENT_ID, CLIENT_SECRET)
+                    .setClientSecrets(CLIENT_ID, clientSecretFile.getSecret(AuthSecretKey.GoogleDrive))
                     .setJsonFactory(jsonFactory).setTransport(httpTransport).build()
-                    .setAccessToken(GOOGLE_TOKEN);
+                    .setAccessToken(tokenSecretFile.getSecret(AuthSecretKey.GoogleDrive));
 
             //Create a new authorized API client
             Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("omnidrive").build();
 
-            account = new GoogleDriveAccount(service, GOOGLE_TOKEN);
+            AccountMetadata metadata = new AccountMetadata(
+                    CLIENT_ID,
+                    clientSecretFile.getSecret(AuthSecretKey.GoogleDrive),
+                    tokenSecretFile.getSecret(AuthSecretKey.GoogleDrive),
+                    null
+            );
+
+            account = new GoogleDriveAccount(metadata, service);
 
             try {
                 account.initialize();
@@ -99,7 +113,7 @@ public class GoogleDriveTest {
     public void testManifestActions() throws Exception {
         // manifest exists
         boolean exists = account.manifestExists();
-        assertFalse(exists);
+        //assertFalse(exists);
 
         // upload manifest
         URL url = this.getClass().getResource("/api/manifest");

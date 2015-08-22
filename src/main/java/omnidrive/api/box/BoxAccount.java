@@ -3,30 +3,21 @@ package omnidrive.api.box;
 import com.box.sdk.BoxAPIConnection;
 import com.box.sdk.BoxAPIException;
 import com.box.sdk.BoxFile.Info;
-import omnidrive.api.base.AccountMetadata;
-import omnidrive.api.base.CloudAccount;
-import omnidrive.api.base.AccountException;
-import omnidrive.api.base.AccountType;
+import omnidrive.api.account.Account;
+import omnidrive.api.account.AccountException;
+import omnidrive.api.account.AccountMetadata;
+import omnidrive.api.account.AccountType;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class BoxAccount extends CloudAccount {
+public class BoxAccount extends Account {
 
     com.box.sdk.BoxUser user;
 
-    public BoxAccount(BoxAPIConnection connection) {
-        super(AccountType.Box);
+    public BoxAccount(AccountMetadata metadata, BoxAPIConnection connection) {
+        super(AccountType.Box, metadata);
         this.user = new com.box.sdk.BoxUser(connection, com.box.sdk.BoxUser.getCurrentUser(connection).getID());
-    }
-
-    @Override
-    protected void fetchMetadata() throws AccountException {
-        if (manifestExists()) {
-            this.metadata = new AccountMetadata(this.user.getAPI().getAccessToken(), getManifestId());
-        } else {
-            this.metadata = new AccountMetadata(this.user.getAPI().getAccessToken(), null);
-        }
     }
 
     @Override
@@ -132,8 +123,8 @@ public class BoxAccount extends CloudAccount {
     }
 
     @Override
-    public void removeFolder(String fileId) throws AccountException {
-        com.box.sdk.BoxFolder folder = new com.box.sdk.BoxFolder(this.user.getAPI(), fileId);
+    public void removeFolder(String folderId) throws AccountException {
+        com.box.sdk.BoxFolder folder = new com.box.sdk.BoxFolder(this.user.getAPI(), folderId);
 
         try {
             long folderSize = folder.getInfo().getSize();
@@ -157,58 +148,6 @@ public class BoxAccount extends CloudAccount {
     }
 
     @Override
-    public long downloadManifest(OutputStream outputStream) throws AccountException {
-        long size = 0;
-
-        if (!isOmniDriveFolderExists()) {
-            throw new BoxException("No 'OmniDrive' root folder exists");
-        }
-
-        if (hasManifestId()) {
-            com.box.sdk.BoxFile manifestFile = new com.box.sdk.BoxFile(this.user.getAPI(), getManifestId());
-            if (manifestFile != null) {
-                size = manifestFile.getInfo().getSize();
-                manifestFile.download(outputStream);
-            } else {
-                throw new BoxException("Failed to download 'manifest' file");
-            }
-        } else {
-            com.box.sdk.BoxFolder rootFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), getOmniDriveFolderId());
-            if (rootFolder != null) {
-                for (com.box.sdk.BoxItem.Info itemInfo : rootFolder.getChildren()) {
-                    if (itemInfo.getName().equals(MANIFEST_FILE_NAME)) {
-                        String manifestId = itemInfo.getID();
-                        com.box.sdk.BoxFile manifestFile = new com.box.sdk.BoxFile(this.user.getAPI(), manifestId);
-                        if (manifestFile != null) {
-                            size = manifestFile.getInfo().getSize();
-                            manifestFile.download(outputStream);
-                            setManifestId(manifestId);
-                            break;
-                        } else {
-                            throw new BoxException("Failed to download 'manifest' file");
-                        }
-                    }
-                }
-            } else {
-                throw new BoxException("Failed to find root folder");
-            }
-        }
-
-        return size;
-    }
-
-    @Override
-    public void uploadManifest(InputStream inputStream, long size) throws AccountException {
-        String manifestFileId = uploadFile(MANIFEST_FILE_NAME, inputStream, size);
-        setManifestId(manifestFileId);
-    }
-
-    @Override
-    public void removeManifest() throws AccountException {
-        removeManifest(AccountType.Box);
-    }
-
-    @Override
     public boolean manifestExists() throws AccountException {
         boolean exists = false;
 
@@ -225,7 +164,7 @@ public class BoxAccount extends CloudAccount {
             for (com.box.sdk.BoxItem.Info itemInfo : omniDriveFolder.getChildren()) {
                 if (itemInfo.getName().equals(MANIFEST_FILE_NAME)) {
                     exists = true;
-                    setManifestId(itemInfo.getID());
+                    this.manifestId = itemInfo.getID();
                     break;
                 }
             }
