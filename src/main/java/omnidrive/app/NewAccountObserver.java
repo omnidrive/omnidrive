@@ -29,14 +29,14 @@ public class NewAccountObserver implements Observer {
 
     private void addAccount(Account account) throws Exception {
         System.out.println("Account added " + account);
-        manifest.put(account.getType(), account.getMetadata());
         if (!accountPreviouslyConnected(account)) {
-            uploadManifest(account);
+            uploadManifest(account); // First upload will update account metadata
+            manifest.put(account.getType(), account.getMetadata());
         } // TODO else full sync
     }
 
     private boolean accountPreviouslyConnected(Account account) throws Exception {
-        return account.manifestExists();
+        return false; // TODO return account.manifestExists();
     }
 
     private void uploadManifest(Account account) throws Exception {
