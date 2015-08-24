@@ -31,12 +31,12 @@ public class NewAccountObserver implements Observer {
         System.out.println("Account added " + account);
         if (!accountPreviouslyConnected(account)) {
             uploadManifest(account); // First upload will update account metadata
-            manifest.put(account.getType(), account.getMetadata());
         } // TODO else full sync
+        manifest.put(account.getType(), account.getMetadata());
     }
 
     private boolean accountPreviouslyConnected(Account account) throws Exception {
-        return false; // TODO return account.manifestExists();
+        return account.manifestExists();
     }
 
     private void uploadManifest(Account account) throws Exception {
