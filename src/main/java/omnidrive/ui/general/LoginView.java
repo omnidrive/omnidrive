@@ -8,6 +8,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import omnidrive.api.account.Account;
 import omnidrive.api.auth.AuthListener;
 import omnidrive.api.account.AccountAuthorizer;
 import omnidrive.api.account.AccountException;
@@ -34,9 +35,13 @@ public class LoginView {
         // listen to document load completed event
         engine.getLoadWorker().stateProperty().addListener(new ChangeListener<Worker.State>() {
             public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState, Worker.State newState) {
-                if (newState == Worker.State.READY || newState == Worker.State.SUCCEEDED) {
+                if (newState == Worker.State.SUCCEEDED || newState == Worker.State.RUNNING) {
                     try {
-                        authorizer.fetchAuthCode(engine);
+                        Account newAccount = authorizer.authenticate(engine);
+                        if (newAccount != null) {
+                            loginStage.hide();
+                            authorizer.finishAuthentication(newAccount);
+                        }
                     } catch (AccountException ex) {
                         authListener.authFailure(type, ex.getMessage());
                     }

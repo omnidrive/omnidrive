@@ -20,12 +20,12 @@ public class Account extends omnidrive.api.account.Account {
 
     final private Map<String, String> files = new ArrayMap<String, String>();
 
-    public Account() {
-        this(DEFAULT_CAPACITY);
+    public Account(AccountType type) {
+        this(type, DEFAULT_CAPACITY);
     }
 
-    public Account(long totalSize) {
-        super(AccountType.Box, new AccountMetadata("client_id", "client_secret"));
+    public Account(AccountType type, long totalSize) {
+        super(type, new AccountMetadata("client_id", "client_secret"));
         this.totalSize = totalSize;
     }
 
@@ -99,8 +99,8 @@ public class Account extends omnidrive.api.account.Account {
     }
 
     @Override
-    public boolean manifestExists() throws AccountException {
-        return false;
+    public void fetchManifestId() throws AccountException {
+
     }
 
     @Override

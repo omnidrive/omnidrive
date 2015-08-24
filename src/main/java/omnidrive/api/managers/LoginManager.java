@@ -28,9 +28,9 @@ public class LoginManager implements AuthListener {
     }
 
     @Override
-    public void authSucceed(AccountType type, Account account) {
+    public void authSucceed(Account account) {
         if (this.authService != null) {
-            this.authService.accountAuthorized(type, account);
+            this.authService.accountAuthorized(account);
         }
     }
 

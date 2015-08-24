@@ -185,13 +185,7 @@ public class DropboxAccount extends Account {
     }
 
     @Override
-    public boolean manifestExists() throws AccountException {
-        boolean exists = false;
-
-        if (hasManifestId()) {
-            return true;
-        }
-
+    public void fetchManifestId() throws AccountException {
         try {
             DbxEntry.WithChildren entryWithChildren = this.client.getMetadataWithChildren(OMNIDRIVE_ROOT_FOLDER_PATH);
             if (entryWithChildren == null) {
@@ -200,17 +194,14 @@ public class DropboxAccount extends Account {
             for (DbxEntry child : entryWithChildren.children) {
                 if (child.isFile()) {
                     if (child.name.equals(MANIFEST_FILE_NAME)) {
-                        exists = true;
                         this.metadata.setManifestId(child.name);
                         break;
                     }
                 }
             }
         } catch (DbxException ex) {
-            exists = false;
+            throw new DropboxException("Failed to fetch 'OmniDrive' folder");
         }
-
-        return exists;
     }
 
     @Override

@@ -5,7 +5,7 @@ import omnidrive.api.account.AccountType;
 
 public interface AuthListener {
 
-    void authSucceed(AccountType type, Account account);
+    void authSucceed(Account account);
 
     void authFailure(AccountType type, String error);
 

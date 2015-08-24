@@ -23,7 +23,7 @@ public class AccountsManager extends Observable {
             Account account = restoreAccount(type, metadata);
             if (account != null) {
                 account.initialize();
-                setAccount(type, account);
+                setAccount(account);
             }
         }
     }
@@ -32,10 +32,15 @@ public class AccountsManager extends Observable {
         return this.authManager.getAuthorizer(type).restoreAccount(metadata);
     }
 
-    public void setAccount(AccountType type, Account account) {
-        this.accounts[type.ordinal()] = account;
+    public void setAccount(Account account) {
+        this.accounts[account.getType().ordinal()] = account;
+    }
+
+    public void notifyNewAccount(Account account) {
+        setAccount(account);
         setChanged();
         notifyObservers(account);
+        clearChanged();
     }
 
     public void removeAccount(AccountType type) {

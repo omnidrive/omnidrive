@@ -39,7 +39,8 @@ public class DropboxAuthorizer extends AccountAuthorizer {
     }
 
     @Override
-    public final void fetchAuthCode(WebEngine engine) throws AccountException {
+    public final Account authenticate(WebEngine engine) throws AccountException {
+        Account account = null;
         Document doc = engine.getDocument();
 
         if (doc != null) {
@@ -47,23 +48,27 @@ public class DropboxAuthorizer extends AccountAuthorizer {
             if (element != null) {
                 String code = element.getTextContent().trim();
                 if (code != null) {
-                    finishAuthProcess(code);
+                    account = createAccountFromAuthCode(code);
                 }
             }
         }
+
+        return account;
     }
 
     @Override
-    public final void finishAuthProcess(String code) throws AccountException {
+    public final Account createAccountFromAuthCode(String code) throws AccountException {
+        DropboxAccount dbxAccount = null;
+
         try {
             DbxAuthFinish authFinish = this.auth.finish(code);
             AccountMetadata metadata = new AccountMetadata(getAppId(), getAppSecret(), authFinish.accessToken, null);
-            DropboxAccount dbxAccount = new DropboxAccount(metadata, this.config);
-            dbxAccount.initialize();
-            notifyAll(AccountType.Dropbox, dbxAccount);
+            dbxAccount = new DropboxAccount(metadata, this.config);
         } catch (DbxException ex) {
             throw new DropboxException("Failed to finish auth process.");
         }
+
+        return dbxAccount;
     }
 
     public DbxRequestConfig getConfig() {

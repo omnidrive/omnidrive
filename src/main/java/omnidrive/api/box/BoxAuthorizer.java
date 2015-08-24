@@ -6,6 +6,7 @@ import omnidrive.api.auth.AuthSecretKey;
 import omnidrive.api.account.*;
 
 import com.box.sdk.BoxAPIConnection;
+import org.apache.http.auth.AUTH;
 
 public class BoxAuthorizer extends AccountAuthorizer {
 
@@ -13,6 +14,7 @@ public class BoxAuthorizer extends AccountAuthorizer {
     private static final String APP_NAME = "Box";
     private static final String CLIENT_ID = "z4p9d2zjhmh15f4rsdzc4dbtm79e85xu";
     private static final String REDIRECT_URI = "https://app.box.com/services/poc_connector";
+    private static final String AUTH_URL = "https://www.box.com/api/oauth2/authorize?";
 
     private final BoxAPIConnection connection;
 
@@ -35,40 +37,47 @@ public class BoxAuthorizer extends AccountAuthorizer {
 
     @Override
     public final String authUrl() {
-        String baseUrl = "https://www.box.com/api/oauth2/authorize?";
         String clientId = "client_id=" + getAppId();
         String responseType = "&response_type=code";
         String redirectUri = "&redirect_uri=" + REDIRECT_URI;
 
-        return baseUrl + clientId + responseType + redirectUri;
+        return AUTH_URL + clientId + responseType + redirectUri;
     }
 
     @Override
-    public final void fetchAuthCode(WebEngine engine) throws AccountException {
+    public final Account authenticate(WebEngine engine) throws AccountException {
+        Account account = null;
+
         String url = engine.getLocation();
         if (url.contains(REDIRECT_URI) && url.contains("code=")) {
             int codeStringIdx = url.indexOf("code=");
             String code = url.substring(codeStringIdx + "code=".length());
-            finishAuthProcess(code);
+            account = createAccountFromAuthCode(code);
         }
+
+        return account;
     }
 
     @Override
-    public final void finishAuthProcess(String code) throws AccountException {
-        this.connection.authenticate(code);
-        this.connection.setAutoRefresh(true);
+    public final Account createAccountFromAuthCode(String code) throws AccountException {
+        BoxAccount boxAccount = null;
 
-        AccountMetadata metadata = new AccountMetadata(
-                getAppId(),
-                getAppSecret(),
-                this.connection.getAccessToken(),
-                this.connection.getRefreshToken()
-        );
+        try {
+            this.connection.authenticate(code);
+            this.connection.setAutoRefresh(true);
 
-        BoxAccount boxAccount = new BoxAccount(metadata, this.connection);
+            AccountMetadata metadata = new AccountMetadata(
+                    getAppId(),
+                    getAppSecret(),
+                    this.connection.getAccessToken(),
+                    this.connection.getRefreshToken()
+            );
 
-        boxAccount.initialize();
-        notifyAll(AccountType.Box, boxAccount);
+            boxAccount = new BoxAccount(metadata, this.connection);
+        } catch (Exception ex) {
+            throw new BoxException("Failed to finish auth process.");
+        }
+
+        return boxAccount;
     }
-
 }

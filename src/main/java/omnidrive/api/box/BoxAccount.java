@@ -148,31 +148,22 @@ public class BoxAccount extends Account {
     }
 
     @Override
-    public boolean manifestExists() throws AccountException {
-        boolean exists = false;
-
-        if (hasManifestId()) {
-            return true;
-        }
-
+    public void fetchManifestId() throws AccountException {
         try {
             com.box.sdk.BoxFolder omniDriveFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), getOmniDriveFolderId());
             if (omniDriveFolder == null) {
-                throw new BoxException("Failed to fetch 'OmniDrive' folder");
+                throw new BoxException("Failed to get 'OmniDrive' folder");
             }
 
             for (com.box.sdk.BoxItem.Info itemInfo : omniDriveFolder.getChildren()) {
                 if (itemInfo.getName().equals(MANIFEST_FILE_NAME)) {
-                    exists = true;
                     this.metadata.setManifestId(itemInfo.getID());
                     break;
                 }
             }
         } catch (Exception ex) {
-            throw new BoxException("Failed to get 'OmniDrive' folder");
+            throw new BoxException("Failed to fetch 'OmniDrive' folder");
         }
-
-        return exists;
     }
 
     @Override

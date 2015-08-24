@@ -42,9 +42,9 @@ public abstract class AccountAuthorizer {
         return this.secretFile.getSecret(this.secretKey);
     }
 
-    protected void notifyAll(AccountType type, Account account) {
+    protected void notifyAll(Account account) {
         for (AuthListener listener : this.listeners) {
-            listener.authSucceed(type, account);
+            listener.authSucceed(account);
         }
     }
 
@@ -60,7 +60,12 @@ public abstract class AccountAuthorizer {
 
     public abstract String authUrl();
 
-    public abstract void fetchAuthCode(WebEngine engine) throws AccountException;
+    public abstract Account authenticate(WebEngine engine) throws AccountException;
 
-    public abstract void finishAuthProcess(String code) throws AccountException;
+    protected abstract Account createAccountFromAuthCode(String code) throws AccountException;
+
+    public void finishAuthentication(Account account) throws AccountException {
+        account.initialize();
+        notifyAll(account);
+    }
 }

@@ -31,7 +31,7 @@ public abstract class Account {
 
     public void initialize() throws AccountException {
         createRootFolder();
-        fetchManifestIdIfExists();
+        fetchManifestId();
         this.usedSize = getQuotaUsedSize();
         this.totalSize = getQuotaTotalSize();
     }
@@ -58,10 +58,12 @@ public abstract class Account {
 
     public abstract void updateFile(String fileId, InputStream inputStream, long size) throws AccountException;
 
+    protected abstract void fetchManifestId() throws AccountException;
+
     public long downloadManifest(OutputStream outputStream) throws AccountException {
         long size = 0;
 
-        if (hasManifestId()) {
+        if (manifestExists()) {
             size = downloadFile(this.metadata.getManifestId(), outputStream);
         }
 
@@ -74,7 +76,7 @@ public abstract class Account {
     }
 
     public void updateManifest(InputStream inputStream, long size) throws AccountException {
-        if (!hasManifestId()) {
+        if (!manifestExists()) {
             uploadManifest(inputStream, size);
         } else {
             updateFile(this.metadata.getManifestId(), inputStream, size);
@@ -82,20 +84,14 @@ public abstract class Account {
     }
 
     public void removeManifest() throws AccountException {
-        if (hasManifestId()) {
-            removeFile(metadata.getManifestId());
+        if (manifestExists()) {
+            removeFile(this.metadata.getManifestId());
         }
     }
 
-    protected boolean hasManifestId() {
-        return metadata.getManifestId() != null;
+    public boolean manifestExists() throws AccountException {
+        return this.metadata.getManifestId() != null;
     }
-
-    protected void fetchManifestIdIfExists() throws AccountException {
-        manifestExists(); // also set manifestId
-    }
-
-    public abstract boolean manifestExists() throws AccountException;
 
     public abstract long getQuotaUsedSize() throws AccountException;
 
@@ -114,7 +110,7 @@ public abstract class Account {
     }
 
     public long getCachedQuotaRemainingSize() {
-        return this.totalSize - this.usedSize;
+        return getCachedQuotaTotalSize() - getCachedQuotaUsedSize();
     }
 
     public AccountMetadata getMetadata() {

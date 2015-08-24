@@ -168,13 +168,7 @@ public class GoogleDriveAccount extends Account {
         }
     }
 
-    public boolean manifestExists() throws AccountException {
-        boolean exists = false;
-
-        if (hasManifestId()) {
-            return true;
-        }
-
+    public void fetchManifestId() throws AccountException {
         try {
             String query = "title = '" + MANIFEST_FILE_NAME + "' and '" + getOmniDriveFolderId() + "' in parents";
             Drive.Files.List request = this.service.files().list().setQ(query);
@@ -182,15 +176,12 @@ public class GoogleDriveAccount extends Account {
             for (File file : request.execute().getItems()) {
                 if (file.getTitle().equals(MANIFEST_FILE_NAME)) {
                     this.metadata.setManifestId(file.getId());
-                    exists = true;
                     break;
                 }
             }
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to fetch manifest file");
         }
-
-        return exists;
     }
 
     @Override

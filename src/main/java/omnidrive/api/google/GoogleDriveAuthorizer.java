@@ -69,7 +69,8 @@ public class GoogleDriveAuthorizer extends AccountAuthorizer {
     }
 
     @Override
-    public final void fetchAuthCode(WebEngine engine) throws AccountException {
+    public final Account authenticate(WebEngine engine) throws AccountException {
+        Account account = null;
         String code = null;
 
         String title = engine.getTitle();
@@ -84,12 +85,16 @@ public class GoogleDriveAuthorizer extends AccountAuthorizer {
         }
 
         if (code != null) {
-            finishAuthProcess(code);
+            account = createAccountFromAuthCode(code);
         }
+
+        return account;
     }
 
     @Override
-    public final void finishAuthProcess(String code) throws AccountException {
+    public final Account createAccountFromAuthCode(String code) throws AccountException {
+        GoogleDriveAccount googleAccount = null;
+
         try {
             GoogleTokenResponse response = this.auth.newTokenRequest(code).setRedirectUri(REDIRECT_URI).execute();
             GoogleCredential credential = new GoogleCredential().setFromTokenResponse(response);
@@ -104,11 +109,11 @@ public class GoogleDriveAuthorizer extends AccountAuthorizer {
                     credential.getRefreshToken()
             );
 
-            GoogleDriveAccount googleAccount = new GoogleDriveAccount(metadata, service);
-            googleAccount.initialize();
-            notifyAll(AccountType.GoogleDrive, googleAccount);
+            googleAccount = new GoogleDriveAccount(metadata, service);
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to finish auth process.");
         }
+
+        return googleAccount;
     }
 }

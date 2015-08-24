@@ -20,7 +20,7 @@ public class MapDbManifestSyncTest {
         // Given an account
         Account account = mock(Account.class);
         AccountsManager accountsManager = new AccountsManager();
-        accountsManager.setAccount(AccountType.Dropbox, account);
+        accountsManager.setAccount(account);
 
         // And a manifest syncer
         File dbFile = File.createTempFile("manifest", "db");

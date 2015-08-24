@@ -10,6 +10,6 @@ public interface AuthService {
 
     void reportAuthError(AccountType type, String message);
 
-    void accountAuthorized(AccountType type, Account account);
+    void accountAuthorized(Account account);
 
 }

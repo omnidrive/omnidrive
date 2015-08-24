@@ -25,7 +25,7 @@ public class OneDriveAuthorizer extends AccountAuthorizer {
     }
 
     @Override
-    public Account restoreAccount(AccountMetadata metadata) throws AccountException {
+    public final Account restoreAccount(AccountMetadata metadata) throws AccountException {
         OneDriveOAuth oauth = new OneDriveOAuth(
                 getAppId(),
                 getAppSecret(),
@@ -44,7 +44,7 @@ public class OneDriveAuthorizer extends AccountAuthorizer {
     }
 
     @Override
-    public String authUrl() {
+    public final String authUrl() {
         return OneDriveRestApi.ONEDRIVE_API_AUTH_URL +
                 "?client_id=" + getAppId() +
                 "&scope=" + APP_SCOPE +
@@ -53,20 +53,26 @@ public class OneDriveAuthorizer extends AccountAuthorizer {
     }
 
     @Override
-    public void fetchAuthCode(WebEngine engine) throws AccountException {
+    public final Account authenticate(WebEngine engine) throws AccountException {
+        Account account = null;
+
         String url = engine.getLocation();
         if (url.contains(OneDriveRestApi.ONEDRIVE_API_REDIRECT_URL)) {
             if (url.contains("?code=")) {
                 int indexOfCodeString = url.indexOf("?code=");
                 String code = url.substring(indexOfCodeString + "?code=".length());
                 code = code.substring(0, code.indexOf("&"));
-                finishAuthProcess(code);
+                account = createAccountFromAuthCode(code);
             }
         }
+
+        return account;
     }
 
     @Override
-    public void finishAuthProcess(String code) throws AccountException {
+    public final Account createAccountFromAuthCode(String code) throws AccountException {
+        OneDriveAccount oneDriveAccount = null;
+
         try {
             OneDriveCore core = OneDriveCore.authorize(getAppId(), getAppSecret(), code);
 
@@ -77,12 +83,11 @@ public class OneDriveAuthorizer extends AccountAuthorizer {
                     core.getOauth().getRefreshToken()
             );
 
-            OneDriveAccount account = new OneDriveAccount(metadata, core);
-
-            account.initialize();
-            notifyAll(AccountType.OneDrive, account);
+            oneDriveAccount = new OneDriveAccount(metadata, core);
         } catch (Exception ex) {
             throw new OneDriveException("Failed to authorize");
         }
+
+        return oneDriveAccount;
     }
 }

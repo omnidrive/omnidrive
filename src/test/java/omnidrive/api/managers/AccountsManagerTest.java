@@ -10,9 +10,9 @@ public class AccountsManagerTest {
 
     private AccountsManager accountsManager = new AccountsManager();
 
-    private Account account1 = new omnidrive.stub.Account();
+    private Account account1 = new omnidrive.stub.Account(AccountType.Dropbox);
 
-    private Account account2 = new omnidrive.stub.Account();
+    private Account account2 = new omnidrive.stub.Account(AccountType.GoogleDrive);
 
     @Test
     public void testGetAccountTypeForUnregisteredAccountReturnsNull() throws Exception {
@@ -28,8 +28,8 @@ public class AccountsManagerTest {
     @Test
     public void testGetAccountForRegisteredAccount() throws Exception {
         // Given an two accounts are registered
-        accountsManager.setAccount(AccountType.GoogleDrive, account1);
-        accountsManager.setAccount(AccountType.Dropbox, account2);
+        accountsManager.setAccount(account1);
+        accountsManager.setAccount(account2);
 
         // When you try to get an account
         AccountType result = accountsManager.toType(account2);

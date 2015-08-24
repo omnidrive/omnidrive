@@ -138,26 +138,17 @@ public class OneDriveAccount extends Account {
     }
 
     @Override
-    public boolean manifestExists() throws AccountException {
-        boolean exists = false;
-
-        if (hasManifestId()) {
-            return true;
-        }
-
+    public void fetchManifestId() throws AccountException {
         try {
             OneDriveItem item = this.core.getItemByPath(getFullPath(MANIFEST_FILE_NAME), false);
             if (item != null) {
                 if (!item.isDeleted()) {
                     this.metadata.setManifestId(item.getId());
-                    exists = true;
                 }
             }
         } catch (Exception ex) {
-            exists = false;
+            this.metadata.setManifestId(null);
         }
-
-        return exists;
     }
 
     @Override

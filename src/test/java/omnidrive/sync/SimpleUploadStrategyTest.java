@@ -1,6 +1,7 @@
 package omnidrive.sync;
 
 import omnidrive.api.account.Account;
+import omnidrive.api.account.AccountType;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.BaseTest;
 import omnidrive.exceptions.NoAccountFoundException;
@@ -17,9 +18,9 @@ import static org.mockito.Mockito.when;
 
 public class SimpleUploadStrategyTest extends BaseTest {
 
-    private Account emptyAccount = new omnidrive.stub.Account();
+    private Account emptyAccount = new omnidrive.stub.Account(AccountType.Dropbox);
 
-    private Account fullAccount = new omnidrive.stub.Account(0);
+    private Account fullAccount = new omnidrive.stub.Account(AccountType.Dropbox, 0);
 
     private File file;
 
