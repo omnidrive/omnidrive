@@ -22,6 +22,8 @@ public class MapDbManifest implements Manifest {
 
     public static final String UPDATE_TIME = "update-time";
 
+    final private DB db;
+
     final private HTreeMap<String, AccountMetadata> accountsMetadata;
 
     final private HTreeMap<String, Entry> entries;
@@ -29,6 +31,7 @@ public class MapDbManifest implements Manifest {
     final private Atomic.Long updateTime;
 
     public MapDbManifest(DB db) {
+        this.db = db;
         accountsMetadata = db.getHashMap(AUTH_TOKENS_MAP);
         entries = db.getHashMap(ENTRIES_MAP);
         updateTime = db.getAtomicLong(UPDATE_TIME);
@@ -46,6 +49,7 @@ public class MapDbManifest implements Manifest {
     public void put(AccountType accountType, AccountMetadata metadata) {
         accountsMetadata.put(accountType.toString(), metadata);
         setUpdateTime();
+        db.commit();
     }
 
     public void put(Entry entry) {

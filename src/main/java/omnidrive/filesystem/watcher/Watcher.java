@@ -90,6 +90,7 @@ public class Watcher implements Runnable {
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            System.out.println("Watching " + dir);
             register(dir);
             return FileVisitResult.CONTINUE;
         }

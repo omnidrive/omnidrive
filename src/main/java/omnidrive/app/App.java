@@ -61,10 +61,12 @@ public class App {
 
     private void startSubsequentRun() throws Exception {
         List<Account> registeredAccounts = getRegisteredAccounts();
-        Account lruAccount = resolveLeastRecentlyUpdatedAccount(registeredAccounts);
-        fullSync(lruAccount);
-        registeredAccounts.remove(lruAccount);
-        manifestContext.sync.uploadToAll(registeredAccounts);
+        if (!registeredAccounts.isEmpty()) {
+            Account lruAccount = resolveLeastRecentlyUpdatedAccount(registeredAccounts);
+            fullSync(lruAccount);
+            registeredAccounts.remove(lruAccount);
+            manifestContext.sync.uploadToAll(registeredAccounts);
+        }
         startWatcherThread();
         openTrayIcon();
     }

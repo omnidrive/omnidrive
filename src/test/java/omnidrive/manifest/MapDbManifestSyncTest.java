@@ -19,6 +19,7 @@ public class MapDbManifestSyncTest {
     public void testUploadManifestToAccounts() throws Exception {
         // Given an account
         Account account = mock(Account.class);
+        when(account.getType()).thenReturn(AccountType.Dropbox);
         AccountsManager accountsManager = new AccountsManager();
         accountsManager.setAccount(account);
 

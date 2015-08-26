@@ -49,6 +49,7 @@ public class SyncHandlerTest extends BaseTest {
 
     @Before
     public void setUp() throws Exception {
+        when(account.getType()).thenReturn(DRIVE_TYPE);
         accountsManager.setAccount(account);
         UploadStrategy uploadStrategy = new SimpleUploadStrategy(accountsManager);
         Uploader uploader = new Uploader(uploadStrategy);
