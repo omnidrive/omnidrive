@@ -84,7 +84,7 @@ public class UIManager {
 
     private void setupMacApp() {
         // add dock icon
-        URL iconURL = UIManager.class.getResource("/omnidrive_icon_1024.png");
+        URL iconURL = UIManager.class.getResource("/omnidrive_circle_1000.png");
         java.awt.Image image = new javax.swing.ImageIcon(iconURL).getImage();
         com.apple.eawt.Application.getApplication().setDockIconImage(image);
     }

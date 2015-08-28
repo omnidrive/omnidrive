@@ -91,7 +91,7 @@ public class OmniDriveTrayIcon {
             if (stageShown) {
                 this.showItem = new MenuItem("Hide");
             } else {
-                this.showItem = new MenuItem("Accounts");
+                this.showItem = new MenuItem("Show");
             }
             this.showItem.addActionListener(showListener);
             popup.add(this.showItem);
@@ -126,7 +126,7 @@ public class OmniDriveTrayIcon {
 
     private void hide(final Stage stage) {
         this.isShown = false;
-        this.showItem.setLabel("Accounts");
+        this.showItem.setLabel("Show");
         stage.hide();
     }
 

@@ -185,7 +185,7 @@ public class AccountsController implements Initializable, AuthService, Runnable 
 
     @Override
     public void accountAuthorized(Account account) {
-        this.accountsManager.notifyNewAccount(account);
+        this.accountsManager.addNewAccount(account);
         addAccountToListView(account.getType());
         this.loginView.close();
         fetchCloudTotalSize();

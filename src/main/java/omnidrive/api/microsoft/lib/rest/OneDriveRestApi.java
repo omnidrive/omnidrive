@@ -28,6 +28,7 @@ public class OneDriveRestApi extends RestApi {
     private String accessToken;
 
     public OneDriveRestApi(String accessToken) {
+
         this.accessToken = accessToken;
     }
 

@@ -27,6 +27,8 @@ public class OneDriveCore implements RestApiErrorListener {
     private boolean refreshAuthSucceed;
     private OneDriveOAuth oauth;
 
+    private OneDriveRefreshListener listener;
+
     public OneDriveCore(OneDriveOAuth oauth) {
         this.oauth = oauth;
         this.restApi = new OneDriveRestApi(this.oauth.getAccessToken());
@@ -56,7 +58,11 @@ public class OneDriveCore implements RestApiErrorListener {
         return core;
     }
 
-    public void refreshAuthorization() throws Exception {
+    public void addListener(OneDriveRefreshListener listener) {
+        this.listener = listener;
+    }
+
+    public void refreshTheAccessToken() throws Exception {
         HashMap<String, String> params = new HashMap<>();
         params.put("client_id", this.oauth.getClientId());
         params.put("client_secret", this.oauth.getClientSecret());
@@ -260,7 +266,8 @@ public class OneDriveCore implements RestApiErrorListener {
 
     private void refreshTokenIfNeeded() throws Exception {
         if (this.oauth.hasExpired()) {
-            refreshAuthorization();
+            refreshTheAccessToken();
+            this.listener.onRefresh(this, this.oauth);
         }
     }
 
@@ -268,7 +275,7 @@ public class OneDriveCore implements RestApiErrorListener {
     public void errorOccured(int code) {
         if (code == 401) {
             try {
-                refreshAuthorization();
+                refreshTheAccessToken();
                 if (!oauth.hasExpired()) {
                     refreshAuthSucceed = true;
                 }

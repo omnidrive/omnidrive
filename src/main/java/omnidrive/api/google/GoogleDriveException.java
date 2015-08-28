@@ -5,8 +5,8 @@ import omnidrive.api.account.AccountException;
 
 public class GoogleDriveException extends AccountException {
 
-    public GoogleDriveException(String message) {
-        super(AccountType.GoogleDrive, message);
+    public GoogleDriveException(String message, Exception original) {
+        super(AccountType.GoogleDrive, message, original);
     }
 
 }

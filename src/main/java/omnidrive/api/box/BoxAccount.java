@@ -1,22 +1,25 @@
 package omnidrive.api.box;
 
 import com.box.sdk.BoxAPIConnection;
+import com.box.sdk.BoxAPIConnectionListener;
 import com.box.sdk.BoxAPIException;
 import com.box.sdk.BoxFile.Info;
-import omnidrive.api.account.Account;
-import omnidrive.api.account.AccountException;
-import omnidrive.api.account.AccountMetadata;
-import omnidrive.api.account.AccountType;
+import omnidrive.api.account.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class BoxAccount extends Account {
+public class BoxAccount extends Account implements BoxAPIConnectionListener {
 
     com.box.sdk.BoxUser user;
 
     public BoxAccount(AccountMetadata metadata, BoxAPIConnection connection) {
-        super(AccountType.Box, metadata);
+        this(metadata, connection, null);
+    }
+
+    public BoxAccount(AccountMetadata metadata, BoxAPIConnection connection, RefreshedAccountObserver observer) {
+        super(AccountType.Box, metadata, observer);
+        connection.addListener(this);
         this.user = new com.box.sdk.BoxUser(connection, com.box.sdk.BoxUser.getCurrentUser(connection).getID());
     }
 
@@ -28,13 +31,13 @@ public class BoxAccount extends Account {
                 if (boxRootFolder != null) {
                     com.box.sdk.BoxFolder.Info folderInfo = boxRootFolder.createFolder(OMNIDRIVE_ROOT_FOLDER_NAME);
                     if (folderInfo == null) {
-                        throw new BoxException("Failed to create root folder");
+                        throw new BoxException("Failed to create root folder", null);
                     }
                 } else {
-                    throw new BoxException("Failed to find root folder.");
+                    throw new BoxException("Failed to find root folder.", null);
                 }
             } catch (Exception ex) {
-                throw new BoxException(ex.getMessage());
+                throw new BoxException("Failed to create root folder", ex);
             }
         }
     }
@@ -56,13 +59,29 @@ public class BoxAccount extends Account {
                     }
                 }
             } else {
-                throw new BoxException("Failed to find root folder");
+                throw new BoxException("Failed to find root folder", null);
             }
         } catch (Exception ex) {
-            throw new BoxException(ex.getMessage());
+            throw new BoxException("Error while trying to find root folder", ex);
         }
 
         return this.metadata.getRootFolderId();
+    }
+
+    public void refreshAuthorization() throws AccountException {
+        refreshAuthorization(null);
+    }
+
+    @Override
+    public void refreshAuthorization(Object object) throws AccountException {
+        try {
+            this.user.getAPI().refresh();
+            this.metadata.setAccessToken(this.user.getAPI().getAccessToken());
+            this.metadata.setRefreshToken(this.user.getAPI().getRefreshToken());
+            notifyRefreshed();
+        } catch (Exception ex) {
+            throw new BoxException("Failed to refresh account", ex);
+        }
     }
 
     @Override
@@ -85,7 +104,7 @@ public class BoxAccount extends Account {
             fileId = info.getID();
             this.usedSize += info.getSize();
         } catch (BoxAPIException ex) {
-            throw new BoxException(ex.getResponse());
+            throw new BoxException("Failed to upload file.", ex);
         }
 
         return fileId;
@@ -103,7 +122,7 @@ public class BoxAccount extends Account {
                 size = info.getSize();
             }
         } catch (Exception ex) {
-            throw new BoxException("Failed to download file.");
+            throw new BoxException("Failed to download file.", ex);
         }
 
         return size;
@@ -118,7 +137,7 @@ public class BoxAccount extends Account {
             file.delete();
             this.usedSize -= fileSize;
         } catch (Exception ex) {
-            throw new BoxException(ex.getMessage());
+            throw new BoxException("Failed to delete file", ex);
         }
     }
 
@@ -131,7 +150,7 @@ public class BoxAccount extends Account {
             folder.delete(true);
             this.usedSize -= folderSize;
         } catch (Exception ex) {
-            throw new BoxException(ex.getMessage());
+            throw new BoxException("Failed to delete folder", ex);
         }
     }
 
@@ -143,16 +162,20 @@ public class BoxAccount extends Account {
             file.uploadVersion(inputStream);
             this.usedSize += size;
         } catch (Exception ex) {
-            throw new BoxException("Failed to update file.");
+            throw new BoxException("Failed to update file.", ex);
         }
     }
 
     @Override
     public void fetchManifestId() throws AccountException {
+        if (manifestExists()) {
+            return;
+        }
+
         try {
             com.box.sdk.BoxFolder omniDriveFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), getOmniDriveFolderId());
             if (omniDriveFolder == null) {
-                throw new BoxException("Failed to get 'OmniDrive' folder");
+                throw new BoxException("Failed to get 'OmniDrive' folder", null);
             }
 
             for (com.box.sdk.BoxItem.Info itemInfo : omniDriveFolder.getChildren()) {
@@ -162,7 +185,7 @@ public class BoxAccount extends Account {
                 }
             }
         } catch (Exception ex) {
-            throw new BoxException("Failed to fetch 'OmniDrive' folder");
+            throw new BoxException("Failed to fetch 'OmniDrive' folder", ex);
         }
     }
 
@@ -174,7 +197,7 @@ public class BoxAccount extends Account {
             usedQuota = this.user.getInfo().getSpaceUsed();
             this.usedSize = usedQuota;
         } catch (Exception ex) {
-            throw new BoxException("Failed to get quota used size.");
+            throw new BoxException("Failed to get quota used size.", ex);
         }
 
         return usedQuota;
@@ -188,9 +211,21 @@ public class BoxAccount extends Account {
             totalQuota = this.user.getInfo().getSpaceAmount();
             this.totalSize = totalQuota;
         } catch (Exception ex) {
-            throw new BoxException("Failed to get quota total size.");
+            throw new BoxException("Failed to get quota total size.", ex);
         }
 
         return totalQuota;
+    }
+
+    @Override
+    public void onRefresh(BoxAPIConnection boxAPIConnection) {
+        this.metadata.setAccessToken(boxAPIConnection.getAccessToken());
+        this.metadata.setRefreshToken(boxAPIConnection.getRefreshToken());
+        notifyRefreshed();
+    }
+
+    @Override
+    public void onError(BoxAPIConnection boxAPIConnection, BoxAPIException e) {
+        System.out.println("BOX error: " + e.getResponse());
     }
 }

@@ -17,7 +17,7 @@ public class DropboxAccount extends Account {
     private final DbxClient client;
 
     public DropboxAccount(AccountMetadata metadata, DbxRequestConfig config) {
-        super(AccountType.Dropbox, metadata);
+        super(AccountType.Dropbox, metadata, null);
         this.client = new DbxClient(config, metadata.getAccessToken());
         // dropbox token never changes, no need for auto-refresh
     }
@@ -28,12 +28,12 @@ public class DropboxAccount extends Account {
             try {
                 DbxEntry.Folder rootFolder = this.client.createFolder(OMNIDRIVE_ROOT_FOLDER_PATH);
                 if (rootFolder == null) {
-                    throw new DropboxException("Failed to create folder.");
+                    throw new DropboxException("Failed to create folder.", null);
                 } else if (!rootFolder.isFolder()) {
-                    throw new DropboxException("Failed to create folder.");
+                    throw new DropboxException("Failed to create folder.", null);
                 }
-            } catch (DbxException ex2) {
-                throw new DropboxException("Failed to create folder.");
+            } catch (DbxException ex) {
+                throw new DropboxException("Failed to create folder.", ex);
             }
         }
     }
@@ -56,6 +56,11 @@ public class DropboxAccount extends Account {
         }
 
         return this.metadata.getRootFolderId();
+    }
+
+    @Override
+    public void refreshAuthorization(Object object) throws AccountException {
+        // dropbox do not revokes the access token, refresh not needed
     }
 
     @Override
@@ -95,11 +100,11 @@ public class DropboxAccount extends Account {
                 this.usedSize += file.numBytes;
             }
         } catch (FileNotFoundException ex) {
-            throw new DropboxException("Input file not found.");
+            throw new DropboxException("Input file not found.", ex);
         } catch (DbxException ex) {
-            throw new DropboxException("Failed to get file metadata.");
+            throw new DropboxException("Failed to get file metadata.", ex);
         } catch (IOException ex) {
-            throw new DropboxException("Failed to upload file.");
+            throw new DropboxException("Failed to upload file.", ex);
         }
 
         return fileName;
@@ -115,9 +120,9 @@ public class DropboxAccount extends Account {
                 size = dbxFile.numBytes;
             }
         } catch (IOException ex) {
-            throw new DropboxException("Failed to download file.");
+            throw new DropboxException("Failed to download file.", ex);
         } catch (DbxException ex) {
-            throw new DropboxException("Failed to access remote path.");
+            throw new DropboxException("Failed to access remote path.", ex);
         }
 
         return size;
@@ -132,10 +137,10 @@ public class DropboxAccount extends Account {
                 this.client.delete(getFullPath(name));
                 this.usedSize -= fileSize;
             } else {
-                throw new DropboxException("Not a file.");
+                throw new DropboxException("Not a file.", null);
             }
         } catch (DbxException ex) {
-            throw new DropboxException(ex.getMessage());
+            throw new DropboxException("Failed to remove file", ex);
         }
     }
 
@@ -150,18 +155,16 @@ public class DropboxAccount extends Account {
                     if (updatedFile != null) {
                         this.usedSize += updatedFile.numBytes;
                     } else {
-                        throw new DropboxException("Failed to update file");
+                        throw new DropboxException("Failed to update file", null);
                     }
                 } else {
-                    throw new DropboxException("Not a file.");
+                    throw new DropboxException("Not a file.", null);
                 }
             } else {
-                throw new DropboxException("File does not exist.");
+                throw new DropboxException("File does not exist.", null);
             }
-        } catch (IOException ex) {
-            throw new DropboxException("Failed to update file: " + ex.getMessage());
-        } catch (DbxException ex) {
-            throw new DropboxException(ex.getMessage());
+        } catch (Exception ex) {
+            throw new DropboxException("Failed to update file", ex);
         }
     }
 
@@ -174,22 +177,26 @@ public class DropboxAccount extends Account {
                     this.client.delete(getFullPath(name));
                     this.usedSize = getQuotaUsedSize();
                 } else {
-                    throw new DropboxException("Not a folder.");
+                    throw new DropboxException("Not a folder.", null);
                 }
             } else {
-                throw new DropboxException("Folder ndoes not exist.");
+                throw new DropboxException("Folder ndoes not exist.", null);
             }
         } catch (DbxException ex) {
-            throw new DropboxException(ex.getMessage());
+            throw new DropboxException("Failed to remove folder", ex);
         }
     }
 
     @Override
     public void fetchManifestId() throws AccountException {
+        if (manifestExists()) {
+            return;
+        }
+
         try {
             DbxEntry.WithChildren entryWithChildren = this.client.getMetadataWithChildren(OMNIDRIVE_ROOT_FOLDER_PATH);
             if (entryWithChildren == null) {
-                throw new DropboxException("Failed to get 'OmniDrive' folder");
+                throw new DropboxException("Failed to get 'OmniDrive' folder", null);
             }
             for (DbxEntry child : entryWithChildren.children) {
                 if (child.isFile()) {
@@ -200,7 +207,7 @@ public class DropboxAccount extends Account {
                 }
             }
         } catch (DbxException ex) {
-            throw new DropboxException("Failed to fetch 'OmniDrive' folder");
+            throw new DropboxException("Failed to fetch 'OmniDrive' folder", ex);
         }
     }
 
@@ -212,7 +219,7 @@ public class DropboxAccount extends Account {
             usedQuota = this.client.getAccountInfo().quota.normal + this.client.getAccountInfo().quota.shared;
             this.usedSize = usedQuota;
         } catch (DbxException ex) {
-            throw new DropboxException("Failed to get quota used size.");
+            throw new DropboxException("Failed to get quota used size.", ex);
         }
 
         return usedQuota;
@@ -226,7 +233,7 @@ public class DropboxAccount extends Account {
             totalQuota = this.client.getAccountInfo().quota.total;
             this.totalSize = totalQuota;
         } catch (DbxException ex) {
-            throw new DropboxException("Failed to get quota total size.");
+            throw new DropboxException("Failed to get quota total size.", ex);
         }
 
         return totalQuota;

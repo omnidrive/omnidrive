@@ -25,8 +25,13 @@ public class Account extends omnidrive.api.account.Account {
     }
 
     public Account(AccountType type, long totalSize) {
-        super(type, new AccountMetadata("client_id", "client_secret"));
+        super(type, new AccountMetadata("client_id", "client_secret"), null);
         this.totalSize = totalSize;
+    }
+
+    @Override
+    public void refreshAuthorization(Object object) throws AccountException {
+
     }
 
     @Override

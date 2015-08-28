@@ -1,18 +1,19 @@
 package omnidrive.api.google;
 
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.CredentialRefreshListener;
+import com.google.api.client.auth.oauth2.TokenErrorResponse;
+import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.http.*;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.ParentReference;
-import omnidrive.api.account.AccountMetadata;
-import omnidrive.api.account.Account;
-import omnidrive.api.account.AccountException;
-import omnidrive.api.account.AccountType;
+import omnidrive.api.account.*;
 
 import java.io.*;
 import java.util.Arrays;
 
-public class GoogleDriveAccount extends Account {
+public class GoogleDriveAccount extends Account implements CredentialRefreshListener {
 
     private static final String MimeTypeFile = "application/vnd.google-apps.file";
     private static final String MimeTypeFolder = "application/vnd.google-apps.folder";
@@ -24,7 +25,11 @@ public class GoogleDriveAccount extends Account {
 
 
     public GoogleDriveAccount(AccountMetadata metadata, Drive service) {
-        super(AccountType.GoogleDrive, metadata);
+        this(metadata, service, null);
+    }
+
+    public GoogleDriveAccount(AccountMetadata metadata, Drive service, RefreshedAccountObserver observer) {
+        super(AccountType.GoogleDrive, metadata, observer);
         this.service = service;
     }
 
@@ -39,7 +44,7 @@ public class GoogleDriveAccount extends Account {
                 this.service.files().insert(body).execute();
             }
         } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to create root folder.");
+            throw new GoogleDriveException("Failed to create root folder.", ex);
         }
     }
 
@@ -60,10 +65,26 @@ public class GoogleDriveAccount extends Account {
                 }
             }
         } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to get root folder.");
+            throw new GoogleDriveException("Failed to get root folder.", ex);
         }
 
         return this.metadata.getRootFolderId();
+    }
+
+    @Override
+    public void refreshAuthorization(Object object) throws AccountException {
+        try {
+            if (!(object instanceof Credential)) {
+                throw new GoogleDriveException("Wrong type of credentials", null);
+            }
+            Credential credential = (Credential) object;
+            credential.refreshToken();
+            this.metadata.setRefreshToken(credential.getRefreshToken());
+            this.metadata.setAccessToken(credential.getAccessToken());
+            notifyRefreshed();
+        } catch (IOException ex) {
+            throw new GoogleDriveException("Failed to refresh account", ex);
+        }
     }
 
     @Override
@@ -108,7 +129,7 @@ public class GoogleDriveAccount extends Account {
             fileId = uploadedFile.getId();
             this.usedSize += uploadedFile.getFileSize();
         } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to upload file");
+            throw new GoogleDriveException("Failed to upload file", ex);
         }
 
         return fileId;
@@ -124,7 +145,7 @@ public class GoogleDriveAccount extends Account {
             size = streamWithSize.size();
             streamWithSize.writeTo(outputStream);
         } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to download file");
+            throw new GoogleDriveException("Failed to download file", ex);
         }
 
         return size;
@@ -138,7 +159,7 @@ public class GoogleDriveAccount extends Account {
             this.service.files().delete(fileId).execute();
             this.usedSize -= fileSize;
         } catch (IOException ex) {
-            throw new GoogleDriveException(ex.getMessage());
+            throw new GoogleDriveException("Failed to remove file", ex);
         }
     }
 
@@ -160,15 +181,19 @@ public class GoogleDriveAccount extends Account {
             // Send the request to the API.
             File updatedFile = service.files().update(fileId, file, mediaContent).execute();
             if (updatedFile == null) {
-                throw new GoogleDriveException("Failed to update file");
+                throw new GoogleDriveException("Failed to update file", null);
             }
             this.usedSize += updatedFile.getFileSize();
         } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to get file.");
+            throw new GoogleDriveException("Failed to get file.", ex);
         }
     }
 
     public void fetchManifestId() throws AccountException {
+        if (manifestExists()) {
+            return;
+        }
+
         try {
             String query = "title = '" + MANIFEST_FILE_NAME + "' and '" + getOmniDriveFolderId() + "' in parents";
             Drive.Files.List request = this.service.files().list().setQ(query);
@@ -180,7 +205,7 @@ public class GoogleDriveAccount extends Account {
                 }
             }
         } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to fetch manifest file");
+            throw new GoogleDriveException("Failed to fetch manifest file", ex);
         }
     }
 
@@ -192,7 +217,7 @@ public class GoogleDriveAccount extends Account {
             usedQuota = this.service.about().get().execute().getQuotaBytesUsed();
             this.usedSize = usedQuota;
         } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to get quota used size.");
+            throw new GoogleDriveException("Failed to get quota used size.", ex);
         }
 
         return usedQuota;
@@ -206,9 +231,21 @@ public class GoogleDriveAccount extends Account {
             totalQuota = this.service.about().get().execute().getQuotaBytesTotal();
             this.totalSize = totalQuota;
         } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to get quota total size.");
+            throw new GoogleDriveException("Failed to get quota total size.", ex);
         }
 
         return totalQuota;
+    }
+
+    @Override
+    public void onTokenResponse(Credential credential, TokenResponse tokenResponse) throws IOException {
+        this.metadata.setRefreshToken(tokenResponse.getRefreshToken());
+        this.metadata.setAccessToken(tokenResponse.getAccessToken());
+        notifyRefreshed();
+    }
+
+    @Override
+    public void onTokenErrorResponse(Credential credential, TokenErrorResponse tokenErrorResponse) throws IOException {
+        System.out.println("Google Drive Token Error: " + tokenErrorResponse.getError());
     }
 }

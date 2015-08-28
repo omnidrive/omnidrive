@@ -1,11 +1,10 @@
 package omnidrive.api.microsoft;
 
-import omnidrive.api.account.Account;
-import omnidrive.api.account.AccountException;
-import omnidrive.api.account.AccountMetadata;
-import omnidrive.api.account.AccountType;
+import omnidrive.api.account.*;
+import omnidrive.api.microsoft.lib.auth.OneDriveOAuth;
 import omnidrive.api.microsoft.lib.core.OneDriveCore;
 import omnidrive.api.microsoft.lib.core.OneDriveNameConflict;
+import omnidrive.api.microsoft.lib.core.OneDriveRefreshListener;
 import omnidrive.api.microsoft.lib.entry.OneDriveChildItem;
 import omnidrive.api.microsoft.lib.entry.OneDriveEntryType;
 import omnidrive.api.microsoft.lib.entry.OneDriveItem;
@@ -13,13 +12,19 @@ import omnidrive.api.microsoft.lib.entry.OneDriveItem;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class OneDriveAccount extends Account {
+public class OneDriveAccount extends Account implements OneDriveRefreshListener {
 
     private final OneDriveCore core;
 
+
     public OneDriveAccount(AccountMetadata metadata, OneDriveCore core) {
-        super(AccountType.OneDrive, metadata);
+        this(metadata, core, null);
+    }
+
+    public OneDriveAccount(AccountMetadata metadata, OneDriveCore core, RefreshedAccountObserver observer) {
+        super(AccountType.OneDrive, metadata, observer);
         this.core = core;
+        this.core.addListener(this);
     }
 
     @Override
@@ -28,7 +33,7 @@ public class OneDriveAccount extends Account {
             try {
                 this.core.createFolderItem(OMNIDRIVE_ROOT_FOLDER_NAME, OneDriveNameConflict.Fail);
             } catch (Exception ex) {
-                throw new OneDriveException("Failed to create 'OmniDrive' folder");
+                throw new OneDriveException("Failed to create 'OmniDrive' folder", ex);
             }
         }
     }
@@ -50,10 +55,26 @@ public class OneDriveAccount extends Account {
                 }
             }
         } catch (Exception ex) {
-            throw new OneDriveException("Failed to get root item");
+            throw new OneDriveException("Failed to get root item", ex);
         }
 
         return this.metadata.getRootFolderId();
+    }
+
+    public void refreshAuthorization() throws AccountException {
+        refreshAuthorization(null);
+    }
+
+    @Override
+    public void refreshAuthorization(Object object) throws AccountException {
+        try {
+            this.core.refreshTheAccessToken();
+            this.metadata.setRefreshToken(this.core.getOauth().getRefreshToken());
+            this.metadata.setAccessToken(this.core.getOauth().getAccessToken());
+            notifyRefreshed();
+        } catch (Exception ex) {
+            throw new OneDriveException("Failed to refresh account.", ex);
+        }
     }
 
     @Override
@@ -63,7 +84,7 @@ public class OneDriveAccount extends Account {
         try {
             name = this.core.getOwner().getName();
         } catch (Exception ex) {
-            throw new OneDriveException("Failed to get username");
+            throw new OneDriveException("Failed to get username", ex);
         }
 
         return name;
@@ -76,7 +97,7 @@ public class OneDriveAccount extends Account {
         try {
             id = this.core.getOwner().getId();
         } catch (Exception ex) {
-            throw new OneDriveException("Failed to get user id");
+            throw new OneDriveException("Failed to get user id", ex);
         }
 
         return id;
@@ -90,7 +111,7 @@ public class OneDriveAccount extends Account {
             fileId = this.core.uploadItem(getOmniDriveFolderId(), name, inputStream);
             this.usedSize += size;
         } catch (Exception ex) {
-            throw new OneDriveException("Failed to upload file");
+            throw new OneDriveException("Failed to upload file", ex);
         }
 
         return fileId;
@@ -103,7 +124,7 @@ public class OneDriveAccount extends Account {
         try {
             size = this.core.downloadItem(fileId, outputStream);
         } catch (Exception ex) {
-            throw new OneDriveException("Failed to download file");
+            throw new OneDriveException("Failed to download file", ex);
         }
 
         return size;
@@ -116,7 +137,7 @@ public class OneDriveAccount extends Account {
             this.core.deleteItem(fileId);
             this.usedSize -= file.getSize();
         } catch (Exception ex) {
-            throw new OneDriveException("Failed to remove item");
+            throw new OneDriveException("Failed to remove item", ex);
         }
     }
 
@@ -133,12 +154,16 @@ public class OneDriveAccount extends Account {
             this.core.updateItem(fileId, inputStream, OneDriveNameConflict.Replace);
             this.usedSize += size;
         } catch (Exception ex) {
-            throw new OneDriveException("Failed to remove item");
+            throw new OneDriveException("Failed to remove item", ex);
         }
     }
 
     @Override
     public void fetchManifestId() throws AccountException {
+        if (manifestExists()) {
+            return;
+        }
+
         try {
             OneDriveItem item = this.core.getItemByPath(getFullPath(MANIFEST_FILE_NAME), false);
             if (item != null) {
@@ -156,7 +181,7 @@ public class OneDriveAccount extends Account {
         try {
             this.usedSize = this.core.getQuota().getUsed();
         } catch (Exception ex) {
-            throw new OneDriveException("Failed to upload file");
+            throw new OneDriveException("Failed to upload file", ex);
         }
 
         return this.usedSize;
@@ -167,9 +192,16 @@ public class OneDriveAccount extends Account {
         try {
             this.totalSize = this.core.getQuota().getTotal();
         } catch (Exception ex) {
-            throw new OneDriveException("Failed to upload file");
+            throw new OneDriveException("Failed to upload file", ex);
         }
 
         return this.totalSize;
+    }
+
+    @Override
+    public void onRefresh(OneDriveCore core, OneDriveOAuth newOAuth) {
+        this.metadata.setRefreshToken(newOAuth.getRefreshToken());
+        this.metadata.setAccessToken(newOAuth.getAccessToken());
+        notifyRefreshed();
     }
 }

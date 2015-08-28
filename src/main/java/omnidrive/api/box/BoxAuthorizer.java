@@ -6,7 +6,6 @@ import omnidrive.api.auth.AuthSecretKey;
 import omnidrive.api.account.*;
 
 import com.box.sdk.BoxAPIConnection;
-import org.apache.http.auth.AUTH;
 
 public class BoxAuthorizer extends AccountAuthorizer {
 
@@ -16,15 +15,12 @@ public class BoxAuthorizer extends AccountAuthorizer {
     private static final String REDIRECT_URI = "https://app.box.com/services/poc_connector";
     private static final String AUTH_URL = "https://www.box.com/api/oauth2/authorize?";
 
-    private final BoxAPIConnection connection;
-
     public BoxAuthorizer(AuthSecretFile secretFile) {
         super(APP_NAME, CLIENT_ID, secretFile, AuthSecretKey.Box);
-        connection = new BoxAPIConnection(getAppId(), getAppSecret());
     }
 
     @Override
-    public Account restoreAccount(AccountMetadata metadata) throws AccountException {
+    public Account restoreAccount(AccountMetadata metadata, RefreshedAccountObserver observer) throws AccountException {
         BoxAPIConnection conn = new BoxAPIConnection(
                 getAppId(),
                 getAppSecret(),
@@ -32,7 +28,10 @@ public class BoxAuthorizer extends AccountAuthorizer {
                 metadata.getRefreshToken()
         );
 
-        return new BoxAccount(metadata, conn);
+        BoxAccount account = new BoxAccount(metadata, conn, observer);
+        //account.refreshAuthorization(); // BOX API does auto refresh here
+
+        return account;
     }
 
     @Override
@@ -63,19 +62,20 @@ public class BoxAuthorizer extends AccountAuthorizer {
         BoxAccount boxAccount = null;
 
         try {
-            this.connection.authenticate(code);
-            this.connection.setAutoRefresh(true);
+            BoxAPIConnection conn = new BoxAPIConnection(getAppId(), getAppSecret());
+            conn.authenticate(code);
+            conn.setAutoRefresh(true);
 
             AccountMetadata metadata = new AccountMetadata(
                     getAppId(),
                     getAppSecret(),
-                    this.connection.getAccessToken(),
-                    this.connection.getRefreshToken()
+                    conn.getAccessToken(),
+                    conn.getRefreshToken()
             );
 
-            boxAccount = new BoxAccount(metadata, this.connection);
+            boxAccount = new BoxAccount(metadata, conn);
         } catch (Exception ex) {
-            throw new BoxException("Failed to finish auth process.");
+            throw new BoxException("Failed to finish auth process.", ex);
         }
 
         return boxAccount;

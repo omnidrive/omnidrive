@@ -25,7 +25,7 @@ public class OneDriveAuthorizer extends AccountAuthorizer {
     }
 
     @Override
-    public final Account restoreAccount(AccountMetadata metadata) throws AccountException {
+    public final Account restoreAccount(AccountMetadata metadata, RefreshedAccountObserver observer) throws AccountException {
         OneDriveOAuth oauth = new OneDriveOAuth(
                 getAppId(),
                 getAppSecret(),
@@ -34,13 +34,11 @@ public class OneDriveAuthorizer extends AccountAuthorizer {
         );
 
         OneDriveCore core = new OneDriveCore(oauth);
-        try {
-            core.refreshAuthorization();
-        } catch (Exception ex) {
-            throw new OneDriveException("Failed to refresh token");
-        }
 
-        return new OneDriveAccount(metadata, core);
+        OneDriveAccount account = new OneDriveAccount(metadata, core, observer);
+        account.refreshAuthorization();
+
+        return account;
     }
 
     @Override
@@ -85,7 +83,7 @@ public class OneDriveAuthorizer extends AccountAuthorizer {
 
             oneDriveAccount = new OneDriveAccount(metadata, core);
         } catch (Exception ex) {
-            throw new OneDriveException("Failed to authorize");
+            throw new OneDriveException("Failed to authorize", ex);
         }
 
         return oneDriveAccount;

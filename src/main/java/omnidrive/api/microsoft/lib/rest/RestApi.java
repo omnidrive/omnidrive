@@ -17,6 +17,10 @@ public class RestApi {
     private final AsyncHttpClient client = new AsyncHttpClient();
     private RestApiErrorListener errorListener = null;
 
+    public RestApi() {
+
+    }
+
     public void resgiterToErrors(RestApiErrorListener listener) {
         if (errorListener == null) {
             errorListener = listener;

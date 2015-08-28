@@ -16,9 +16,13 @@ public abstract class Account {
 
     private AccountType type;
 
-    protected Account(AccountType type, AccountMetadata metadata) {
+    private RefreshedAccountObserver refreshedAccountObserver = null;
+
+
+    protected Account(AccountType type, AccountMetadata metadata, RefreshedAccountObserver observer) {
         this.type = type;
         this.metadata = metadata;
+        this.refreshedAccountObserver = observer;
     }
 
     protected String getFullRootFolderPath() {
@@ -38,6 +42,18 @@ public abstract class Account {
 
     protected boolean isOmniDriveFolderExists() throws AccountException {
         return getOmniDriveFolderId() != null;
+    }
+
+    public abstract void refreshAuthorization(Object object) throws AccountException;
+
+    public void addRefreshedAccountObserver(RefreshedAccountObserver observer) {
+        this.refreshedAccountObserver = observer;
+    }
+
+    protected void notifyRefreshed() {
+        if (this.refreshedAccountObserver != null) {
+            this.refreshedAccountObserver.onAccountRefreshed(this);
+        }
     }
 
     protected abstract void createRootFolder() throws AccountException;

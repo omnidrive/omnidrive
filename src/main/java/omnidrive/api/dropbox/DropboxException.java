@@ -5,8 +5,8 @@ import omnidrive.api.account.AccountException;
 
 public class DropboxException extends AccountException {
 
-    public DropboxException(String message) {
-        super(AccountType.Dropbox, message);
+    public DropboxException(String message, Exception original) {
+        super(AccountType.Dropbox, message, original);
     }
 
 }

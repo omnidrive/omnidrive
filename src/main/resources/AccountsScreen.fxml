@@ -7,29 +7,35 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="450.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="450.0" prefWidth="600.0" style="-fx-background-color: #ECECEC;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="omnidrive.ui.accounts.AccountsController">
+<VBox maxHeight="517.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="517.0" prefWidth="600.0" style="-fx-background-color: #ECECEC;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="omnidrive.ui.accounts.AccountsController">
    <children>
       <HBox prefHeight="100.0" prefWidth="200.0">
          <children>
             <ImageView fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@omnidrive_icon_rounded_128.png" />
+                  <Image url="@omnidrive_circle_300.png" />
                </image>
                <HBox.margin>
                   <Insets left="20.0" top="20.0" />
                </HBox.margin>
             </ImageView>
-            <Label prefHeight="50.0" prefWidth="480.0" text="Set up your cloud accounts to use with OmniDrive">
-               <font>
-                  <Font size="16.0" />
-               </font>
-               <HBox.margin>
-                  <Insets left="20.0" top="50.0" />
-               </HBox.margin>
-            </Label>
+            <Pane prefHeight="100.0" prefWidth="497.0">
+               <children>
+                  <Label layoutX="14.0" layoutY="61.0" prefHeight="33.0" prefWidth="449.0" text="Select any cloud account, register and rule it." textFill="#656363">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="14.0" layoutY="28.0" prefHeight="33.0" prefWidth="449.0" text="Use OneDrive to rule them all!">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Label>
+               </children>
+            </Pane>
          </children>
       </HBox>
-      <HBox prefHeight="300.0" prefWidth="600.0">
+      <HBox prefHeight="360.0" prefWidth="600.0">
          <VBox.margin>
             <Insets top="20.0" />
          </VBox.margin>
@@ -37,16 +43,16 @@
             <Pane prefHeight="200.0" prefWidth="200.0">
                <children>
                   <HBox layoutX="20.0" layoutY="240.0" prefHeight="25.0" prefWidth="180.0" />
-                  <ListView fx:id="registeredAccountsListView" layoutX="20.0" prefHeight="254.0" prefWidth="180.0" />
-                  <Pane layoutX="71.0" layoutY="254.0" prefHeight="25.0" prefWidth="129.0" style="-fx-border-color: #CCCCCC; -fx-background-color: #E0E0E0;" />
-                  <Button fx:id="removeAccountButton" layoutX="46.0" layoutY="253.0" mnemonicParsing="false" onAction="#onRemoveAccountButtonClicked" prefHeight="25.0" prefWidth="26.0" style="-fx-background-radius: 0;" text="-" />
-                  <Button fx:id="addAccountButton" layoutX="20.0" layoutY="253.0" mnemonicParsing="false" onAction="#onAddAccountButtonClicked" prefHeight="25.0" prefWidth="25.0" style="-fx-background-radius: 0;" text="+" />
+                  <ListView fx:id="registeredAccountsListView" layoutX="20.0" prefHeight="321.0" prefWidth="180.0" />
+                  <Pane layoutX="71.0" layoutY="321.0" prefHeight="25.0" prefWidth="129.0" style="-fx-border-color: #CCCCCC; -fx-background-color: #E0E0E0;" />
+                  <Button fx:id="removeAccountButton" layoutX="46.0" layoutY="320.0" mnemonicParsing="false" onAction="#onRemoveAccountButtonClicked" prefHeight="25.0" prefWidth="26.0" style="-fx-background-radius: 0;" text="-" />
+                  <Button fx:id="addAccountButton" layoutX="20.0" layoutY="320.0" mnemonicParsing="false" onAction="#onAddAccountButtonClicked" prefHeight="25.0" prefWidth="25.0" style="-fx-background-radius: 0;" text="+" />
                </children>
             </Pane>
-            <Pane prefHeight="280.0" prefWidth="60.0" />
+            <Pane prefHeight="316.0" prefWidth="60.0" />
             <Pane prefHeight="280.0" prefWidth="339.0">
                <children>
-                  <ListView fx:id="unregisteredAccountsListView" prefHeight="280.0" prefWidth="320.0" />
+                  <ListView fx:id="unregisteredAccountsListView" prefHeight="348.0" prefWidth="320.0" />
                </children>
             </Pane>
          </children>

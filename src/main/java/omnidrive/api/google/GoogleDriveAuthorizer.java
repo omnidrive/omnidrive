@@ -13,23 +13,15 @@ import javafx.scene.web.WebEngine;
 import omnidrive.api.auth.AuthSecretFile;
 import omnidrive.api.auth.AuthSecretKey;
 import omnidrive.api.account.*;
-import omnidrive.api.managers.LoginManager;
 
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class GoogleDriveAuthorizer extends AccountAuthorizer {
 
     private static final String APP_NAME = "GoogleDrive";
     private static final String CLIENT_ID = "438388195219-sf38d0f4bbj4t9at3e9n72uup3cfsb8m.apps.googleusercontent.com";
     private static final String REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
-
-    private LoginManager loginManager;
-
-    private final List<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
 
     private final HttpTransport httpTransport = new NetHttpTransport();
     private final JsonFactory jsonFactory = new JacksonFactory();
@@ -49,18 +41,26 @@ public class GoogleDriveAuthorizer extends AccountAuthorizer {
     }
 
     @Override
-    public Account restoreAccount(AccountMetadata metadata) throws AccountException {
-        GoogleCredential credential = new GoogleCredential.Builder()
+    public Account restoreAccount(AccountMetadata metadata, RefreshedAccountObserver observer) throws AccountException {
+        GoogleCredential.Builder builder = new GoogleCredential.Builder();
+        GoogleCredential credential = builder
                 .setClientSecrets(getAppId(), getAppSecret())
                 .setJsonFactory(jsonFactory)
-                .setTransport(httpTransport).build()
-                .setAccessToken(metadata.getAccessToken())
-                .setRefreshToken(metadata.getRefreshToken());
+                .setTransport(httpTransport)
+                .build();
+
+        credential.setAccessToken(metadata.getAccessToken());
+        credential.setRefreshToken(metadata.getRefreshToken());
 
         //Create a new authorized API client
         Drive service = new Drive.Builder(httpTransport, jsonFactory, credential).setApplicationName("omnidrive").build();
 
-        return new GoogleDriveAccount(metadata, service);
+        GoogleDriveAccount account = new GoogleDriveAccount(metadata, service, observer);
+        builder.addRefreshListener(account);
+
+        account.refreshAuthorization(credential);
+
+        return account;
     }
 
     @Override
@@ -111,7 +111,7 @@ public class GoogleDriveAuthorizer extends AccountAuthorizer {
 
             googleAccount = new GoogleDriveAccount(metadata, service);
         } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to finish auth process.");
+            throw new GoogleDriveException("Failed to finish auth process.", ex);
         }
 
         return googleAccount;

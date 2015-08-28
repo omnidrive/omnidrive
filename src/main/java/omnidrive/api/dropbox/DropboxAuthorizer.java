@@ -29,7 +29,8 @@ public class DropboxAuthorizer extends AccountAuthorizer {
     }
 
     @Override
-    public Account restoreAccount(AccountMetadata metadata) throws AccountException {
+    public Account restoreAccount(AccountMetadata metadata, RefreshedAccountObserver observer) throws AccountException {
+        // dropbox do not revokes the access token, refresh not needed
         return new DropboxAccount(metadata, this.config);
     }
 
@@ -65,7 +66,7 @@ public class DropboxAuthorizer extends AccountAuthorizer {
             AccountMetadata metadata = new AccountMetadata(getAppId(), getAppSecret(), authFinish.accessToken, null);
             dbxAccount = new DropboxAccount(metadata, this.config);
         } catch (DbxException ex) {
-            throw new DropboxException("Failed to finish auth process.");
+            throw new DropboxException("Failed to finish auth process.", ex);
         }
 
         return dbxAccount;

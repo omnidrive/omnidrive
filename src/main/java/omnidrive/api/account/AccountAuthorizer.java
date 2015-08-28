@@ -56,7 +56,7 @@ public abstract class AccountAuthorizer {
         }
     }
 
-    public abstract Account restoreAccount(AccountMetadata metadata) throws AccountException;
+    public abstract Account restoreAccount(AccountMetadata metadata, RefreshedAccountObserver observer) throws AccountException;
 
     public abstract String authUrl();
 

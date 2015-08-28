@@ -60,6 +60,7 @@ public class App {
     }
 
     private void startSubsequentRun() throws Exception {
+        startWatcherThread(); // must be first !! (NewAccountObserver)
         List<Account> registeredAccounts = getRegisteredAccounts();
         if (!registeredAccounts.isEmpty()) {
             Account lruAccount = resolveLeastRecentlyUpdatedAccount(registeredAccounts);
@@ -67,7 +68,6 @@ public class App {
             registeredAccounts.remove(lruAccount);
             manifestContext.sync.uploadToAll(registeredAccounts);
         }
-        startWatcherThread();
         openTrayIcon();
     }
 

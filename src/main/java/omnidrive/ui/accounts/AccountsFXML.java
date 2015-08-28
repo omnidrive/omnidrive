@@ -39,11 +39,10 @@ public class AccountsFXML extends Application {
             theUiManager.setController(controller);
         }
 
-        Scene scene = new Scene(rootPane, 600, 450);
+        Scene scene = new Scene(rootPane, 600, 517);
         stage.initStyle(StageStyle.DECORATED);
 
-        stage.getIcons().add(new Image("/omnidrive_icon_1024.png"));
-        stage.getIcons().add(new Image("/omnidrive_icon_rounded_128.png"));
+        //stage.getIcons().add(new Image(getClass().getResource("/omnidrive_circle_1000.png").getPath()));
 
         stage.setResizable(false);
         stage.setScene(scene);

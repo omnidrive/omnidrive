@@ -1,16 +1,10 @@
 package omnidrive.api.managers;
 
-import omnidrive.api.account.Account;
-import omnidrive.api.account.AccountException;
-import omnidrive.api.account.AccountMetadata;
-import omnidrive.api.account.AccountType;
+import omnidrive.api.account.*;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
+import java.util.*;
 
-public class AccountsManager extends Observable {
+public class AccountsManager extends Observable implements RefreshedAccountObserver {
 
     private final AuthManager authManager = AuthManager.getAuthManager();
 
@@ -18,7 +12,7 @@ public class AccountsManager extends Observable {
 
     public void restoreAccounts(Map<String, AccountMetadata> accountsInfo) throws AccountException {
         for (Map.Entry<String, AccountMetadata> entry : accountsInfo.entrySet()) {
-            AccountType type = AccountType.valueOf(entry.getKey());
+            AccountType type = AccountType.valueOf(entry.getKey().replace(" ", ""));
             AccountMetadata metadata = entry.getValue();
             Account account = restoreAccount(type, metadata);
             if (account != null) {
@@ -29,22 +23,34 @@ public class AccountsManager extends Observable {
     }
 
     public Account restoreAccount(AccountType type, AccountMetadata metadata) throws AccountException {
-        return this.authManager.getAuthorizer(type).restoreAccount(metadata);
+        return this.authManager.getAuthorizer(type).restoreAccount(metadata, this /*also notify when account refreshed*/);
     }
 
     public void setAccount(Account account) {
         this.accounts[account.getType().ordinal()] = account;
     }
 
-    public void notifyNewAccount(Account account) {
-        setAccount(account);
+    @Override
+    public void onAccountRefreshed(Account accountToRefresh) {
         setChanged();
-        notifyObservers(account);
+        notifyObservers(new AccountChangedEvent(accountToRefresh, AccountChangedEvent.State.Refreshed));
+        clearChanged();
+    }
+
+    public void addNewAccount(Account accountToAdd) {
+        setAccount(accountToAdd);
+        accountToAdd.addRefreshedAccountObserver(this);
+        setChanged();
+        notifyObservers(new AccountChangedEvent(accountToAdd, AccountChangedEvent.State.Added));
         clearChanged();
     }
 
     public void removeAccount(AccountType type) {
         if (this.accounts[type.ordinal()] != null) {
+            Account accountToRemove = this.accounts[type.ordinal()];
+            setChanged();
+            notifyObservers(new AccountChangedEvent(accountToRemove, AccountChangedEvent.State.Removed));
+            clearChanged();
             this.accounts[type.ordinal()] = null;
         }
     }
