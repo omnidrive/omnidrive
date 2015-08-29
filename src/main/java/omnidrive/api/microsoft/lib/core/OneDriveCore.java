@@ -78,6 +78,7 @@ public class OneDriveCore implements RestApiErrorListener {
         );
 
         this.oauth = new OneDriveOAuth(this.oauth.getClientId(), this.oauth.getClientSecret(), result);
+        this.restApi.changeAccessToken(this.oauth.getAccessToken());
     }
 
     public void logout() throws Exception {
@@ -102,6 +103,10 @@ public class OneDriveCore implements RestApiErrorListener {
                 path,
                 null
         );
+
+        if (!result.has("owner")) {
+            throw new Exception("Failed to get owner");
+        }
 
         return new OneDriveOwner(result.getJSONObject("owner"));
     }
@@ -167,7 +172,7 @@ public class OneDriveCore implements RestApiErrorListener {
                 inputStream
         );
 
-        if (result.getString("id") == null || result.getString("id").isEmpty()) {
+        if (!result.has("id")) {
             throw new Exception("OneDriveCore: failed to upload item.");
         }
 
@@ -251,13 +256,17 @@ public class OneDriveCore implements RestApiErrorListener {
     public OneDriveQuota getQuota() throws Exception {
         refreshTokenIfNeeded();
 
-        JSONObject json = restApi.doGet(
+        JSONObject result = restApi.doGet(
                 OneDriveRestApi.ONEDRIVE_API_URL,
                 OneDriveRestApi.ONEDRIVE_API_DRIVE,
                 null
         );
 
-        return new OneDriveQuota(json.getJSONObject("quota"));
+        if (!result.has("quota")) {
+            throw new Exception("Failed to get quota");
+        }
+
+        return new OneDriveQuota(result.getJSONObject("quota"));
     }
 
     public OneDriveOAuth getOauth() {
