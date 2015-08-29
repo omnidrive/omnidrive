@@ -200,8 +200,13 @@ public class OneDriveAccount extends Account implements OneDriveRefreshListener 
 
     @Override
     public void onRefresh(OneDriveCore core, OneDriveOAuth newOAuth) {
-        this.metadata.setRefreshToken(newOAuth.getRefreshToken());
-        this.metadata.setAccessToken(newOAuth.getAccessToken());
+        System.out.println("OneDrive: refresh token");
+        if (newOAuth.getAccessToken() != null) {
+            this.metadata.setAccessToken(newOAuth.getAccessToken());
+        }
+        if (newOAuth.getRefreshToken() != null) {
+            this.metadata.setRefreshToken(newOAuth.getRefreshToken());
+        }
         notifyRefreshed();
     }
 }

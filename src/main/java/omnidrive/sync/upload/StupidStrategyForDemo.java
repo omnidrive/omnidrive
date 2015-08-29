@@ -25,6 +25,7 @@ public class StupidStrategyForDemo implements UploadStrategy {
     public Account selectAccount(File file) throws AccountException, NoAccountFoundException {
         List<Account> accounts = accountsManager.getActiveAccounts();
         Account account = accounts.get(current % accounts.size());
+        System.out.println("Account selected: " + account);
         current++;
         return account;
     }

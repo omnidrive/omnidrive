@@ -77,8 +77,12 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
             if (!(object instanceof Credential)) {
                 throw new GoogleDriveException("Wrong type of credentials", null);
             }
+
             Credential credential = (Credential) object;
-            credential.refreshToken();
+            if (!credential.refreshToken()) {
+                throw new GoogleDriveException("Failed to refresh token", null);
+            }
+
             this.metadata.setRefreshToken(credential.getRefreshToken());
             this.metadata.setAccessToken(credential.getAccessToken());
             notifyRefreshed();
@@ -239,13 +243,19 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
 
     @Override
     public void onTokenResponse(Credential credential, TokenResponse tokenResponse) throws IOException {
-        this.metadata.setRefreshToken(tokenResponse.getRefreshToken());
-        this.metadata.setAccessToken(tokenResponse.getAccessToken());
+        System.out.println("GoogleDrive: refresh token");
+        if (tokenResponse.getAccessToken() != null) {
+            this.metadata.setAccessToken(tokenResponse.getAccessToken());
+        }
+        //here we always fail, because google use them same refresh_token, the refresh_token does not refreshed
+        if (tokenResponse.getRefreshToken() != null) {
+            this.metadata.setRefreshToken(tokenResponse.getRefreshToken());
+        }
         notifyRefreshed();
     }
 
     @Override
     public void onTokenErrorResponse(Credential credential, TokenErrorResponse tokenErrorResponse) throws IOException {
-        System.out.println("Google Drive Token Error: " + tokenErrorResponse.getError());
+        System.out.println("GoogleDrive Token Error: " + tokenErrorResponse.getError());
     }
 }

@@ -219,13 +219,18 @@ public class BoxAccount extends Account implements BoxAPIConnectionListener {
 
     @Override
     public void onRefresh(BoxAPIConnection boxAPIConnection) {
-        this.metadata.setAccessToken(boxAPIConnection.getAccessToken());
-        this.metadata.setRefreshToken(boxAPIConnection.getRefreshToken());
+        System.out.println("Box: refresh token");
+        if (boxAPIConnection.getAccessToken() != null) {
+            this.metadata.setAccessToken(boxAPIConnection.getAccessToken());
+        }
+        if (boxAPIConnection.getRefreshToken() != null) {
+            this.metadata.setRefreshToken(boxAPIConnection.getRefreshToken());
+        }
         notifyRefreshed();
     }
 
     @Override
     public void onError(BoxAPIConnection boxAPIConnection, BoxAPIException e) {
-        System.out.println("BOX error: " + e.getResponse());
+        System.out.println("Box error: " + e.getResponse());
     }
 }

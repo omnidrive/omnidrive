@@ -19,7 +19,7 @@ public class OneDriveOAuth {
         this.refreshToken = refreshToken;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
-        this.expiresIn = 3600;
+        this.expiresIn = DELTA_AUTH_EXPIRED;
 
         this.authTimestamp = new Date();
     }

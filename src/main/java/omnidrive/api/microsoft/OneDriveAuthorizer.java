@@ -36,7 +36,7 @@ public class OneDriveAuthorizer extends AccountAuthorizer {
         OneDriveCore core = new OneDriveCore(oauth);
 
         OneDriveAccount account = new OneDriveAccount(metadata, core, observer);
-        account.refreshAuthorization();
+        //account.refreshAuthorization(); refreshed automatically when needed
 
         return account;
     }

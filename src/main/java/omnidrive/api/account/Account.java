@@ -136,4 +136,9 @@ public abstract class Account {
     public AccountType getType() {
         return this.type;
     }
+
+    @Override
+    public String toString() {
+        return this.type.toString();
+    }
 }
