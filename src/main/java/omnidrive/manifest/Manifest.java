@@ -13,6 +13,8 @@ public interface Manifest {
 
     void put(AccountType accountType, AccountMetadata metadata);
 
+    void remove(AccountType accountType);
+
     void put(Entry entry);
 
     void remove(Entry entry);

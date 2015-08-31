@@ -3,8 +3,8 @@ package omnidrive.app;
 import omnidrive.api.account.Account;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.FileSystem;
+import omnidrive.filesystem.watcher.DirWatcher;
 import omnidrive.filesystem.watcher.Handler;
-import omnidrive.filesystem.watcher.Watcher;
 import omnidrive.manifest.Manifest;
 import omnidrive.manifest.ManifestSync;
 import omnidrive.manifest.mapdb.MapDbManifest;
@@ -19,9 +19,7 @@ import omnidrive.util.MapDbUtils;
 import org.mapdb.DB;
 
 import java.io.File;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.WatchService;
 import java.util.List;
 
 public class App {
@@ -106,12 +104,10 @@ public class App {
         ManifestSync manifestSync = manifestContext.sync;
         Manifest manifest = manifestContext.manifest;
         Handler handler = new SyncHandler(synchronizer, manifestSync, accountsManager);
-        WatchService watchService = FileSystems.getDefault().newWatchService();
         ManifestFilter filter = new ManifestFilter();
-        Watcher watcher = new Watcher(watchService, handler, filter);
-        watcher.registerRecursive(root);
+        DirWatcher watcher = new DirWatcher(root, handler, filter);
 
-        accountsManager.addObserver(new NewAccountObserver(manifest, manifestSync));
+        accountsManager.addObserver(new AccountChangedObserver(manifest, manifestSync));
 
         Thread thread = new Thread(watcher);
         thread.setDaemon(true);

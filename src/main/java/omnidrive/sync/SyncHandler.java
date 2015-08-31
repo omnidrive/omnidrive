@@ -30,6 +30,9 @@ public class SyncHandler implements Handler {
     }
 
     public String modify(File file) throws Exception {
+        if (!file.isFile()) {
+            return null;
+        }
         String id = synchronizer.update(file);
         uploadManifestToAllAccounts();
         return id;

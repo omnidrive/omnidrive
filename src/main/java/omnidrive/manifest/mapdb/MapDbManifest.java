@@ -52,6 +52,12 @@ public class MapDbManifest implements Manifest {
         db.commit();
     }
 
+    public void remove(AccountType accountType) {
+        accountsMetadata.remove(accountType.toString());
+        setUpdateTime();
+        db.commit();
+    }
+
     public void put(Entry entry) {
         entries.put(entry.getId(), entry);
         setUpdateTime();

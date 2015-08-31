@@ -1,8 +1,15 @@
 package omnidrive.api.managers;
 
 import omnidrive.api.account.*;
+import omnidrive.api.account.event.AccountEvent;
+import omnidrive.api.account.event.AccountRefreshedEvent;
+import omnidrive.api.account.event.AccountRemovedEvent;
+import omnidrive.api.account.event.NewAccountAddedEvent;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
 
 public class AccountsManager extends Observable implements RefreshedAccountObserver {
 
@@ -32,27 +39,27 @@ public class AccountsManager extends Observable implements RefreshedAccountObser
 
     @Override
     public void onAccountRefreshed(Account accountToRefresh) {
-        setChanged();
-        notifyObservers(new AccountChangedEvent(accountToRefresh, AccountChangedEvent.State.Refreshed));
-        clearChanged();
+        fireEvent(new AccountRefreshedEvent(accountToRefresh));
     }
 
     public void addNewAccount(Account accountToAdd) {
         setAccount(accountToAdd);
         accountToAdd.addRefreshedAccountObserver(this);
-        setChanged();
-        notifyObservers(new AccountChangedEvent(accountToAdd, AccountChangedEvent.State.Added));
-        clearChanged();
+        fireEvent(new NewAccountAddedEvent(accountToAdd));
     }
 
     public void removeAccount(AccountType type) {
         if (this.accounts[type.ordinal()] != null) {
             Account accountToRemove = this.accounts[type.ordinal()];
-            setChanged();
-            notifyObservers(new AccountChangedEvent(accountToRemove, AccountChangedEvent.State.Removed));
-            clearChanged();
+            fireEvent(new AccountRemovedEvent(accountToRemove));
             this.accounts[type.ordinal()] = null;
         }
+    }
+
+    private void fireEvent(AccountEvent event) {
+        setChanged();
+        notifyObservers(event);
+        clearChanged();
     }
 
     public Account getAccount(AccountType type) {

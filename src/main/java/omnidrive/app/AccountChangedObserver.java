@@ -1,21 +1,23 @@
 package omnidrive.app;
 
 import omnidrive.api.account.Account;
-import omnidrive.api.account.AccountChangedEvent;
+import omnidrive.api.account.event.AccountEvent;
+import omnidrive.api.account.event.AccountRefreshedEvent;
+import omnidrive.api.account.event.AccountRemovedEvent;
+import omnidrive.api.account.event.NewAccountAddedEvent;
 import omnidrive.manifest.Manifest;
 import omnidrive.manifest.ManifestSync;
 
 import java.util.Observable;
 import java.util.Observer;
 
-// TODO - amitay, maybe change name of class to 'AccountChangedObserver'
-public class NewAccountObserver implements Observer {
+public class AccountChangedObserver implements Observer {
 
     final private Manifest manifest;
 
     final private ManifestSync manifestSync;
 
-    public NewAccountObserver(Manifest manifest, ManifestSync manifestSync) {
+    public AccountChangedObserver(Manifest manifest, ManifestSync manifestSync) {
         this.manifest = manifest;
         this.manifestSync = manifestSync;
     }
@@ -23,19 +25,13 @@ public class NewAccountObserver implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         try {
-            if (arg instanceof AccountChangedEvent) {
-                AccountChangedEvent event = (AccountChangedEvent) arg;
-                switch (event.getState()) {
-                    case Added:
-                        addAccount(event.getAccount());
-                        break;
-                    case Refreshed:
-                        updateAccount(event.getAccount());
-                        break;
-                    case Removed:
-                        removeAccount(event.getAccount());
-                        break;
-                }
+            Account account = ((AccountEvent) arg).getAccount();
+            if (arg instanceof NewAccountAddedEvent) {
+                addAccount(account);
+            } else if (arg instanceof AccountRefreshedEvent) {
+                updateAccount(account);
+            } else if (arg instanceof AccountRemovedEvent) {
+                removeAccount(account);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -56,8 +52,8 @@ public class NewAccountObserver implements Observer {
     }
 
     private void removeAccount(Account account) {
-        // TODO - amitay, please support remove
         System.out.println("Account removed " + account);
+        manifest.remove(account.getType());
     }
 
     private boolean accountPreviouslyConnected(Account account) throws Exception {
