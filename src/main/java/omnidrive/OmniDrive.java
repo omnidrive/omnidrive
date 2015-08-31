@@ -1,6 +1,5 @@
 package omnidrive;
 
-import com.ning.http.client.AsyncHttpClient;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.app.App;
 import omnidrive.filesystem.FileSystem;
@@ -18,6 +17,7 @@ public class OmniDrive {
 
             Path root = FileSystem.defaultRootPath();
             FileSystem fileSystem = new FileSystem(root);
+
             AccountsManager accountsManager = new AccountsManager();
             UIManager uiManager = new UIManager(accountsManager, root);
             App app = new App(fileSystem, accountsManager, uiManager);

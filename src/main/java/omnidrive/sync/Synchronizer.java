@@ -46,12 +46,14 @@ public class Synchronizer {
     }
 
     public void fullSync(Manifest manifest) throws Exception {
-        Comparator<FileNode, EntryNode> comparator = new SyncComparator();
+        /*Comparator<FileNode, EntryNode> comparator = new SyncComparator();
         TreeDiff<FileNode, EntryNode> diff = new TreeDiff<>(comparator);
         FileNode left = new FileNode(rootPath.toFile(), new ManifestFilter());
         EntryNode right = EntryNode.getRoot(manifest);
         TreeDiff.Result<FileNode, EntryNode> result = diff.run(left, right);
-        syncDiffResult(result, manifest);
+        syncDiffResult(result, manifest);*/
+        Diff diff = new Diff(manifest, rootPath, accountsManager);
+        diff.solve();
     }
 
     public String upload(File file) throws Exception {

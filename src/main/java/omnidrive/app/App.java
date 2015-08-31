@@ -1,6 +1,7 @@
 package omnidrive.app;
 
 import omnidrive.api.account.Account;
+import omnidrive.api.account.AccountMetadata;
 import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.FileSystem;
 import omnidrive.filesystem.watcher.DirWatcher;
@@ -21,6 +22,7 @@ import org.mapdb.DB;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 public class App {
 
@@ -43,6 +45,7 @@ public class App {
     }
 
     public void start() throws Exception {
+        registerToAccountChangedEvents();
         if (isFirstRun()) {
             startFirstRun();
         } else {
@@ -51,14 +54,11 @@ public class App {
     }
 
     private void startFirstRun() throws Exception {
-        initFileSystem();
         startWatcherThread();
         openAccountsSelector();
-        // TODO
     }
 
     private void startSubsequentRun() throws Exception {
-        startWatcherThread(); // must be first !! (NewAccountObserver)
         List<Account> registeredAccounts = getRegisteredAccounts();
         if (!registeredAccounts.isEmpty()) {
             Account lruAccount = resolveLeastRecentlyUpdatedAccount(registeredAccounts);
@@ -66,10 +66,15 @@ public class App {
             registeredAccounts.remove(lruAccount);
             manifestContext.sync.uploadToAll(registeredAccounts);
         }
+        startWatcherThread();
         openTrayIcon();
     }
 
-    private void initFileSystem() {
+    private void registerToAccountChangedEvents() {
+        ManifestSync manifestSync = manifestContext.sync;
+        Manifest manifest = manifestContext.manifest;
+        accountsManager.addObserver(new AccountChangedObserver(manifest, manifestSync));
+
     }
 
     private void openAccountsSelector() {
@@ -81,7 +86,17 @@ public class App {
     }
 
     private boolean isFirstRun() {
-        return !manifestContext.exists;
+        boolean firstRun = false;
+
+        if (!manifestContext.exists) {
+            firstRun = true;
+        } else {
+            Manifest manifest = manifestContext.manifest;
+            Map<String, AccountMetadata> accountsMetadata = manifest.getAccountsMetadata();
+            firstRun = accountsMetadata.isEmpty();
+        }
+
+        return firstRun;
     }
 
     private List<Account> getRegisteredAccounts() throws Exception {
@@ -102,12 +117,9 @@ public class App {
     private void startWatcherThread() throws Exception {
         Path root = fileSystem.getRootPath();
         ManifestSync manifestSync = manifestContext.sync;
-        Manifest manifest = manifestContext.manifest;
         Handler handler = new SyncHandler(synchronizer, manifestSync, accountsManager);
         ManifestFilter filter = new ManifestFilter();
         DirWatcher watcher = new DirWatcher(root, handler, filter);
-
-        accountsManager.addObserver(new AccountChangedObserver(manifest, manifestSync));
 
         Thread thread = new Thread(watcher);
         thread.setDaemon(true);

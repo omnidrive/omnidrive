@@ -14,8 +14,17 @@ public class FileSystem {
 
     private final Path root;
 
-    public FileSystem(Path root) {
+    public FileSystem(Path root) throws Exception {
         this.root = root;
+        initialize();
+    }
+
+    private void initialize() throws Exception {
+        if (!this.root.toFile().exists()) {
+            if (!this.root.toFile().mkdir()) {
+                throw new Exception("Failed to create root: " + this.root.toString());
+            }
+        }
     }
 
     public Path getRootPath() {
