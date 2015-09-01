@@ -18,12 +18,24 @@ public class DirWatcher implements Runnable {
     private final WatchService watcher;
     private final Map<WatchKey, Path> keys;
     private final Handler handler;
-    private final Filter filter;
+    private final Filter[] filters;
     private boolean stop = false;
 
     @SuppressWarnings("unchecked")
     static <T> WatchEvent<T> cast(WatchEvent<?> event) {
         return (WatchEvent<T>) event;
+    }
+
+    public DirWatcher(Path dir, Handler handler, Filter... filters) throws IOException {
+        this.handler = handler;
+        this.filters = filters;
+
+        this.watcher = FileSystems.getDefault().newWatchService();
+        this.keys = new HashMap<>();
+
+        System.out.format("Scanning %s ...\n", dir);
+        registerAll(dir);
+        System.out.println("Done.");
     }
 
     /**
@@ -64,23 +76,8 @@ public class DirWatcher implements Runnable {
         });
     }
 
-    /**
-     * Creates a WatchService and registers the given directory
-     */
-    public DirWatcher(Path dir, Handler handler, Filter filter) throws IOException {
-        this.handler = handler;
-        this.filter = filter;
-
-        this.watcher = FileSystems.getDefault().newWatchService();
-        this.keys = new HashMap<>();
-
-        System.out.format("Scanning %s ...\n", dir);
-        registerAll(dir);
-        System.out.println("Done.");
-    }
-
     private void handleChange(Path path, WatchEvent<?> event) throws Exception {
-        if (filter != null && filter.shouldIgnore(path.toFile())) {
+        if (shouldIgnore(path)) {
             return;
         }
 
@@ -168,6 +165,20 @@ public class DirWatcher implements Runnable {
                 }
             }
         }
+    }
+
+    private boolean shouldIgnore(Path path) {
+        if (filters == null) {
+            return false;
+        }
+
+        for (int filterIndex = 0; filterIndex < filters.length; filterIndex++) {
+            if (filters[filterIndex].shouldIgnore(path.toFile())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void stop() {

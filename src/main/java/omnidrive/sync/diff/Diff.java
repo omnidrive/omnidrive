@@ -1,4 +1,4 @@
-package omnidrive.sync;
+package omnidrive.sync.diff;
 
 import omnidrive.api.account.Account;
 import omnidrive.api.managers.AccountsManager;
@@ -13,20 +13,35 @@ import java.io.FileOutputStream;
 import java.nio.file.Path;
 import java.util.List;
 
-public class Diff {
+public class Diff implements Runnable {
 
     private final Manifest manifest;
     private final Path root;
     private final AccountsManager accountsManager;
+    private final DiffFilter filter;
 
-    public Diff(Manifest manifest, Path root, AccountsManager accountsManager) {
+    public Diff(Manifest manifest, Path root, AccountsManager accountsManager, DiffFilter filter) {
         this.manifest = manifest;
         this.root = root;
         this.accountsManager = accountsManager;
+        this.filter = filter;
     }
 
     public void solve() throws Exception {
-        walkFolder(root, manifest.getRoot().getItems());
+        Thread thread = new Thread(this);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    @Override
+    public void run() {
+        try {
+            System.out.println("Started diff process...");
+            walkFolder(root, manifest.getRoot().getItems());
+            System.out.println("Diff process done.");
+        } catch (Exception ex) {
+            System.out.println("Diff Error: " + ex.getMessage());
+        }
     }
 
     private void walkFolder(Path parent, List<TreeItem> items) throws Exception {
@@ -54,6 +69,7 @@ public class Diff {
 
     private void createFile(Account account, File file, String id) throws Exception {
         if (!file.exists()) {
+            updateFilter(file.toPath());
             if (file.createNewFile()) {
                 FileOutputStream fileOutputStream = new FileOutputStream(file);
                 account.downloadFile(id, fileOutputStream);
@@ -64,9 +80,16 @@ public class Diff {
 
     private void createFolder(File folder) throws Exception {
         if (!folder.exists()) {
+            updateFilter(folder.toPath());
             if (!folder.mkdir()) {
                 throw new Exception("Failed to create folder: " + folder.getPath());
             }
+        }
+    }
+
+    private void updateFilter(Path path) {
+        if (filter != null) {
+            filter.update(path);
         }
     }
 }

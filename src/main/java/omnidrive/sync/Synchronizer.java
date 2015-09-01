@@ -4,13 +4,14 @@ import omnidrive.algo.*;
 import omnidrive.api.account.Account;
 import omnidrive.api.account.AccountType;
 import omnidrive.api.managers.AccountsManager;
-import omnidrive.app.ManifestFilter;
 import omnidrive.exceptions.InvalidFileException;
 import omnidrive.manifest.Manifest;
 import omnidrive.manifest.entry.Blob;
 import omnidrive.manifest.entry.Entry;
 import omnidrive.manifest.entry.Tree;
 import omnidrive.manifest.entry.TreeItem;
+import omnidrive.sync.diff.Diff;
+import omnidrive.sync.diff.DiffFilter;
 import omnidrive.sync.upload.Uploader;
 
 import java.io.File;
@@ -18,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
+import java.util.Observer;
 import java.util.UUID;
 
 public class Synchronizer {
@@ -45,14 +47,14 @@ public class Synchronizer {
         walker = new TreeWalker<>(removeVisitor);
     }
 
-    public void fullSync(Manifest manifest) throws Exception {
+    public void fullSync(Manifest manifest, DiffFilter filter) throws Exception {
         /*Comparator<FileNode, EntryNode> comparator = new SyncComparator();
         TreeDiff<FileNode, EntryNode> diff = new TreeDiff<>(comparator);
         FileNode left = new FileNode(rootPath.toFile(), new ManifestFilter());
         EntryNode right = EntryNode.getRoot(manifest);
         TreeDiff.Result<FileNode, EntryNode> result = diff.run(left, right);
         syncDiffResult(result, manifest);*/
-        Diff diff = new Diff(manifest, rootPath, accountsManager);
+        Diff diff = new Diff(manifest, rootPath, accountsManager, filter);
         diff.solve();
     }
 
