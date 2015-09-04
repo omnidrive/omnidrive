@@ -41,7 +41,9 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
 
         try {
             if (!isOmniDriveFolderExists()) {
-                this.service.files().insert(body).execute();
+                synchronized (mutex) {
+                    this.service.files().insert(body).execute();
+                }
             }
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to create root folder.", ex);
@@ -50,25 +52,27 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
 
     @Override
     protected String getOmniDriveFolderId() throws AccountException {
-        if (this.metadata.getRootFolderId() != null) {
+        synchronized (mutex) {
+            if (this.metadata.getRootFolderId() != null) {
+                return this.metadata.getRootFolderId();
+            }
+
+            try {
+                String query = "title = '" + OMNIDRIVE_ROOT_FOLDER_NAME + "' and mimeType = '" + MimeTypeFolder + "'";
+                Drive.Files.List request = this.service.files().list().setQ(query);
+
+                for (File rootFolder : request.execute().getItems()) {
+                    if (rootFolder.getTitle().equals(OMNIDRIVE_ROOT_FOLDER_NAME)) {
+                        this.metadata.setRootFolderId(rootFolder.getId());
+                        break;
+                    }
+                }
+            } catch (IOException ex) {
+                throw new GoogleDriveException("Failed to get root folder.", ex);
+            }
+
             return this.metadata.getRootFolderId();
         }
-
-        try {
-            String query = "title = '" + OMNIDRIVE_ROOT_FOLDER_NAME + "' and mimeType = '" + MimeTypeFolder + "'";
-            Drive.Files.List request = this.service.files().list().setQ(query);
-
-            for (File rootFolder : request.execute().getItems()) {
-                if (rootFolder.getTitle().equals(OMNIDRIVE_ROOT_FOLDER_NAME)) {
-                    this.metadata.setRootFolderId(rootFolder.getId());
-                    break;
-                }
-            }
-        } catch (IOException ex) {
-            throw new GoogleDriveException("Failed to get root folder.", ex);
-        }
-
-        return this.metadata.getRootFolderId();
     }
 
     @Override
@@ -83,8 +87,10 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
                 throw new GoogleDriveException("Failed to refresh token", null);
             }
 
-            this.metadata.setRefreshToken(credential.getRefreshToken());
-            this.metadata.setAccessToken(credential.getAccessToken());
+            synchronized (mutex) {
+                this.metadata.setRefreshToken(credential.getRefreshToken());
+                this.metadata.setAccessToken(credential.getAccessToken());
+            }
             notifyRefreshed();
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to refresh account", ex);
@@ -96,7 +102,9 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
         String name;
 
         try {
-            name = this.service.about().get().execute().getName();
+            synchronized (mutex) {
+                name = this.service.about().get().execute().getName();
+            }
         } catch (IOException ex) {
             name = null;
         }
@@ -109,7 +117,9 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
         String id;
 
         try {
-            id = this.service.about().get().execute().getUser().getPermissionId();
+            synchronized (mutex) {
+                id = this.service.about().get().execute().getUser().getPermissionId();
+            }
         } catch (IOException ex) {
             id = null;
         }
@@ -129,9 +139,11 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
         AbstractInputStreamContent mediaContent = new InputStreamContent(MimeTypeFile, inputStream);
 
         try {
-            File uploadedFile = this.service.files().insert(body, mediaContent).execute();
-            fileId = uploadedFile.getId();
-            this.usedSize += uploadedFile.getFileSize();
+            synchronized (mutex) {
+                File uploadedFile = this.service.files().insert(body, mediaContent).execute();
+                fileId = uploadedFile.getId();
+                this.usedSize += uploadedFile.getFileSize();
+            }
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to upload file", ex);
         }
@@ -145,7 +157,9 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
 
         try {
             ByteArrayOutputStream streamWithSize = new ByteArrayOutputStream();
-            this.service.files().get(fileId).executeMediaAndDownloadTo(streamWithSize);
+            synchronized (mutex) {
+                this.service.files().get(fileId).executeMediaAndDownloadTo(streamWithSize);
+            }
             size = streamWithSize.size();
             streamWithSize.writeTo(outputStream);
         } catch (IOException ex) {
@@ -158,10 +172,12 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
     @Override
     public void removeFile(String fileId) throws AccountException {
         try {
-            File file = this.service.files().get(fileId).execute();
-            long fileSize = file.getFileSize();
-            this.service.files().delete(fileId).execute();
-            this.usedSize -= fileSize;
+            synchronized (mutex) {
+                File file = this.service.files().get(fileId).execute();
+                long fileSize = file.getFileSize();
+                this.service.files().delete(fileId).execute();
+                this.usedSize -= fileSize;
+            }
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to remove file", ex);
         }
@@ -175,19 +191,18 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
     @Override
     public void updateFile(String fileId, InputStream inputStream, long size) throws AccountException {
         try {
-            // First retrieve the file from the API.
-            File file = service.files().get(fileId).execute();
-            this.usedSize -= file.getFileSize();
+            synchronized (mutex) {
+                File file = service.files().get(fileId).execute();
+                this.usedSize -= file.getFileSize();
 
-            // File's new content.
-            AbstractInputStreamContent mediaContent = new InputStreamContent(MimeTypeFile, inputStream);
+                AbstractInputStreamContent mediaContent = new InputStreamContent(MimeTypeFile, inputStream);
 
-            // Send the request to the API.
-            File updatedFile = service.files().update(fileId, file, mediaContent).execute();
-            if (updatedFile == null) {
-                throw new GoogleDriveException("Failed to update file", null);
+                File updatedFile = service.files().update(fileId, file, mediaContent).execute();
+                if (updatedFile == null) {
+                    throw new GoogleDriveException("Failed to update file", null);
+                }
+                this.usedSize += updatedFile.getFileSize();
             }
-            this.usedSize += updatedFile.getFileSize();
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to get file.", ex);
         }
@@ -199,13 +214,15 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
         }
 
         try {
-            String query = "title = '" + MANIFEST_FILE_NAME + "' and '" + getOmniDriveFolderId() + "' in parents";
-            Drive.Files.List request = this.service.files().list().setQ(query);
+            synchronized (mutex) {
+                String query = "title = '" + MANIFEST_FILE_NAME + "' and '" + getOmniDriveFolderId() + "' in parents";
+                Drive.Files.List request = this.service.files().list().setQ(query);
 
-            for (File file : request.execute().getItems()) {
-                if (file.getTitle().equals(MANIFEST_FILE_NAME)) {
-                    this.metadata.setManifestId(file.getId());
-                    break;
+                for (File file : request.execute().getItems()) {
+                    if (file.getTitle().equals(MANIFEST_FILE_NAME)) {
+                        this.metadata.setManifestId(file.getId());
+                        break;
+                    }
                 }
             }
         } catch (IOException ex) {
@@ -218,8 +235,10 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
         long usedQuota;
 
         try {
-            usedQuota = this.service.about().get().execute().getQuotaBytesUsed();
-            this.usedSize = usedQuota;
+            synchronized (mutex) {
+                usedQuota = this.service.about().get().execute().getQuotaBytesUsed();
+                this.usedSize = usedQuota;
+            }
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to get quota used size.", ex);
         }
@@ -232,8 +251,10 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
         long totalQuota;
 
         try {
-            totalQuota = this.service.about().get().execute().getQuotaBytesTotal();
-            this.totalSize = totalQuota;
+            synchronized (mutex) {
+                totalQuota = this.service.about().get().execute().getQuotaBytesTotal();
+                this.totalSize = totalQuota;
+            }
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to get quota total size.", ex);
         }
@@ -244,12 +265,14 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
     @Override
     public void onTokenResponse(Credential credential, TokenResponse tokenResponse) throws IOException {
         System.out.println("GoogleDrive: refresh token");
-        if (tokenResponse.getAccessToken() != null) {
-            this.metadata.setAccessToken(tokenResponse.getAccessToken());
-        }
-        //here we always fail, because google use them same refresh_token, the refresh_token does not refreshed
-        if (tokenResponse.getRefreshToken() != null) {
-            this.metadata.setRefreshToken(tokenResponse.getRefreshToken());
+        synchronized (mutex) {
+            if (tokenResponse.getAccessToken() != null) {
+                this.metadata.setAccessToken(tokenResponse.getAccessToken());
+            }
+            //here we always fail, because google use them same refresh_token, the refresh_token does not refreshed
+            if (tokenResponse.getRefreshToken() != null) {
+                this.metadata.setRefreshToken(tokenResponse.getRefreshToken());
+            }
         }
         notifyRefreshed();
     }

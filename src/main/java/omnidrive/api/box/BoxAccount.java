@@ -27,14 +27,17 @@ public class BoxAccount extends Account implements BoxAPIConnectionListener {
     protected void createRootFolder() throws AccountException {
         if (!isOmniDriveFolderExists()) {
             try {
-                com.box.sdk.BoxFolder boxRootFolder = com.box.sdk.BoxFolder.getRootFolder(this.user.getAPI());
-                if (boxRootFolder != null) {
-                    com.box.sdk.BoxFolder.Info folderInfo = boxRootFolder.createFolder(OMNIDRIVE_ROOT_FOLDER_NAME);
-                    if (folderInfo == null) {
-                        throw new BoxException("Failed to create root folder", null);
+                synchronized (mutex) {
+                    com.box.sdk.BoxFolder boxRootFolder = com.box.sdk.BoxFolder.getRootFolder(this.user.getAPI());
+
+                    if (boxRootFolder != null) {
+                        com.box.sdk.BoxFolder.Info folderInfo = boxRootFolder.createFolder(OMNIDRIVE_ROOT_FOLDER_NAME);
+                        if (folderInfo == null) {
+                            throw new BoxException("Failed to create root folder", null);
+                        }
+                    } else {
+                        throw new BoxException("Failed to find root folder.", null);
                     }
-                } else {
-                    throw new BoxException("Failed to find root folder.", null);
                 }
             } catch (Exception ex) {
                 throw new BoxException("Failed to create root folder", ex);
@@ -44,28 +47,30 @@ public class BoxAccount extends Account implements BoxAPIConnectionListener {
 
     @Override
     protected String getOmniDriveFolderId() throws AccountException {
-        if (this.metadata.getRootFolderId() != null) {
+        synchronized (mutex) {
+            if (this.metadata.getRootFolderId() != null) {
+                return this.metadata.getRootFolderId();
+            }
+
+            com.box.sdk.BoxFolder rootFolder = com.box.sdk.BoxFolder.getRootFolder(this.user.getAPI());
+
+            try {
+                if (rootFolder != null) {
+                    for (com.box.sdk.BoxItem.Info itemInfo : rootFolder.getChildren()) {
+                        if (itemInfo.getName().equals(OMNIDRIVE_ROOT_FOLDER_NAME)) {
+                            this.metadata.setRootFolderId(itemInfo.getID());
+                            break;
+                        }
+                    }
+                } else {
+                    throw new BoxException("Failed to find root folder", null);
+                }
+            } catch (Exception ex) {
+                throw new BoxException("Error while trying to find root folder", ex);
+            }
+
             return this.metadata.getRootFolderId();
         }
-
-        com.box.sdk.BoxFolder rootFolder = com.box.sdk.BoxFolder.getRootFolder(this.user.getAPI());
-
-        try {
-            if (rootFolder != null) {
-                for (com.box.sdk.BoxItem.Info itemInfo : rootFolder.getChildren()) {
-                    if (itemInfo.getName().equals(OMNIDRIVE_ROOT_FOLDER_NAME)) {
-                        this.metadata.setRootFolderId(itemInfo.getID());
-                        break;
-                    }
-                }
-            } else {
-                throw new BoxException("Failed to find root folder", null);
-            }
-        } catch (Exception ex) {
-            throw new BoxException("Error while trying to find root folder", ex);
-        }
-
-        return this.metadata.getRootFolderId();
     }
 
     public void refreshAuthorization() throws AccountException {
@@ -75,9 +80,11 @@ public class BoxAccount extends Account implements BoxAPIConnectionListener {
     @Override
     public void refreshAuthorization(Object object) throws AccountException {
         try {
-            this.user.getAPI().refresh();
-            this.metadata.setAccessToken(this.user.getAPI().getAccessToken());
-            this.metadata.setRefreshToken(this.user.getAPI().getRefreshToken());
+            synchronized (mutex) {
+                this.user.getAPI().refresh();
+                this.metadata.setAccessToken(this.user.getAPI().getAccessToken());
+                this.metadata.setRefreshToken(this.user.getAPI().getRefreshToken());
+            }
             notifyRefreshed();
         } catch (Exception ex) {
             throw new BoxException("Failed to refresh account", ex);
@@ -86,27 +93,32 @@ public class BoxAccount extends Account implements BoxAPIConnectionListener {
 
     @Override
     public String getUsername() throws AccountException {
-        return this.user.getInfo("name").getName();
+        synchronized (mutex) {
+            return this.user.getInfo("name").getName();
+        }
     }
 
     @Override
     public String getUserId() throws AccountException {
-        return this.user.getID();
+        synchronized (mutex) {
+            return this.user.getID();
+        }
     }
 
     @Override
     public String uploadFile(String name, InputStream inputStream, long size) throws AccountException {
         String fileId = null;
-        com.box.sdk.BoxFolder rootFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), getOmniDriveFolderId());
+        synchronized (mutex) {
+            com.box.sdk.BoxFolder rootFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), getOmniDriveFolderId());
 
-        try {
-            Info info = rootFolder.uploadFile(inputStream, name);
-            fileId = info.getID();
-            this.usedSize += info.getSize();
-        } catch (BoxAPIException ex) {
-            throw new BoxException("Failed to upload file.", ex);
+            try {
+                Info info = rootFolder.uploadFile(inputStream, name);
+                fileId = info.getID();
+                this.usedSize += info.getSize();
+            } catch (BoxAPIException ex) {
+                throw new BoxException("Failed to upload file.", ex);
+            }
         }
-
         return fileId;
     }
 
@@ -115,11 +127,14 @@ public class BoxAccount extends Account implements BoxAPIConnectionListener {
         long size = 0;
 
         try {
-            com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
-            if (file != null) {
-                Info info = file.getInfo();
-                file.download(outputStream);
-                size = info.getSize();
+            synchronized (mutex) {
+                com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
+
+                if (file != null) {
+                    Info info = file.getInfo();
+                    file.download(outputStream);
+                    size = info.getSize();
+                }
             }
         } catch (Exception ex) {
             throw new BoxException("Failed to download file.", ex);
@@ -130,39 +145,45 @@ public class BoxAccount extends Account implements BoxAPIConnectionListener {
 
     @Override
     public void removeFile(String fileId) throws AccountException {
-        com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
+        synchronized (mutex) {
+            com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
 
-        try {
-            long fileSize = file.getInfo().getSize();
-            file.delete();
-            this.usedSize -= fileSize;
-        } catch (Exception ex) {
-            throw new BoxException("Failed to delete file", ex);
+            try {
+                long fileSize = file.getInfo().getSize();
+                file.delete();
+                this.usedSize -= fileSize;
+            } catch (Exception ex) {
+                throw new BoxException("Failed to delete file", ex);
+            }
         }
     }
 
     @Override
     public void removeFolder(String folderId) throws AccountException {
-        com.box.sdk.BoxFolder folder = new com.box.sdk.BoxFolder(this.user.getAPI(), folderId);
+        synchronized (mutex) {
+            com.box.sdk.BoxFolder folder = new com.box.sdk.BoxFolder(this.user.getAPI(), folderId);
 
-        try {
-            long folderSize = folder.getInfo().getSize();
-            folder.delete(true);
-            this.usedSize -= folderSize;
-        } catch (Exception ex) {
-            throw new BoxException("Failed to delete folder", ex);
+            try {
+                long folderSize = folder.getInfo().getSize();
+                folder.delete(true);
+                this.usedSize -= folderSize;
+            } catch (Exception ex) {
+                throw new BoxException("Failed to delete folder", ex);
+            }
         }
     }
 
     @Override
     public void updateFile(String fileId, InputStream inputStream, long size) throws AccountException {
-        try {
-            com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
-            this.usedSize -= file.getInfo().getSize();
-            file.uploadVersion(inputStream);
-            this.usedSize += size;
-        } catch (Exception ex) {
-            throw new BoxException("Failed to update file.", ex);
+        synchronized (mutex) {
+            try {
+                com.box.sdk.BoxFile file = new com.box.sdk.BoxFile(this.user.getAPI(), fileId);
+                this.usedSize -= file.getInfo().getSize();
+                file.uploadVersion(inputStream);
+                this.usedSize += size;
+            } catch (Exception ex) {
+                throw new BoxException("Failed to update file.", ex);
+            }
         }
     }
 
@@ -173,15 +194,17 @@ public class BoxAccount extends Account implements BoxAPIConnectionListener {
         }
 
         try {
-            com.box.sdk.BoxFolder omniDriveFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), getOmniDriveFolderId());
-            if (omniDriveFolder == null) {
-                throw new BoxException("Failed to get 'OmniDrive' folder", null);
-            }
+            synchronized (mutex) {
+                com.box.sdk.BoxFolder omniDriveFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), getOmniDriveFolderId());
+                if (omniDriveFolder == null) {
+                    throw new BoxException("Failed to get 'OmniDrive' folder", null);
+                }
 
-            for (com.box.sdk.BoxItem.Info itemInfo : omniDriveFolder.getChildren()) {
-                if (itemInfo.getName().equals(MANIFEST_FILE_NAME)) {
-                    this.metadata.setManifestId(itemInfo.getID());
-                    break;
+                for (com.box.sdk.BoxItem.Info itemInfo : omniDriveFolder.getChildren()) {
+                    if (itemInfo.getName().equals(MANIFEST_FILE_NAME)) {
+                        this.metadata.setManifestId(itemInfo.getID());
+                        break;
+                    }
                 }
             }
         } catch (Exception ex) {
@@ -194,8 +217,10 @@ public class BoxAccount extends Account implements BoxAPIConnectionListener {
         long usedQuota = 0;
 
         try {
-            usedQuota = this.user.getInfo().getSpaceUsed();
-            this.usedSize = usedQuota;
+            synchronized (mutex) {
+                usedQuota = this.user.getInfo().getSpaceUsed();
+                this.usedSize = usedQuota;
+            }
         } catch (Exception ex) {
             throw new BoxException("Failed to get quota used size.", ex);
         }
@@ -208,8 +233,10 @@ public class BoxAccount extends Account implements BoxAPIConnectionListener {
         long totalQuota = 0;
 
         try {
-            totalQuota = this.user.getInfo().getSpaceAmount();
-            this.totalSize = totalQuota;
+            synchronized (mutex) {
+                totalQuota = this.user.getInfo().getSpaceAmount();
+                this.totalSize = totalQuota;
+            }
         } catch (Exception ex) {
             throw new BoxException("Failed to get quota total size.", ex);
         }
@@ -220,11 +247,13 @@ public class BoxAccount extends Account implements BoxAPIConnectionListener {
     @Override
     public void onRefresh(BoxAPIConnection boxAPIConnection) {
         System.out.println("Box: refresh token");
-        if (boxAPIConnection.getAccessToken() != null) {
-            this.metadata.setAccessToken(boxAPIConnection.getAccessToken());
-        }
-        if (boxAPIConnection.getRefreshToken() != null) {
-            this.metadata.setRefreshToken(boxAPIConnection.getRefreshToken());
+        synchronized (mutex) {
+            if (boxAPIConnection.getAccessToken() != null) {
+                this.metadata.setAccessToken(boxAPIConnection.getAccessToken());
+            }
+            if (boxAPIConnection.getRefreshToken() != null) {
+                this.metadata.setRefreshToken(boxAPIConnection.getRefreshToken());
+            }
         }
         notifyRefreshed();
     }

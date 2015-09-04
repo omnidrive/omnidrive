@@ -53,9 +53,12 @@ public class MapDbManifestSync implements ManifestSync {
         return getManifest(tempDirPath);
     }
 
+    private final Object lock = new Object();
     private void commitChanges() throws IOException {
-        db.commit();
-        db.compact();
+        synchronized (lock) {
+            db.commit();
+            db.compact();
+        }
     }
 
     private void downloadManifest(Account account, File tar) throws AccountException, IOException {

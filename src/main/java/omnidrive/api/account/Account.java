@@ -18,6 +18,7 @@ public abstract class Account {
 
     private RefreshedAccountObserver refreshedAccountObserver = null;
 
+    protected final SyncMutex mutex = new SyncMutex();
 
     protected Account(AccountType type, AccountMetadata metadata, RefreshedAccountObserver observer) {
         this.type = type;
@@ -140,5 +141,8 @@ public abstract class Account {
     @Override
     public String toString() {
         return this.type.toString();
+    }
+
+    public class SyncMutex {
     }
 }

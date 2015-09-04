@@ -31,7 +31,9 @@ public class OneDriveAccount extends Account implements OneDriveRefreshListener 
     protected void createRootFolder() throws AccountException {
         if (!isOmniDriveFolderExists()) {
             try {
-                this.core.createFolderItem(OMNIDRIVE_ROOT_FOLDER_NAME, OneDriveNameConflict.Fail);
+                synchronized (mutex) {
+                    this.core.createFolderItem(OMNIDRIVE_ROOT_FOLDER_NAME, OneDriveNameConflict.Fail);
+                }
             } catch (Exception ex) {
                 throw new OneDriveException("Failed to create 'OmniDrive' folder", ex);
             }
@@ -40,25 +42,27 @@ public class OneDriveAccount extends Account implements OneDriveRefreshListener 
 
     @Override
     protected String getOmniDriveFolderId() throws AccountException {
-        if (this.metadata.getRootFolderId() != null) {
-            return this.metadata.getRootFolderId();
-        }
+        synchronized (mutex) {
+            if (this.metadata.getRootFolderId() != null) {
+                return this.metadata.getRootFolderId();
+            }
 
-        try {
-            OneDriveItem item = this.core.getRootItem();
-            for (OneDriveChildItem childItem : item.getChildren()) {
-                if (childItem.getType() == OneDriveEntryType.Folder) {
-                    if (childItem.getName().equals(OMNIDRIVE_ROOT_FOLDER_NAME)) {
-                        this.metadata.setRootFolderId(childItem.getId());
-                        break;
+            try {
+                OneDriveItem item = this.core.getRootItem();
+                for (OneDriveChildItem childItem : item.getChildren()) {
+                    if (childItem.getType() == OneDriveEntryType.Folder) {
+                        if (childItem.getName().equals(OMNIDRIVE_ROOT_FOLDER_NAME)) {
+                            this.metadata.setRootFolderId(childItem.getId());
+                            break;
+                        }
                     }
                 }
+            } catch (Exception ex) {
+                throw new OneDriveException("Failed to get root item", ex);
             }
-        } catch (Exception ex) {
-            throw new OneDriveException("Failed to get root item", ex);
-        }
 
-        return this.metadata.getRootFolderId();
+            return this.metadata.getRootFolderId();
+        }
     }
 
     public void refreshAuthorization() throws AccountException {
@@ -68,9 +72,11 @@ public class OneDriveAccount extends Account implements OneDriveRefreshListener 
     @Override
     public void refreshAuthorization(Object object) throws AccountException {
         try {
-            this.core.refreshTheAccessToken();
-            this.metadata.setRefreshToken(this.core.getOauth().getRefreshToken());
-            this.metadata.setAccessToken(this.core.getOauth().getAccessToken());
+            synchronized (mutex) {
+                this.core.refreshTheAccessToken();
+                this.metadata.setRefreshToken(this.core.getOauth().getRefreshToken());
+                this.metadata.setAccessToken(this.core.getOauth().getAccessToken());
+            }
             notifyRefreshed();
         } catch (Exception ex) {
             throw new OneDriveException("Failed to refresh account.", ex);
@@ -82,7 +88,9 @@ public class OneDriveAccount extends Account implements OneDriveRefreshListener 
         String name = null;
 
         try {
-            name = this.core.getOwner().getName();
+            synchronized (mutex) {
+                name = this.core.getOwner().getName();
+            }
         } catch (Exception ex) {
             throw new OneDriveException("Failed to get username", ex);
         }
@@ -95,7 +103,9 @@ public class OneDriveAccount extends Account implements OneDriveRefreshListener 
         String id = null;
 
         try {
-            id = this.core.getOwner().getId();
+            synchronized (mutex) {
+                id = this.core.getOwner().getId();
+            }
         } catch (Exception ex) {
             throw new OneDriveException("Failed to get user id", ex);
         }
@@ -108,8 +118,10 @@ public class OneDriveAccount extends Account implements OneDriveRefreshListener 
         String fileId = null;
 
         try {
-            fileId = this.core.uploadItem(getOmniDriveFolderId(), name, inputStream);
-            this.usedSize += size;
+            synchronized (mutex) {
+                fileId = this.core.uploadItem(getOmniDriveFolderId(), name, inputStream);
+                this.usedSize += size;
+            }
         } catch (Exception ex) {
             throw new OneDriveException("Failed to upload file", ex);
         }
@@ -122,7 +134,9 @@ public class OneDriveAccount extends Account implements OneDriveRefreshListener 
         long size = 0;
 
         try {
-            size = this.core.downloadItem(fileId, outputStream);
+            synchronized (mutex) {
+                size = this.core.downloadItem(fileId, outputStream);
+            }
         } catch (Exception ex) {
             throw new OneDriveException("Failed to download file", ex);
         }
@@ -133,9 +147,11 @@ public class OneDriveAccount extends Account implements OneDriveRefreshListener 
     @Override
     public void removeFile(String fileId) throws AccountException {
         try {
-            OneDriveItem file = this.core.getItemById(fileId, false);
-            this.core.deleteItem(fileId);
-            this.usedSize -= file.getSize();
+            synchronized (mutex) {
+                OneDriveItem file = this.core.getItemById(fileId, false);
+                this.core.deleteItem(fileId);
+                this.usedSize -= file.getSize();
+            }
         } catch (Exception ex) {
             throw new OneDriveException("Failed to remove item", ex);
         }
@@ -149,10 +165,12 @@ public class OneDriveAccount extends Account implements OneDriveRefreshListener 
     @Override
     public void updateFile(String fileId, InputStream inputStream, long size) throws AccountException {
         try {
-            OneDriveItem before = this.core.getItemById(fileId, false);
-            this.usedSize -= before.getSize();
-            this.core.updateItem(fileId, inputStream, OneDriveNameConflict.Replace);
-            this.usedSize += size;
+            synchronized (mutex) {
+                OneDriveItem before = this.core.getItemById(fileId, false);
+                this.usedSize -= before.getSize();
+                this.core.updateItem(fileId, inputStream, OneDriveNameConflict.Replace);
+                this.usedSize += size;
+            }
         } catch (Exception ex) {
             throw new OneDriveException("Failed to remove item", ex);
         }
@@ -165,21 +183,24 @@ public class OneDriveAccount extends Account implements OneDriveRefreshListener 
         }
 
         try {
-            OneDriveItem item = this.core.getItemByPath(getFullPath(MANIFEST_FILE_NAME), false);
-            if (item != null) {
-                if (!item.isDeleted()) {
-                    this.metadata.setManifestId(item.getId());
+            synchronized (mutex) {
+                OneDriveItem item = this.core.getItemByPath(getFullPath(MANIFEST_FILE_NAME), false);
+                if (item != null) {
+                    if (!item.isDeleted()) {
+                        this.metadata.setManifestId(item.getId());
+                    }
                 }
             }
         } catch (Exception ex) {
-            this.metadata.setManifestId(null);
         }
     }
 
     @Override
     public long getQuotaUsedSize() throws AccountException {
         try {
-            this.usedSize = this.core.getQuota().getUsed();
+            synchronized (mutex) {
+                this.usedSize = this.core.getQuota().getUsed();
+            }
         } catch (Exception ex) {
             throw new OneDriveException("Failed to upload file", ex);
         }
@@ -190,7 +211,9 @@ public class OneDriveAccount extends Account implements OneDriveRefreshListener 
     @Override
     public long getQuotaTotalSize() throws AccountException {
         try {
-            this.totalSize = this.core.getQuota().getTotal();
+            synchronized (mutex) {
+                this.totalSize = this.core.getQuota().getTotal();
+            }
         } catch (Exception ex) {
             throw new OneDriveException("Failed to upload file", ex);
         }
@@ -201,11 +224,13 @@ public class OneDriveAccount extends Account implements OneDriveRefreshListener 
     @Override
     public void onRefresh(OneDriveCore core, OneDriveOAuth newOAuth) {
         System.out.println("OneDrive: refresh token");
-        if (newOAuth.getAccessToken() != null) {
-            this.metadata.setAccessToken(newOAuth.getAccessToken());
-        }
-        if (newOAuth.getRefreshToken() != null) {
-            this.metadata.setRefreshToken(newOAuth.getRefreshToken());
+        synchronized (mutex) {
+            if (newOAuth.getAccessToken() != null) {
+                this.metadata.setAccessToken(newOAuth.getAccessToken());
+            }
+            if (newOAuth.getRefreshToken() != null) {
+                this.metadata.setRefreshToken(newOAuth.getRefreshToken());
+            }
         }
         notifyRefreshed();
     }

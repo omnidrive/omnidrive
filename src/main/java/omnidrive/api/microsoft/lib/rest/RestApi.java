@@ -6,6 +6,8 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class RestApi {
 
@@ -16,6 +18,7 @@ public class RestApi {
 
     private final AsyncHttpClient client = new AsyncHttpClient();
     private RestApiErrorListener errorListener = null;
+    private final Lock lock = new ReentrantLock();
 
     public RestApi() {
 
@@ -42,108 +45,180 @@ public class RestApi {
     }
 
     public JSONObject doGet(String host, String path, String query) throws Exception {
-        String url = toUrl(host, path, query);
-        AsyncHttpClient.BoundRequestBuilder builder = client.prepareGet(url);
-        builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_FORM);
-        JSONObject response = builder.execute(new OneDriveAsyncHandler()).get();
+        JSONObject response;
+        lock.lock();
+        try {
+            String url = toUrl(host, path, query);
+            AsyncHttpClient.BoundRequestBuilder builder = client.prepareGet(url);
+            builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_FORM);
+            response = builder.execute(new OneDriveAsyncHandler()).get();
+        } finally {
+            lock.unlock();
+        }
         return response;
     }
 
     public JSONObject doPost(String host, String path, String query, HashMap<String, String> bodyParams) throws Exception {
-        String url = toUrl(host, path, query);
-        AsyncHttpClient.BoundRequestBuilder builder = client.preparePost(url);
-        builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_FORM);
-        builder.setBody(toBodyString(bodyParams));
-        JSONObject response = builder.execute(new OneDriveAsyncHandler()).get();
+        JSONObject response;
+        lock.lock();
+        try {
+            String url = toUrl(host, path, query);
+            AsyncHttpClient.BoundRequestBuilder builder = client.preparePost(url);
+            builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_FORM);
+            builder.setBody(toBodyString(bodyParams));
+            response = builder.execute(new OneDriveAsyncHandler()).get();
+        } finally {
+            lock.unlock();
+        }
         return response;
     }
 
     public JSONObject doPost(String host, String path, String query, JSONObject jsonBody) throws Exception {
-        String url = toUrl(host, path, query);
-        AsyncHttpClient.BoundRequestBuilder builder = client.preparePost(url);
-        builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_JSON);
-        builder.setBody(jsonBody.toString());
-        JSONObject response = builder.execute(new OneDriveAsyncHandler()).get();
+        JSONObject response;
+        lock.lock();
+        try {
+            String url = toUrl(host, path, query);
+            AsyncHttpClient.BoundRequestBuilder builder = client.preparePost(url);
+            builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_JSON);
+            builder.setBody(jsonBody.toString());
+            response = builder.execute(new OneDriveAsyncHandler()).get();
+        } finally {
+            lock.unlock();
+        }
         return response;
     }
 
     public JSONObject doPost(String host, String path, String query, byte[] body) throws Exception {
-        String url = toUrl(host, path, query);
-        AsyncHttpClient.BoundRequestBuilder builder = client.preparePost(url);
-        builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_BINARY);
-        builder.setBody(body);
-        JSONObject response = builder.execute(new OneDriveAsyncHandler()).get();
+        JSONObject response;
+        lock.lock();
+        try {
+            String url = toUrl(host, path, query);
+            AsyncHttpClient.BoundRequestBuilder builder = client.preparePost(url);
+            builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_BINARY);
+            builder.setBody(body);
+            response = builder.execute(new OneDriveAsyncHandler()).get();
+        } finally {
+            lock.unlock();
+        }
         return response;
     }
 
     public JSONObject doPost(String host, String path, String query, InputStream bodyStream) throws Exception {
-        String url = toUrl(host, path, query);
-        AsyncHttpClient.BoundRequestBuilder builder = client.preparePost(url);
-        builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_BINARY);
-        builder.setBody(bodyStream);
-        JSONObject response = builder.execute(new OneDriveAsyncHandler()).get();
+        JSONObject response;
+        lock.lock();
+        try {
+            String url = toUrl(host, path, query);
+            AsyncHttpClient.BoundRequestBuilder builder = client.preparePost(url);
+            builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_BINARY);
+            builder.setBody(bodyStream);
+            response = builder.execute(new OneDriveAsyncHandler()).get();
+        } finally {
+            lock.unlock();
+        }
         return response;
     }
 
     public JSONObject doPost(String host, String path, String query, String bodyString) throws Exception {
-        String url = toUrl(host, path, query);
-        AsyncHttpClient.BoundRequestBuilder builder = client.preparePost(url);
-        builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_TEXT);
-        builder.setBody(bodyString);
-        JSONObject response = builder.execute(new OneDriveAsyncHandler()).get();
+        JSONObject response;
+        lock.lock();
+        try {
+            String url = toUrl(host, path, query);
+            AsyncHttpClient.BoundRequestBuilder builder = client.preparePost(url);
+            builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_TEXT);
+            builder.setBody(bodyString);
+            response = builder.execute(new OneDriveAsyncHandler()).get();
+        } finally {
+            lock.unlock();
+        }
         return response;
     }
 
     public JSONObject doPut(String host, String path, String query, HashMap<String, String> bodyParams) throws Exception {
-        String url = toUrl(host, path, query);
-        AsyncHttpClient.BoundRequestBuilder builder = client.preparePut(url);
-        builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_FORM);
-        builder.setBody(toBodyString(bodyParams));
-        JSONObject response = builder.execute(new OneDriveAsyncHandler()).get();
+        JSONObject response;
+        lock.lock();
+        try {
+            String url = toUrl(host, path, query);
+            AsyncHttpClient.BoundRequestBuilder builder = client.preparePut(url);
+            builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_FORM);
+            builder.setBody(toBodyString(bodyParams));
+            response = builder.execute(new OneDriveAsyncHandler()).get();
+        } finally {
+            lock.unlock();
+        }
         return response;
     }
 
     public JSONObject doPut(String host, String path, String query, JSONObject jsonBody) throws Exception {
-        String url = toUrl(host, path, query);
-        AsyncHttpClient.BoundRequestBuilder builder = client.preparePut(url);
-        builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_JSON);
-        builder.setBody(jsonBody.toString());
-        JSONObject response = builder.execute(new OneDriveAsyncHandler()).get();
+        JSONObject response;
+        lock.lock();
+        try {
+            String url = toUrl(host, path, query);
+            AsyncHttpClient.BoundRequestBuilder builder = client.preparePut(url);
+            builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_JSON);
+            builder.setBody(jsonBody.toString());
+            response = builder.execute(new OneDriveAsyncHandler()).get();
+        } finally {
+            lock.unlock();
+        }
         return response;
     }
 
     public JSONObject doPut(String host, String path, String query, byte[] body) throws Exception {
-        String url = toUrl(host, path, query);
-        AsyncHttpClient.BoundRequestBuilder builder = client.preparePut(url);
-        builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_BINARY);
-        builder.setBody(body);
-        JSONObject response = builder.execute(new OneDriveAsyncHandler()).get();
+        JSONObject response;
+        lock.lock();
+        try {
+            String url = toUrl(host, path, query);
+            AsyncHttpClient.BoundRequestBuilder builder = client.preparePut(url);
+            builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_BINARY);
+            builder.setBody(body);
+            response = builder.execute(new OneDriveAsyncHandler()).get();
+        } finally {
+            lock.unlock();
+        }
         return response;
     }
 
     public JSONObject doPut(String host, String path, String query, InputStream bodyStream) throws Exception {
-        String url = toUrl(host, path, query);
-        AsyncHttpClient.BoundRequestBuilder builder = client.preparePut(url);
-        builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_BINARY);
-        builder.setBody(bodyStream);
-        JSONObject response = builder.execute(new OneDriveAsyncHandler()).get();
+        JSONObject response;
+        lock.lock();
+        try {
+            String url = toUrl(host, path, query);
+            AsyncHttpClient.BoundRequestBuilder builder = client.preparePut(url);
+            builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_BINARY);
+            builder.setBody(bodyStream);
+            response = builder.execute(new OneDriveAsyncHandler()).get();
+        } finally {
+            lock.unlock();
+        }
         return response;
     }
 
     public JSONObject doPut(String host, String path, String query, String bodyString) throws Exception {
-        String url = toUrl(host, path, query);
-        AsyncHttpClient.BoundRequestBuilder builder = client.preparePut(url);
-        builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_TEXT);
-        builder.setBody(bodyString);
-        JSONObject response = builder.execute(new OneDriveAsyncHandler()).get();
+        JSONObject response;
+        lock.lock();
+        try {
+            String url = toUrl(host, path, query);
+            AsyncHttpClient.BoundRequestBuilder builder = client.preparePut(url);
+            builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_TEXT);
+            builder.setBody(bodyString);
+            response = builder.execute(new OneDriveAsyncHandler()).get();
+        } finally {
+            lock.unlock();
+        }
         return response;
     }
 
     public JSONObject doDelete(String host, String path, String query) throws Exception {
-        String url = toUrl(host, path, query);
-        AsyncHttpClient.BoundRequestBuilder builder = client.prepareDelete(url);
-        builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_FORM);
-        JSONObject response = builder.execute(new OneDriveAsyncHandler()).get();
+        JSONObject response;
+        lock.lock();
+        try {
+            String url = toUrl(host, path, query);
+            AsyncHttpClient.BoundRequestBuilder builder = client.prepareDelete(url);
+            builder.addHeader("Content-Type", REST_API_CONTENT_TYPE_FORM);
+            response = builder.execute(new OneDriveAsyncHandler()).get();
+        } finally {
+            lock.unlock();
+        }
         return response;
     }
 

@@ -11,6 +11,7 @@ import omnidrive.manifest.Manifest;
 import omnidrive.manifest.ManifestSync;
 import omnidrive.manifest.mapdb.MapDbManifest;
 import omnidrive.manifest.mapdb.MapDbManifestSync;
+import omnidrive.sync.AsyncHandler;
 import omnidrive.sync.SyncHandler;
 import omnidrive.sync.Synchronizer;
 import omnidrive.sync.diff.DiffFilter;
@@ -132,7 +133,8 @@ public class App {
     private DirWatcher getWatcher(Filter... filters) throws Exception {
         Path root = fileSystem.getRootPath();
         ManifestSync manifestSync = manifestContext.sync;
-        Handler handler = new SyncHandler(synchronizer, manifestSync, accountsManager);
+        //Handler handler = new SyncHandler(synchronizer, manifestSync, accountsManager);
+        Handler handler = new AsyncHandler(synchronizer, manifestSync, accountsManager);
         return new DirWatcher(root, handler, filters);
     }
 
@@ -158,7 +160,8 @@ public class App {
             File file = fileSystem.getManifestFile();
             exists = fileSystem.manifestExists();
             db = MapDbUtils.createFileDb(file);
-            manifest = new MapDbManifest(db);
+            //manifest = new MapDbManifest(db);
+            manifest = new MapDbManifest(db, true/*DEBUG*/);
             sync = new MapDbManifestSync(file, db);
         }
 

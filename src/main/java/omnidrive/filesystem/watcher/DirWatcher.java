@@ -1,6 +1,7 @@
 package omnidrive.filesystem.watcher;
 
 import com.sun.nio.file.SensitivityWatchEventModifier;
+import omnidrive.sync.SyncHandler;
 
 import java.nio.file.*;
 import static java.nio.file.StandardWatchEventKinds.*;
@@ -85,8 +86,8 @@ public class DirWatcher implements Runnable {
         System.out.format("%s: %s\n", event.kind().name(), path);
 
         File file = path.toFile();
-
         WatchEvent.Kind kind = event.kind();
+
         if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
             System.out.println("Create " + file);
             handler.create(file);

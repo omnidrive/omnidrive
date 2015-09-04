@@ -14,6 +14,7 @@ public class MapDbUtils {
     public static DB createFileDb(File file) {
         return DBMaker.newFileDB(file)
                 .closeOnJvmShutdown()
+                .asyncWriteEnable()
                 .make();
     }
 
