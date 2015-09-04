@@ -19,7 +19,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.util.Observer;
 import java.util.UUID;
 
 public class Synchronizer {
@@ -48,17 +47,15 @@ public class Synchronizer {
     }
 
     public void fullSync(Manifest manifest, DiffFilter filter) throws Exception {
-        /*Comparator<FileNode, EntryNode> comparator = new SyncComparator();
-        TreeDiff<FileNode, EntryNode> diff = new TreeDiff<>(comparator);
-        FileNode left = new FileNode(rootPath.toFile(), new ManifestFilter());
-        EntryNode right = EntryNode.getRoot(manifest);
-        TreeDiff.Result<FileNode, EntryNode> result = diff.run(left, right);
-        syncDiffResult(result, manifest);*/
         Diff diff = new Diff(manifest, rootPath, accountsManager, filter);
         diff.solve();
     }
 
     public String upload(File file) throws Exception {
+        if (!file.exists()) {
+            return null;
+        }
+
         System.out.println("Upload " + file);
 
         String id;
@@ -67,34 +64,41 @@ public class Synchronizer {
         } else if (file.isDirectory()) {
             id = uploadDir(file);
         } else {
-            throw new InvalidFileException();
+            throw new InvalidFileException(file.toPath().toString() + " is not a file and not a dir");
         }
+
         return id;
     }
 
     public String update(File file) throws Exception {
+        if (!file.exists() || !file.isFile()) {
+            return null;
+        }
+
         System.out.println("Update " + file);
 
-        if (!file.isFile()) {
-            throw new InvalidFileException();
-        }
         Blob blob = getBlob(file);
         String id = blob.getId();
         Blob updated = new Blob(id, file.length(), blob.getAccount());
         Account account = getAccount(blob);
         account.updateFile(id, new FileInputStream(file), updated.getSize());
         manifest.put(updated);
+
         return id;
     }
 
-    public void delete(File file) throws Exception {
+    public boolean delete(File file) throws Exception {
+        if (file.exists()) { // file should not exist at this point
+            return false;
+        }
+
         System.out.println("Delete " + file);
 
         Path path = file.toPath();
         Tree parent = findParent(path);
         TreeItem item = parent.getItem(file.getName());
         if (item == null) {
-            throw new InvalidFileException();
+            throw new InvalidFileException("parent missing for " + file.toPath().toString());
         }
 
         String id = item.getId();
@@ -105,6 +109,8 @@ public class Synchronizer {
 
         parent.removeItem(id);
         manifest.put(parent);
+
+        return true;
     }
 
     private String uploadFile(File file) throws Exception {

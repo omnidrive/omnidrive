@@ -25,22 +25,25 @@ public class SyncHandler implements Handler {
 
     public String create(File file) throws Exception {
         String id = synchronizer.upload(file);
-        uploadManifestToAllAccounts();
+        if (id != null) {
+            uploadManifestToAllAccounts();
+        }
         return id;
     }
 
     public String modify(File file) throws Exception {
-        if (!file.isFile()) {
-            return null;
-        }
         String id = synchronizer.update(file);
-        uploadManifestToAllAccounts();
+        if (id != null) {
+            uploadManifestToAllAccounts();
+        }
         return id;
     }
 
     public void delete(File file) throws Exception {
-        synchronizer.delete(file);
-        uploadManifestToAllAccounts();
+        boolean deleted = synchronizer.delete(file);
+        if (deleted) {
+            uploadManifestToAllAccounts();
+        }
     }
 
     private void uploadManifestToAllAccounts() throws Exception {
