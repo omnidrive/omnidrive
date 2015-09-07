@@ -158,7 +158,8 @@ public class App {
             File file = fileSystem.getManifestFile();
             exists = fileSystem.manifestExists();
             db = MapDbUtils.createFileDb(file);
-            manifest = new MapDbManifest(db);
+            //manifest = new MapDbManifest(db);
+            manifest = new MapDbManifest(db, true);
             sync = new MapDbManifestSync(file, db);
         }
 

@@ -3,13 +3,21 @@ package omnidrive.manifest.mapdb;
 import omnidrive.api.account.AccountMetadata;
 import omnidrive.api.account.AccountType;
 import omnidrive.manifest.Manifest;
+import omnidrive.manifest.entry.Blob;
 import omnidrive.manifest.entry.Entry;
 import omnidrive.manifest.entry.Tree;
+import omnidrive.manifest.entry.TreeItem;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.mapdb.Atomic;
 import org.mapdb.DB;
 import org.mapdb.HTreeMap;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MapDbManifest implements Manifest {
@@ -36,6 +44,16 @@ public class MapDbManifest implements Manifest {
         entries = db.getHashMap(ENTRIES_MAP);
         updateTime = db.getAtomicLong(UPDATE_TIME);
         initRoot();
+    }
+
+    public MapDbManifest(DB db, boolean debug) {
+        this(db);
+        if (debug) {
+            ManifestDebugger debugger = new ManifestDebugger(this);
+            Thread thread = new Thread(debugger);
+            thread.setDaemon(true);
+            thread.start();
+        }
     }
 
     public Tree getRoot() {
@@ -88,6 +106,80 @@ public class MapDbManifest implements Manifest {
 
     private void setUpdateTime() {
         updateTime.set(System.currentTimeMillis());
+    }
+
+    private class ManifestDebugger implements Runnable {
+
+        private final Manifest manifest;
+
+        public ManifestDebugger(Manifest manifest) {
+            this.manifest = manifest;
+        }
+
+        @Override
+        public void run() {
+            String manifestDebugPath = "/tmp/manideb.json";
+            System.out.println("Debug manifest path: " + manifestDebugPath);
+
+            while (true) {
+                File file = new File(manifestDebugPath);
+                if (!file.exists()) {
+                    try {
+                        file.createNewFile();
+                    } catch (Exception ex) {
+                        System.out.println("Failed to create: " + manifestDebugPath);
+                    }
+                }
+
+                try {
+                    FileWriter writer = new FileWriter(manifestDebugPath);
+                    writer.write(buildJson().toString());
+                    writer.flush();
+                    writer.close();
+                } catch (Exception ex) {
+                    System.out.println("Error: " + ex.getMessage());
+                }
+
+                sleep();
+            }
+        }
+
+        private JSONObject buildJson() throws Exception {
+            JSONObject jsonObject = new JSONObject();
+            walkFolder(new File("/").toPath(), manifest.getRoot().getItems(), jsonObject);
+            return jsonObject;
+        }
+
+        private void walkFolder(Path parent, List<TreeItem> items, JSONObject jsonObject) throws Exception {
+            for (int index = 0; index < items.size(); index++) {
+                walkFile(parent, items, index, jsonObject);
+            }
+        }
+
+        private void walkFile(Path parent, List<TreeItem> items, int index, JSONObject jsonObject) throws Exception {
+            if (index < items.size()) {
+                TreeItem item = items.get(index);
+                if (item.getType() == Entry.Type.BLOB) {
+                    File file = new File(parent.toString(), item.getName());
+                    Blob blob = (Blob) manifest.get(item.getId());
+
+                    // "/folder/file.txt" : ['Dropbox', 2048]
+                    JSONArray jsonArray = new JSONArray();
+                    jsonArray.put(blob.getAccount().name());
+                    jsonArray.put(blob.getSize());
+                    jsonObject.put(file.toPath().toString(), jsonArray);
+                } else { //item.getType() == Entry.Type.TREE
+                    File folder = new File(parent.toString(), item.getName());
+                    Tree tree = (Tree) manifest.get(item.getId());
+                    walkFolder(folder.toPath(), tree.getItems(), jsonObject);
+                }
+            }
+        }
+
+        private void sleep() {
+            try { Thread.sleep(5000); }
+            catch (Exception ex) { }
+        }
     }
 
 }
