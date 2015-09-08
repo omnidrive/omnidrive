@@ -33,6 +33,7 @@ public class BoxAccount extends Account implements BoxAPIConnectionListener {
                     if (folderInfo == null) {
                         throw new BoxException("Failed to create root folder", null);
                     }
+                    this.metadata.setRootFolderId(folderInfo.getID());
                 } else {
                     throw new BoxException("Failed to find root folder.", null);
                 }
@@ -66,6 +67,16 @@ public class BoxAccount extends Account implements BoxAPIConnectionListener {
         }
 
         return this.metadata.getRootFolderId();
+    }
+
+    @Override
+    public void removeOmniDriveFolder() throws AccountException {
+        try {
+            com.box.sdk.BoxFolder rootFolder = new com.box.sdk.BoxFolder(this.user.getAPI(), this.metadata.getRootFolderId());
+            rootFolder.delete(true);
+        } catch (Exception ex) {
+            throw new BoxException("Failed to remove 'OmniDrive' root folder.", ex);
+        }
     }
 
     public void refreshAuthorization() throws AccountException {

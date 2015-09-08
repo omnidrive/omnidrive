@@ -56,6 +56,8 @@ public abstract class Account {
         }
     }
 
+    public abstract void removeOmniDriveFolder() throws AccountException;
+
     protected abstract void createRootFolder() throws AccountException;
 
     protected abstract String getOmniDriveFolderId() throws AccountException;

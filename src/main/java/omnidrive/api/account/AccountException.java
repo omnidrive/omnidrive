@@ -7,6 +7,7 @@ public class AccountException extends Exception {
         super(accountType.toString() + ": " + message);
         if (original != null) {
             System.out.println("Original Exception (" + accountType.toString() + "): " + original.getMessage());
+            original.printStackTrace();
         }
     }
 }

@@ -140,6 +140,7 @@ public class AccountsController implements Initializable, AuthService, Runnable 
 
     private void createTrayIcon(Stage stage, Path omniDriveFolderPath, boolean shouldStartHidden) {
         omniDriveTrayIcon = new OmniDriveTrayIcon(stage, omniDriveFolderPath);
+        omniDriveTrayIcon.setAccountsManager(this.accountsManager);
         try {
             omniDriveTrayIcon.applyStyle(!shouldStartHidden);
         } catch (Exception ex) {

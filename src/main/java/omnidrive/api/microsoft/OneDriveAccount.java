@@ -31,7 +31,8 @@ public class OneDriveAccount extends Account implements OneDriveRefreshListener 
     protected void createRootFolder() throws AccountException {
         if (!isOmniDriveFolderExists()) {
             try {
-                this.core.createFolderItem(OMNIDRIVE_ROOT_FOLDER_NAME, OneDriveNameConflict.Fail);
+                String folderId = this.core.createFolderItem(OMNIDRIVE_ROOT_FOLDER_NAME, OneDriveNameConflict.Fail);
+                this.metadata.setRootFolderId(folderId);
             } catch (Exception ex) {
                 throw new OneDriveException("Failed to create 'OmniDrive' folder", ex);
             }
@@ -59,6 +60,15 @@ public class OneDriveAccount extends Account implements OneDriveRefreshListener 
         }
 
         return this.metadata.getRootFolderId();
+    }
+
+    @Override
+    public void removeOmniDriveFolder() throws AccountException {
+        try {
+            this.core.deleteItem(this.metadata.getRootFolderId());
+        } catch (Exception ex) {
+            throw new OneDriveException("Failed to remove 'OmniDrive' root folder.", ex);
+        }
     }
 
     public void refreshAuthorization() throws AccountException {

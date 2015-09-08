@@ -35,6 +35,11 @@ public class Account extends omnidrive.api.account.Account {
     }
 
     @Override
+    public void removeOmniDriveFolder() throws AccountException {
+
+    }
+
+    @Override
     protected void createRootFolder() throws AccountException {
 
     }

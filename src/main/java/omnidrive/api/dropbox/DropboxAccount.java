@@ -32,6 +32,7 @@ public class DropboxAccount extends Account {
                 } else if (!rootFolder.isFolder()) {
                     throw new DropboxException("Failed to create folder.", null);
                 }
+                this.metadata.setRootFolderId(rootFolder.name);
             } catch (DbxException ex) {
                 throw new DropboxException("Failed to create folder.", ex);
             }
@@ -56,6 +57,15 @@ public class DropboxAccount extends Account {
         }
 
         return this.metadata.getRootFolderId();
+    }
+
+    @Override
+    public void removeOmniDriveFolder() throws AccountException {
+        try {
+            this.client.delete("/" + this.metadata.getRootFolderId());
+        } catch (Exception ex) {
+            throw new DropboxException("Failed to remove 'OmniDrive' root folder.", ex);
+        }
     }
 
     @Override

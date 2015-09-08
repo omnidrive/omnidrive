@@ -177,7 +177,7 @@ public class MapDbManifest implements Manifest {
         }
 
         private void sleep() {
-            try { Thread.sleep(5000); }
+            try { Thread.sleep(2500); }
             catch (Exception ex) { }
         }
     }

@@ -4,10 +4,12 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import omnidrive.api.managers.AccountsManager;
 import omnidrive.filesystem.FileSystem;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
@@ -25,12 +27,17 @@ public class OmniDriveTrayIcon {
     private MenuItem showItem;
     private MenuItem progressItem;
     private final Path omniDriveFolderPath;
+    private AccountsManager accountsManager = null;
 
     public OmniDriveTrayIcon(Stage stage, Path omniDriveFolderPath) {
         this.stage = stage;
         this.isShown = false;
         this.omniDriveFolderPath = omniDriveFolderPath;
         Platform.setImplicitExit(false);
+    }
+
+    public void setAccountsManager(AccountsManager accountsManager) {
+        this.accountsManager = accountsManager;
     }
 
     public void applyStyle(boolean stageShown) throws Exception {
@@ -84,6 +91,25 @@ public class OmniDriveTrayIcon {
                 }
             };
 
+            ActionListener clearListener = new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Platform.runLater(new Runnable() {
+                        public void run() {
+                            try {
+                                if (accountsManager != null) {
+                                    accountsManager.clearAll();
+                                }
+                                System.exit(0);
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                PopupView.popup().error("Failed to clear.");
+                            }
+                        }
+                    });
+                }
+            };
+
             // create a popup menu
             PopupMenu popup = new PopupMenu();
 
@@ -96,6 +122,8 @@ public class OmniDriveTrayIcon {
             this.showItem.addActionListener(showListener);
             popup.add(this.showItem);
 
+
+
             MenuItem folderItem = new MenuItem("Open Folder");
             folderItem.addActionListener(folderListener);
             popup.add(folderItem);
@@ -103,6 +131,10 @@ public class OmniDriveTrayIcon {
             this.progressItem = new MenuItem(SyncProgress.Ready.toString());
             this.progressItem.setEnabled(false);
             popup.add(this.progressItem);
+
+            MenuItem clearItem = new MenuItem("Reset OmniDrive");
+            clearItem.addActionListener(clearListener);
+            popup.add(clearItem);
 
             MenuItem closeItem = new MenuItem("Quit");
             closeItem.addActionListener(closeListener);

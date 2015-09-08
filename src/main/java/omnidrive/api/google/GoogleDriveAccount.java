@@ -41,7 +41,8 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
 
         try {
             if (!isOmniDriveFolderExists()) {
-                this.service.files().insert(body).execute();
+                com.google.api.services.drive.model.File rootFolder = this.service.files().insert(body).execute();
+                this.metadata.setRootFolderId(rootFolder.getId());
             }
         } catch (IOException ex) {
             throw new GoogleDriveException("Failed to create root folder.", ex);
@@ -69,6 +70,15 @@ public class GoogleDriveAccount extends Account implements CredentialRefreshList
         }
 
         return this.metadata.getRootFolderId();
+    }
+
+    @Override
+    public void removeOmniDriveFolder() throws AccountException {
+        try {
+            this.service.files().delete(this.metadata.getRootFolderId());
+        } catch (Exception ex) {
+            throw new GoogleDriveException("Failed to remove 'OmniDrive' root folder.", ex);
+        }
     }
 
     @Override

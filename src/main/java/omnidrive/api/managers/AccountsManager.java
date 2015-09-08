@@ -5,7 +5,14 @@ import omnidrive.api.account.event.AccountEvent;
 import omnidrive.api.account.event.AccountRefreshedEvent;
 import omnidrive.api.account.event.AccountRemovedEvent;
 import omnidrive.api.account.event.NewAccountAddedEvent;
+import omnidrive.filesystem.FileSystem;
 
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +87,31 @@ public class AccountsManager extends Observable implements RefreshedAccountObser
 
     public boolean hasActiveAccounts() {
         return getActiveAccounts().size() > 0;
+    }
+
+    public void clearAll() throws Exception {
+        for (Account account : getActiveAccounts()) {
+            account.removeOmniDriveFolder();
+        }
+
+        removeLocalFolder();
+    }
+
+    private void removeLocalFolder() throws Exception {
+        Files.walkFileTree(FileSystem.defaultRootPath(), new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+
+        });
     }
 
     public long getCloudFreeSize() throws AccountException {
